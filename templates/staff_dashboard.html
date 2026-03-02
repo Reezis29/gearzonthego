@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard | Gearz On The Go</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .status-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+        .mode-btn { transition: all 0.3s; }
+        .mode-btn.active { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .walkin-fields, .prebook-fields { transition: all 0.3s ease; }
+        .booking-card { transition: all 0.2s; }
+        .booking-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-900 text-white px-4 py-3 flex justify-between items-center shadow">
+        <div class="flex items-center gap-3">
+            <img src="/static/logo.png" alt="Gearz" class="h-10">
+            <span class="font-bold text-lg">Staff Panel</span>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="/" class="text-gray-300 hover:text-white text-sm transition"><i class="fas fa-globe mr-1"></i> Web</a>
+            <a href="/staff/online-bookings" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                <i class="fas fa-globe mr-1"></i> Online
+            </a>
+            <a href="/staff/agreements" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                <i class="fas fa-file-signature mr-1"></i> Perjanjian
+            </a>
+            <a href="/staff/customers" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                <i class="fas fa-users mr-1"></i> Pelanggan
+            </a>
+            <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+
+        <!-- Alerts -->
+        {% if request.args.get('success') %}
+        <div class="bg-green-50 border border-green-300 text-green-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-check-circle text-green-600"></i> Tempahan berjaya ditambah!
+        </div>
+        {% endif %}
+        {% if request.args.get('updated') %}
+        <div class="bg-blue-50 border border-blue-300 text-blue-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-check-circle text-blue-600"></i> Tempahan berjaya dikemaskini!
+        </div>
+        {% endif %}
+        {% if request.args.get('deleted') %}
+        <div class="bg-yellow-50 border border-yellow-300 text-yellow-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-trash text-yellow-600"></i> Tempahan berjaya dipadam.
+        </div>
+        {% endif %}
+        {% if request.args.get('confirmed') %}
+        <div class="bg-green-50 border border-green-300 text-green-800 rounded-lg px-4 py-3 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-check-double text-green-600"></i> Tempahan telah disahkan! Deposit diterima.
+            </div>
+            {% if request.args.get('wa_confirm') %}
+            <a href="{{ request.args.get('wa_confirm') }}" target="_blank"
+                class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition mt-1">
+                <i class="fab fa-whatsapp text-lg"></i> Hantar Pengesahan ke Pelanggan via WhatsApp
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if request.args.get('returned') %}
+        <div class="bg-blue-50 border border-blue-300 text-blue-800 rounded-lg px-4 py-3 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-undo text-blue-600"></i> Peralatan ditanda sebagai dipulangkan.
+            </div>
+            {% if request.args.get('wa_thankyou') %}
+            <a href="{{ request.args.get('wa_thankyou') }}" target="_blank"
+                class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition mt-1">
+                <i class="fab fa-whatsapp text-lg"></i> Hantar Terima Kasih ke Pelanggan via WhatsApp
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if request.args.get('cancelled') %}
+        <div class="bg-red-50 border border-red-300 text-red-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-ban text-red-600"></i> Tempahan telah dibatalkan.
+        </div>
+        {% endif %}
+        {% if request.args.get('active') %}
+        <div class="bg-indigo-50 border border-indigo-300 text-indigo-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-camera text-indigo-600"></i> Peralatan ditanda sebagai sedang disewa.
+        </div>
+        {% endif %}
+        {% if request.args.get('blocked') %}
+        <div class="bg-gray-50 border border-gray-300 text-gray-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-lock text-gray-600"></i> Tarikh berjaya disekat.
+        </div>
+        {% endif %}
+        {% if request.args.get('error') == 'conflict' %}
+        <div class="bg-red-50 border border-red-300 text-red-800 rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+            <i class="fas fa-exclamation-triangle text-red-600"></i> Tarikh yang dipilih telah ditempah! Sila pilih tarikh lain.
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Add Booking Form -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow p-5">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3">
+                        <i class="fas fa-plus-circle text-blue-600 mr-2"></i>Tempahan Baru
+                    </h2>
+
+                    <!-- Mode Selection -->
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button type="button" id="btnWalkin" onclick="setMode('walkin')"
+                            class="mode-btn active bg-orange-500 text-white font-bold py-2.5 rounded-xl text-sm text-center">
+                            <i class="fas fa-walking mr-1"></i> Walk-in
+                            <div class="text-xs font-normal opacity-80 mt-0.5">Pelanggan di kedai</div>
+                        </button>
+                        <button type="button" id="btnPrebook" onclick="setMode('prebook')"
+                            class="mode-btn bg-gray-200 text-gray-600 font-bold py-2.5 rounded-xl text-sm text-center">
+                            <i class="fas fa-calendar-plus mr-1"></i> Pre-book
+                            <div class="text-xs font-normal opacity-80 mt-0.5">Tempah tarikh dulu</div>
+                        </button>
+                    </div>
+
+                    <form method="POST" action="/staff/add" id="addForm" enctype="multipart/form-data">
+                        <input type="hidden" name="booking_mode" id="bookingMode" value="walkin">
+
+                        <!-- Common fields -->
+                        <div class="mb-3">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Kamera / Drone</label>
+                            <select name="camera_id" required id="cameraSelect"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- Pilih Peranti --</option>
+                                {% set categories = [('gopro','GoPro'),('insta360','Insta360'),('dji','DJI Camera'),('canon','Canon'),('drone','Drone')] %}
+                                {% for cat_id, cat_name in categories %}
+                                <optgroup label="{{ cat_name }}">
+                                    {% for cam in cameras %}
+                                    {% if cam.category == cat_id %}
+                                    <option value="{{ cam.id }}">{{ cam.name }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Tarikh Ambil</label>
+                                <input type="date" name="start_date" id="startDate" required
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Masa Ambil</label>
+                                <input type="time" name="pickup_time" id="pickupTime"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Tarikh Pulang</label>
+                                <input type="date" name="end_date" id="endDate" required
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Masa Pulang</label>
+                                <input type="time" name="return_time" id="returnTime"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Pelanggan</label>
+                            <input type="text" name="customer_name" id="custName" placeholder="Nama pelanggan"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">No. Telefon</label>
+                            <input type="text" name="customer_phone" id="custPhone" placeholder="0123456789"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Walk-in only fields -->
+                        <div id="walkinFields">
+                            <div class="mb-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                    <i class="fas fa-flag text-blue-500 mr-1"></i> Warganegara
+                                </label>
+                                <select name="nationality"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- Pilih Warganegara --</option>
+                                    <option value="Malaysia">Malaysia</option>
+                                    <option value="Singapura">Singapura / Singapore</option>
+                                    <option value="Indonesia">Indonesia</option>
+                                    <option value="Thailand">Thailand</option>
+                                    <option value="Brunei">Brunei</option>
+                                    <option value="Filipina">Filipina / Philippines</option>
+                                    <option value="Vietnam">Vietnam</option>
+                                    <option value="Myanmar">Myanmar</option>
+                                    <option value="China">China</option>
+                                    <option value="Korea">Korea</option>
+                                    <option value="Jepun">Jepun / Japan</option>
+                                    <option value="India">India</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="United States">United States</option>
+                                    <option value="Lain-lain">Lain-lain / Others</option>
+                                </select>
+                            </div>
+
+                            <!-- No. ID / Passport -->
+                            <div class="mb-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                    <i class="fas fa-hashtag text-indigo-500 mr-1"></i> No. ID / Passport
+                                </label>
+                                <input type="text" name="id_number" id="idNumber" placeholder="Nombor IC atau Passport"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- Photo ID Upload -->
+                            <div class="mb-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                    <i class="fas fa-id-card text-purple-500 mr-1"></i> Photo ID / Passport
+                                </label>
+                                <div id="photoDropZone"
+                                    class="border-2 border-dashed border-gray-300 rounded-xl p-3 text-center cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition relative"
+                                    onclick="document.getElementById('photoIdInput').click()">
+                                    <div id="photoPlaceholder">
+                                        <i class="fas fa-camera text-gray-300 text-2xl mb-1"></i>
+                                        <p class="text-xs text-gray-400">Klik atau ambil gambar ID/Passport</p>
+                                        <p class="text-xs text-gray-300">JPG, PNG, PDF, HEIC (maks 10MB)</p>
+                                    </div>
+                                    <div id="photoPreview" class="hidden">
+                                        <img id="photoPreviewImg" src="" alt="Preview" class="max-h-24 mx-auto rounded-lg object-contain mb-1">
+                                        <p id="photoFileName" class="text-xs text-purple-600 font-semibold"></p>
+                                        <button type="button" onclick="clearPhoto(event)"
+                                            class="text-xs text-red-500 hover:text-red-700 mt-1">
+                                            <i class="fas fa-times mr-1"></i>Buang
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="file" id="photoIdInput" name="id_photo"
+                                    accept="image/*,.pdf,.heic" capture="environment"
+                                    class="hidden" onchange="handlePhotoSelect(this)">
+                            </div>
+
+                            <!-- Photo Pelanggan bersama Device -->
+                            <div class="mb-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                    <i class="fas fa-user-circle text-green-500 mr-1"></i> Photo Pelanggan + Device
+                                </label>
+                                <div id="customerPhotoDropZone"
+                                    class="border-2 border-dashed border-gray-300 rounded-xl p-3 text-center cursor-pointer hover:border-green-400 hover:bg-green-50 transition relative"
+                                    onclick="document.getElementById('customerPhotoInput').click()">
+                                    <div id="customerPhotoPlaceholder">
+                                        <i class="fas fa-camera-retro text-gray-300 text-2xl mb-1"></i>
+                                        <p class="text-xs text-gray-400">Ambil gambar pelanggan bersama kamera/drone</p>
+                                        <p class="text-xs text-gray-300">JPG, PNG, HEIC (maks 10MB)</p>
+                                    </div>
+                                    <div id="customerPhotoPreview" class="hidden">
+                                        <img id="customerPhotoPreviewImg" src="" alt="Preview" class="max-h-24 mx-auto rounded-lg object-contain mb-1">
+                                        <p id="customerPhotoFileName" class="text-xs text-green-600 font-semibold"></p>
+                                        <button type="button" onclick="clearCustomerPhoto(event)"
+                                            class="text-xs text-red-500 hover:text-red-700 mt-1">
+                                            <i class="fas fa-times mr-1"></i>Buang
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="file" id="customerPhotoInput" name="customer_photo"
+                                    accept="image/*,.heic" capture="environment"
+                                    class="hidden" onchange="handleCustomerPhotoSelect(this)">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Nota (Pilihan)</label>
+                            <textarea name="notes" rows="2" placeholder="Nota tambahan..."
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+
+                        <!-- Conflict check result -->
+                        <div id="checkResult" class="mb-3 hidden text-sm rounded-lg px-3 py-2"></div>
+
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="checkAvailability()"
+                                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg text-sm transition">
+                                <i class="fas fa-search mr-1"></i> Semak
+                            </button>
+                            <button type="submit" id="btnSimpan"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition">
+                                <i class="fas fa-save mr-1"></i> Simpan
+                            </button>
+                        </div>
+
+                        <!-- Walk-in: Simpan & Terus Sign -->
+                        <div id="walkinSignBtn">
+                            <button type="button" onclick="saveAndSign()"
+                                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
+                                <i class="fas fa-file-signature mr-1"></i> Simpan & Terus Sign Perjanjian
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Block Dates -->
+                <div class="bg-white rounded-2xl shadow p-5 mt-4">
+                    <h3 class="text-sm font-bold text-gray-600 uppercase mb-3"><i class="fas fa-lock text-gray-400 mr-1"></i> Sekat Tarikh</h3>
+                    <form method="POST" action="/staff/block-dates">
+                        <div class="mb-2">
+                            <select name="camera_id" required class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- Pilih Peranti --</option>
+                                {% for cam in cameras %}
+                                <option value="{{ cam.id }}">{{ cam.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="date" name="start_date" required class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="date" name="end_date" required class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <input type="text" name="reason" placeholder="Sebab (cth: maintenance)" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-1.5 rounded-lg text-xs transition">
+                            <i class="fas fa-lock mr-1"></i> Sekat
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Stats -->
+                <div class="bg-white rounded-2xl shadow p-5 mt-4">
+                    <h3 class="text-sm font-bold text-gray-600 uppercase mb-3">Ringkasan</h3>
+                    {% set pending_count = bookings|selectattr('status', 'equalto', 'pending')|list|length %}
+                    {% set confirmed_count = bookings|selectattr('status', 'equalto', 'confirmed')|list|length %}
+                    {% set active_count = bookings|selectattr('status', 'equalto', 'active')|list|length %}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-blue-600">{{ bookings|length }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Jumlah</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-yellow-600">{{ pending_count }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Menunggu</div>
+                        </div>
+                        <div class="bg-green-50 rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600">{{ confirmed_count }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Disahkan</div>
+                        </div>
+                        <div class="bg-indigo-50 rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-indigo-600">{{ active_count }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Aktif</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings List -->
+            <div class="lg:col-span-2">
+                <!-- Filter tabs -->
+                <div class="flex gap-2 mb-4 flex-wrap">
+                    <button onclick="filterBookings('all')" id="filter-all" class="filter-btn bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold transition">Semua</button>
+                    <button onclick="filterBookings('pending')" id="filter-pending" class="filter-btn bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-semibold transition">⏳ Menunggu</button>
+                    <button onclick="filterBookings('confirmed')" id="filter-confirmed" class="filter-btn bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-semibold transition">✅ Disahkan</button>
+                    <button onclick="filterBookings('active')" id="filter-active" class="filter-btn bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-semibold transition">📷 Aktif</button>
+                    <button onclick="filterBookings('returned')" id="filter-returned" class="filter-btn bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-semibold transition">✔ Dipulangkan</button>
+                    <button onclick="filterBookings('cancelled')" id="filter-cancelled" class="filter-btn bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-semibold transition">✖ Dibatalkan</button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow p-5">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-calendar-check text-blue-600 mr-2"></i>Senarai Tempahan
+                    </h2>
+                    {% if bookings %}
+                    <div class="space-y-3" id="bookingsList">
+                        {% for b in bookings %}
+                        {% set bstatus = b['status'] or 'pending' %}
+                        <div class="booking-card border border-gray-200 rounded-xl p-4" data-status="{{ bstatus }}">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    {% if b['camera_id'] in camera_map %}
+                                    <img src="/static/{{ camera_map[b['camera_id']]['image'] }}"
+                                        class="w-12 h-12 object-contain rounded-lg bg-gray-50 p-1" alt="">
+                                    {% endif %}
+                                    <div>
+                                        <div class="font-bold text-gray-800 text-sm">
+                                            {{ camera_map[b['camera_id']]['name'] if b['camera_id'] in camera_map else b['camera_id'] }}
+                                        </div>
+                                        <div class="text-xs text-blue-600 font-semibold mt-0.5">
+                                            <i class="fas fa-calendar mr-1"></i>{{ b['start_date'] }}{% if b['pickup_time'] %} <span class="text-indigo-600">{{ b['pickup_time'] }}</span>{% endif %} → {{ b['end_date'] }}{% if b['return_time'] %} <span class="text-red-500">{{ b['return_time'] }}</span>{% endif %}
+                                        </div>
+                                        {% if b['booking_ref'] %}
+                                        <div class="text-xs text-gray-400 mt-0.5 font-mono">{{ b['booking_ref'] }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1">
+                                    <!-- Status badge -->
+                                    {% if bstatus == 'pending' %}
+                                    <span class="status-badge bg-yellow-100 text-yellow-700">⏳ Menunggu</span>
+                                    {% elif bstatus == 'confirmed' %}
+                                    <span class="status-badge bg-green-100 text-green-700">✅ Disahkan</span>
+                                    {% elif bstatus == 'active' %}
+                                    <span class="status-badge bg-indigo-100 text-indigo-700">📷 Aktif</span>
+                                    {% elif bstatus == 'returned' %}
+                                    <span class="status-badge bg-gray-100 text-gray-600">✔ Dipulangkan</span>
+                                    {% elif bstatus == 'cancelled' %}
+                                    <span class="status-badge bg-red-100 text-red-700">✖ Dibatalkan</span>
+                                    {% else %}
+                                    <span class="status-badge bg-gray-100 text-gray-500">{{ bstatus }}</span>
+                                    {% endif %}
+                                    <!-- Source badge -->
+                                    {% if b['source'] == 'online' %}
+                                    <span class="status-badge bg-blue-50 text-blue-600"><i class="fas fa-globe mr-1"></i>Online</span>
+                                    {% endif %}
+                                    <!-- Price -->
+                                    {% if b['total_price'] %}
+                                    <span class="text-xs font-bold text-green-600">RM{{ '%.0f'|format(b['total_price']) }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-700">
+                                        <i class="fas fa-user text-gray-400 mr-1"></i>{{ b['customer_name'] or '—' }}
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <i class="fas fa-phone text-gray-300 mr-1"></i>{{ b['customer_phone'] or '—' }}
+                                        {% if b['customer_email'] %} · <i class="fas fa-envelope text-gray-300 mr-1"></i>{{ b['customer_email'] }}{% endif %}
+                                    </div>
+                                    {% if b['notes'] %}
+                                    <div class="text-xs text-gray-400 mt-1"><i class="fas fa-sticky-note mr-1"></i>{{ b['notes'] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center gap-1 flex-wrap justify-end">
+                                    <!-- Status action buttons -->
+                                    {% if bstatus == 'pending' %}
+                                    <form method="POST" action="/staff/booking/{{ b['id'] }}/confirm" class="inline">
+                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Sahkan (deposit diterima)">
+                                            <i class="fas fa-check mr-1"></i> Sahkan
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if bstatus == 'confirmed' %}
+                                    <form method="POST" action="/staff/booking/{{ b['id'] }}/active" class="inline">
+                                        <button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Tandakan peralatan diambil">
+                                            <i class="fas fa-camera mr-1"></i> Pickup
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if bstatus == 'active' %}
+                                    <form method="POST" action="/staff/booking/{{ b['id'] }}/returned" class="inline">
+                                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Tandakan peralatan dipulangkan">
+                                            <i class="fas fa-undo mr-1"></i> Pulang
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if bstatus not in ['cancelled', 'returned'] %}
+                                    <form method="POST" action="/staff/booking/{{ b['id'] }}/cancel" class="inline" onsubmit="return confirm('Pasti mahu batalkan tempahan ini?')">
+                                        <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="Batalkan tempahan">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <!-- Update button -->
+                                    {% if not b['customer_photo'] and bstatus not in ['cancelled', 'returned'] %}
+                                    <a href="/staff/booking/{{ b['id'] }}/update"
+                                        class="bg-orange-500 hover:bg-orange-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Kemaskini maklumat & ambil gambar">
+                                        <i class="fas fa-camera mr-1"></i> Ambil
+                                    </a>
+                                    {% endif %}
+                                    <!-- Sign agreement -->
+                                    {% if bstatus not in ['cancelled', 'returned'] %}
+                                    <button onclick="openAgreementForBooking({{ b['id'] }})"
+                                        class="bg-purple-500 hover:bg-purple-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Sign perjanjian sewa">
+                                        <i class="fas fa-file-signature"></i>
+                                    </button>
+                                    {% endif %}
+                                    <!-- WhatsApp buttons (status-specific) -->
+                                    {% if b['customer_phone'] %}
+                                    {% set bd = dict(b) %}
+                                    {% set cam = camera_map.get(b['camera_id'], {}) %}
+                                    {% set cam_name = cam.get('name', b['camera_id']) %}
+                                    {% if bstatus == 'pending' %}
+                                    <a href="{{ wa.admin_remind_payment(bd, cam_name) }}" target="_blank"
+                                        class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Ingatkan bayar deposit">
+                                        <i class="fab fa-whatsapp mr-1"></i> Ingatkan
+                                    </a>
+                                    {% elif bstatus == 'confirmed' %}
+                                    <a href="{{ wa.admin_pickup_reminder(bd, cam_name) }}" target="_blank"
+                                        class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Peringatan pickup">
+                                        <i class="fab fa-whatsapp mr-1"></i> Pickup
+                                    </a>
+                                    {% elif bstatus == 'active' %}
+                                    <a href="{{ wa.admin_return_reminder(bd, cam_name) }}" target="_blank"
+                                        class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Peringatan pulang">
+                                        <i class="fab fa-whatsapp mr-1"></i> Pulang
+                                    </a>
+                                    {% elif bstatus == 'returned' %}
+                                    <a href="{{ wa.admin_thank_you(bd, cam_name) }}" target="_blank"
+                                        class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Terima kasih">
+                                        <i class="fab fa-whatsapp mr-1"></i> TQ
+                                    </a>
+                                    {% endif %}
+                                    {% endif %}
+                                    <!-- Delete -->
+                                    <form method="POST" action="/staff/delete/{{ b['id'] }}" class="inline" onsubmit="return confirm('Pasti mahu padam tempahan ini?')">
+                                        <button type="submit"
+                                            class="bg-gray-100 hover:bg-gray-200 text-gray-500 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="Padam">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fas fa-calendar-times text-4xl mb-3"></i>
+                        <p class="text-sm">Tiada tempahan lagi.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set min date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').min = today;
+        document.getElementById('endDate').min = today;
+        document.getElementById('startDate').addEventListener('change', function() {
+            document.getElementById('endDate').min = this.value;
+        });
+
+        // ─── Filter bookings ────────────────────────────────────────────
+        function filterBookings(status) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn bg-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-semibold transition';
+            });
+            document.getElementById('filter-' + status).className = 'filter-btn bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold transition';
+            document.querySelectorAll('.booking-card').forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // ─── Mode switching ─────────────────────────────────────────────
+        let currentMode = 'walkin';
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('bookingMode').value = mode;
+            const walkinBtn = document.getElementById('btnWalkin');
+            const prebookBtn = document.getElementById('btnPrebook');
+            const walkinFields = document.getElementById('walkinFields');
+            const walkinSignBtn = document.getElementById('walkinSignBtn');
+
+            if (mode === 'walkin') {
+                walkinBtn.className = 'mode-btn active bg-orange-500 text-white font-bold py-2.5 rounded-xl text-sm text-center';
+                prebookBtn.className = 'mode-btn bg-gray-200 text-gray-600 font-bold py-2.5 rounded-xl text-sm text-center';
+                walkinFields.style.display = 'block';
+                walkinSignBtn.style.display = 'block';
+            } else {
+                prebookBtn.className = 'mode-btn active bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-sm text-center';
+                walkinBtn.className = 'mode-btn bg-gray-200 text-gray-600 font-bold py-2.5 rounded-xl text-sm text-center';
+                walkinFields.style.display = 'none';
+                walkinSignBtn.style.display = 'none';
+            }
+        }
+
+        // ─── Save & Sign (Walk-in flow) ─────────────────────────────────
+        function saveAndSign() {
+            const form = document.getElementById('addForm');
+            const cameraId = document.getElementById('cameraSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!cameraId || !startDate || !endDate) {
+                alert('Sila pilih peranti dan tarikh terlebih dahulu.');
+                return;
+            }
+
+            // Change form action to save-and-sign route
+            form.action = '/staff/add?redirect=sign';
+            form.submit();
+        }
+
+        // ─── Open agreement for existing booking ────────────────────────
+        function openAgreementForBooking(bookingId) {
+            window.location.href = '/staff/agreements/new?booking_id=' + bookingId;
+        }
+
+        // ─── Photo handlers ─────────────────────────────────────────────
+        function handlePhotoSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const placeholder = document.getElementById('photoPlaceholder');
+            const preview = document.getElementById('photoPreview');
+            const previewImg = document.getElementById('photoPreviewImg');
+            const fileName = document.getElementById('photoFileName');
+            const dropZone = document.getElementById('photoDropZone');
+
+            fileName.textContent = file.name;
+            dropZone.classList.add('border-purple-400', 'bg-purple-50');
+            dropZone.classList.remove('border-gray-300');
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.src = '';
+                previewImg.classList.add('hidden');
+            }
+            placeholder.classList.add('hidden');
+            preview.classList.remove('hidden');
+        }
+
+        function clearPhoto(event) {
+            event.stopPropagation();
+            document.getElementById('photoIdInput').value = '';
+            document.getElementById('photoPlaceholder').classList.remove('hidden');
+            document.getElementById('photoPreview').classList.add('hidden');
+            const dropZone = document.getElementById('photoDropZone');
+            dropZone.classList.remove('border-purple-400', 'bg-purple-50');
+            dropZone.classList.add('border-gray-300');
+        }
+
+        function handleCustomerPhotoSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const placeholder = document.getElementById('customerPhotoPlaceholder');
+            const preview = document.getElementById('customerPhotoPreview');
+            const previewImg = document.getElementById('customerPhotoPreviewImg');
+            const fileName = document.getElementById('customerPhotoFileName');
+            const dropZone = document.getElementById('customerPhotoDropZone');
+
+            fileName.textContent = file.name;
+            dropZone.classList.add('border-green-400', 'bg-green-50');
+            dropZone.classList.remove('border-gray-300');
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.src = '';
+                previewImg.classList.add('hidden');
+                placeholder.classList.add('hidden');
+                preview.classList.remove('hidden');
+            }
+        }
+
+        function clearCustomerPhoto(event) {
+            event.stopPropagation();
+            document.getElementById('customerPhotoInput').value = '';
+            document.getElementById('customerPhotoPlaceholder').classList.remove('hidden');
+            document.getElementById('customerPhotoPreview').classList.add('hidden');
+            const dropZone = document.getElementById('customerPhotoDropZone');
+            dropZone.classList.remove('border-green-400', 'bg-green-50');
+            dropZone.classList.add('border-gray-300');
+        }
+
+        // ─── Check availability ─────────────────────────────────────────
+        async function checkAvailability() {
+            const cameraId = document.getElementById('cameraSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const resultDiv = document.getElementById('checkResult');
+            if (!cameraId || !startDate || !endDate) {
+                resultDiv.className = 'mb-3 text-sm rounded-lg px-3 py-2 bg-yellow-50 border border-yellow-200 text-yellow-800';
+                resultDiv.textContent = 'Sila pilih peranti dan tarikh terlebih dahulu.';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+            const res = await fetch(`/api/check?camera_id=${cameraId}&start_date=${startDate}&end_date=${endDate}`);
+            const data = await res.json();
+            resultDiv.classList.remove('hidden');
+            if (data.available) {
+                resultDiv.className = 'mb-3 text-sm rounded-lg px-3 py-2 bg-green-50 border border-green-200 text-green-800';
+                resultDiv.innerHTML = `<i class="fas fa-check-circle mr-1"></i> <strong>Tersedia!</strong> ${data.days} hari × RM${data.price_per_day || '—'}/hari = <strong>RM${data.total_price || '—'}</strong>`;
+            } else {
+                resultDiv.className = 'mb-3 text-sm rounded-lg px-3 py-2 bg-red-50 border border-red-200 text-red-800';
+                resultDiv.innerHTML = `<i class="fas fa-times-circle mr-1"></i> <strong>Tidak tersedia!</strong> Tarikh konflik: ${data.conflicts.join(', ')}`;
+            }
+        }
+    </script>
+</body>
+</html>

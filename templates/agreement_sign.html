@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perjanjian Sewa — Gearz On The Go</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { background: #f0f4f8; }
+        #signaturePad {
+            touch-action: none;
+            cursor: crosshair;
+            background: #fff;
+        }
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .term-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.875rem;
+            color: #374151;
+            line-height: 1.5;
+        }
+        .term-item:last-child { border-bottom: none; }
+        .term-num {
+            min-width: 26px;
+            height: 26px;
+            background: #1e40af;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .sig-container {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8fafc;
+            position: relative;
+        }
+        .sig-container.active {
+            border-color: #3b82f6;
+            background: #fff;
+        }
+        .sig-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .section-card { box-shadow: none; border: 1px solid #e5e7eb; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-4 py-4 sticky top-0 z-10 shadow-lg no-print">
+        <div class="flex items-center justify-between max-w-2xl mx-auto">
+            <div class="flex items-center gap-3">
+                <img src="/static/logo.png" alt="Gearz" class="h-9">
+                <div>
+                    <div class="font-bold text-sm leading-tight">Gearz On The Go</div>
+                    <div class="text-blue-200 text-xs">Perjanjian Sewa Digital</div>
+                </div>
+            </div>
+            <a href="/staff/agreements" class="text-blue-200 hover:text-white text-xs flex items-center gap-1 no-print">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 py-5">
+
+        {% if signed %}
+        <!-- ── SIGNED VIEW ── -->
+        <div class="section-card text-center py-8">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check-circle text-green-500 text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-1">Perjanjian Telah Ditandatangani</h2>
+            <p class="text-gray-500 text-sm mb-4">{{ agreement.signed_at }}</p>
+            <div class="bg-gray-50 rounded-xl p-4 text-left mb-4">
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div><span class="text-gray-400 text-xs block">Nama</span><span class="font-semibold">{{ agreement.customer_name }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Telefon</span><span class="font-semibold">{{ agreement.customer_phone }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Peralatan</span><span class="font-semibold">{{ agreement.equipment }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Deposit</span><span class="font-semibold text-green-600">RM{{ agreement.deposit }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Tarikh Ambil</span><span class="font-semibold">{{ agreement.pickup_date }}{% if agreement.pickup_time %} <span class="text-indigo-600">{{ agreement.pickup_time }}</span>{% endif %}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Tarikh Pulang</span><span class="font-semibold">{{ agreement.return_date }}{% if agreement.return_time %} <span class="text-red-500">{{ agreement.return_time }}</span>{% endif %}</span></div>
+                </div>
+            </div>
+            {% if agreement.signature_data %}
+            <div class="bg-white border border-gray-200 rounded-xl p-3 mb-4">
+                <p class="text-xs text-gray-400 mb-2">Tandatangan Pelanggan</p>
+                <img src="{{ agreement.signature_data }}" alt="Tandatangan" class="max-h-24 mx-auto">
+            </div>
+            {% endif %}
+            <div class="flex gap-3 justify-center no-print">
+                <a href="/staff/agreements" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-semibold transition">
+                    <i class="fas fa-list mr-1"></i> Senarai
+                </a>
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
+                    <i class="fas fa-print mr-1"></i> Cetak
+                </button>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- ── SIGN FORM ── -->
+
+        <!-- Maklumat Sewa -->
+        <div class="section-card">
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <i class="fas fa-camera text-blue-600"></i> Maklumat Sewaan
+            </h3>
+                <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Nama Penuh *</label>
+                            <input type="text" id="custName" placeholder="Nama pelanggan"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.customer_name if booking else '' }}">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">No. Telefon *</label>
+                            <input type="tel" id="custPhone" placeholder="+601X-XXXXXXX"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.customer_phone if booking else '' }}">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-xs text-gray-500 block mb-1">Peralatan Disewa *</label>
+                            <input type="text" id="equipment" placeholder="Contoh: GoPro Hero 13 Black"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.camera_name if booking else '' }}">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Tarikh Ambil *</label>
+                            <input type="date" id="pickupDate"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.start_date if booking else '' }}">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Masa Ambil</label>
+                            <input type="time" id="pickupTime"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.pickup_time if booking and booking.pickup_time else '' }}">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Tarikh Pulang *</label>
+                            <input type="date" id="returnDate"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.end_date if booking else '' }}">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Masa Pulang</label>
+                            <input type="time" id="returnTime"
+                                class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ booking.return_time if booking and booking.return_time else '' }}">
+                        </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Deposit (RM)</label>
+                    <input type="number" id="deposit" placeholder="200" value="200"
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">No. IC / Passport</label>
+                    <input type="text" id="icNumber" placeholder="Nombor IC/Passport"
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value="{{ booking.ic_number if booking and booking.ic_number else '' }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Terma & Syarat -->
+        <div class="section-card">
+            <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
+                <i class="fas fa-file-contract text-blue-600"></i> Terma &amp; Syarat Sewaan Peralatan
+            </h3>
+            <p class="text-xs text-gray-400 mb-4">Sila baca sebelum membuat tempahan. Dengan membuat tempahan, anda bersetuju dengan terma di bawah.</p>
+
+            <div class="term-item">
+                <span class="term-num">1</span>
+                <span><strong>Pengesahan Identiti</strong> — Penyewa perlu mengemukakan Kad Pengenalan / Pasport / Lesen Memandu yang sah. Pihak kami berhak meminta dokumen asal semasa pickup.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">2</span>
+                <span><strong>Rekod Bukti Sewaan</strong> — Pihak kami boleh mengambil gambar penyewa bersama peralatan dan dokumen pengenalan untuk tujuan rekod &amp; keselamatan.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">3</span>
+                <span><strong>Deposit &amp; Bayaran</strong> — Deposit akan dikenakan mengikut pakej dan akan dipulangkan selepas pemulangan peralatan dalam keadaan: baik, lengkap dan berfungsi, tertakluk kepada pemeriksaan.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">4</span>
+                <span><strong>Pemeriksaan Semasa Pemulangan</strong> — Peralatan akan diperiksa semasa pemulangan. Jika pemeriksaan lanjut diperlukan (contoh: ujian fungsi), pemulangan deposit mungkin mengambil masa sehingga 24 jam.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">5</span>
+                <span><strong>Kerosakan</strong> — Jika berlaku kerosakan akibat kecuaian/penyalahgunaan: deposit boleh ditahan dan penyewa bersetuju membayar caj berdasarkan kos pembaikan atau penggantian.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">6</span>
+                <span><strong>Kehilangan / Kecurian</strong> — Penyewa bertanggungjawab sepenuhnya jika berlaku kehilangan/kecurian/kerosakan teruk, dan bersetuju menanggung kos penuh penggantian.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">7</span>
+                <span><strong>Caj Lewat</strong> — Caj lewat dikenakan RM10 - RM20 per/jam selepas masa pemulangan yang dipersetujui. Caj dikira bermula minit pertama selepas tamat tempoh.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">8</span>
+                <span><strong>Gagal Pulang Tanpa Makluman</strong> — Jika peralatan tidak dipulangkan melebihi 6 jam tanpa makluman, pihak kami berhak membuat laporan polis dan mengambil tindakan lanjut.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">9</span>
+                <span><strong>Tanggungjawab &amp; Penjagaan</strong> — Penyewa bertanggungjawab menjaga peralatan agar kekal selamat dan tidak terdedah kepada air, pasir, hentakan, suhu ekstrem atau risiko kerosakan.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">10</span>
+                <span><strong>Larangan Pengubahsuaian &amp; Serah kepada Pihak Ketiga</strong> — Penyewa tidak dibenarkan membuka, mengubah suai, menukar aksesori, atau menyerahkan peralatan kepada pihak lain tanpa kebenaran.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">11</span>
+                <span><strong>Kegagalan Penggunaan</strong> — Pihak kami tidak bertanggungjawab atas kerugian penyewa akibat kegagalan penggunaan kerana salah penggunaan atau faktor luar kawalan.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">12</span>
+                <span><strong>Hak Menolak Tempahan</strong> — Pihak kami berhak menolak tempahan atau membatalkan sewaan jika terdapat keraguan terhadap identiti/maklumat/risiko keselamatan.</span>
+            </div>
+        </div>
+
+        <!-- Senarai Peralatan -->
+        <div class="section-card">
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <i class="fas fa-list-check text-blue-600"></i> Senarai Peralatan Diserahkan
+            </h3>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_camera" class="w-4 h-4 accent-blue-600"> Kamera / Camera
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_selfie" class="w-4 h-4 accent-blue-600"> Selfie Stick
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_sd64" class="w-4 h-4 accent-blue-600"> Memory Card 64GB
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_sd128" class="w-4 h-4 accent-blue-600"> Memory Card 128GB
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_case" class="w-4 h-4 accent-blue-600"> Waterproof Case
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_battery" class="w-4 h-4 accent-blue-600"> Extra Battery
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_bobber" class="w-4 h-4 accent-blue-600"> Bobber Float
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_charger" class="w-4 h-4 accent-blue-600"> Charger / Cable
+                </label>
+            </div>
+        </div>
+
+        <!-- Tandatangan -->
+        <div class="section-card">
+            <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
+                <i class="fas fa-pen-fancy text-blue-600"></i> Tandatangan Penyewa
+            </h3>
+            <p class="text-xs text-gray-400 mb-3">Tandatangan di bawah menggunakan jari atau stylus</p>
+
+            <div class="sig-container" id="sigContainer">
+                <div class="sig-placeholder" id="sigPlaceholder">
+                    <i class="fas fa-signature text-3xl mb-2 block"></i>
+                    <span class="text-sm">Tandatangan di sini</span>
+                </div>
+                <canvas id="signaturePad" class="w-full" height="180"></canvas>
+            </div>
+
+            <div class="flex gap-2 mt-3">
+                <button type="button" onclick="clearSignature()"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-semibold transition">
+                    <i class="fas fa-eraser mr-1"></i> Padam
+                </button>
+            </div>
+        </div>
+
+        <!-- Pengesahan -->
+        <div class="section-card bg-blue-50 border border-blue-100">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="confirmCheck" class="w-5 h-5 accent-blue-600 mt-0.5 flex-shrink-0">
+                <span class="text-sm text-gray-700 leading-relaxed">
+                    Saya dengan ini <strong>memahami sepenuhnya</strong> syarat-syarat dan terma yang telah termaktub di dalam perjanjian ini. Dengan ini saya bersetuju untuk tidak membuat sebarang pertikaian atau tuntutan berbalas kepada pihak <strong>Gearz On The Go</strong>.
+                </span>
+            </label>
+        </div>
+
+        <!-- Error message -->
+        <div id="errorMsg" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-4 text-sm">
+            <i class="fas fa-exclamation-circle mr-2"></i><span id="errorText"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <button onclick="submitAgreement()"
+            class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 rounded-2xl text-base transition shadow-lg mb-6">
+            <i class="fas fa-check-circle mr-2"></i> Sahkan &amp; Tandatangan Perjanjian
+        </button>
+
+        {% endif %}
+    </div>
+
+    <script>
+    // ── Signature Pad ──────────────────────────────────────────────────────────
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('sigContainer');
+    const placeholder = document.getElementById('sigPlaceholder');
+    let drawing = false;
+    let hasSig = false;
+
+    function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = rect.width * ratio;
+        canvas.height = 180 * ratio;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = '180px';
+        ctx.scale(ratio, ratio);
+        ctx.strokeStyle = '#1e3a8a';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches) {
+            return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+        }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    function startDraw(e) {
+        e.preventDefault();
+        drawing = true;
+        hasSig = true;
+        placeholder.style.display = 'none';
+        container.classList.add('active');
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    }
+    function draw(e) {
+        if (!drawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    }
+    function stopDraw(e) { drawing = false; }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+
+    function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasSig = false;
+        placeholder.style.display = '';
+        container.classList.remove('active');
+    }
+
+    // ── Submit ─────────────────────────────────────────────────────────────────
+    function showError(msg) {
+        document.getElementById('errorText').textContent = msg;
+        document.getElementById('errorMsg').classList.remove('hidden');
+        document.getElementById('errorMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function hideError() {
+        document.getElementById('errorMsg').classList.add('hidden');
+    }
+
+    async function submitAgreement() {
+        hideError();
+        const name    = document.getElementById('custName').value.trim();
+        const phone   = document.getElementById('custPhone').value.trim();
+        const equip   = document.getElementById('equipment').value.trim();
+        const pickup  = document.getElementById('pickupDate').value;
+        const pickupTime = document.getElementById('pickupTime').value || '';
+        const ret     = document.getElementById('returnDate').value;
+        const returnTime = document.getElementById('returnTime').value || '';
+        const deposit = document.getElementById('deposit').value || '200';
+        const ic      = document.getElementById('icNumber').value.trim();
+        const confirm = document.getElementById('confirmCheck').checked;
+
+        if (!name)   return showError('Sila masukkan nama pelanggan.');
+        if (!phone)  return showError('Sila masukkan nombor telefon.');
+        if (!equip)  return showError('Sila masukkan peralatan yang disewa.');
+        if (!pickup) return showError('Sila pilih tarikh ambil.');
+        if (!ret)    return showError('Sila pilih tarikh pulang.');
+        if (!hasSig) return showError('Sila tandatangan di ruangan tandatangan.');
+        if (!confirm) return showError('Sila tandakan kotak pengesahan terma & syarat.');
+
+        // Collect accessories
+        const accessories = [];
+        if (document.getElementById('chk_camera').checked)  accessories.push('Kamera');
+        if (document.getElementById('chk_selfie').checked)  accessories.push('Selfie Stick');
+        if (document.getElementById('chk_sd64').checked)    accessories.push('Memory Card 64GB');
+        if (document.getElementById('chk_sd128').checked)   accessories.push('Memory Card 128GB');
+        if (document.getElementById('chk_case').checked)    accessories.push('Waterproof Case');
+        if (document.getElementById('chk_battery').checked) accessories.push('Extra Battery');
+        if (document.getElementById('chk_bobber').checked)  accessories.push('Bobber Float');
+        if (document.getElementById('chk_charger').checked) accessories.push('Charger/Cable');
+
+        const sigData = canvas.toDataURL('image/png');
+
+        const payload = {
+            customer_name: name,
+            customer_phone: phone,
+            equipment: equip,
+            pickup_date: pickup,
+            pickup_time: pickupTime,
+            return_date: ret,
+            return_time: returnTime,
+            deposit: deposit,
+            ic_number: ic,
+            accessories: accessories.join(', '),
+            signature_data: sigData
+        };
+
+        const btn = document.querySelector('button[onclick="submitAgreement()"]');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+
+        try {
+            const res = await fetch('/staff/agreements/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = '/staff/agreements/' + data.id;
+            } else {
+                showError(data.error || 'Ralat semasa menyimpan. Cuba lagi.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sahkan & Tandatangan Perjanjian';
+            }
+        } catch(e) {
+            showError('Ralat sambungan. Sila cuba lagi.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sahkan & Tandatangan Perjanjian';
+        }
+    }
+    </script>
+</body>
+</html>

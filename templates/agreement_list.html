@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senarai Perjanjian — Gearz On The Go</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-900 text-white px-4 py-3 flex justify-between items-center shadow sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+            <img src="/static/logo.png" alt="Gearz" class="h-9">
+            <span class="font-bold text-base">Staff Panel</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/staff" class="text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition">
+                <i class="fas fa-calendar mr-1"></i> Tempahan
+            </a>
+            <a href="/staff/customers" class="text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition">
+                <i class="fas fa-users mr-1"></i> Pelanggan
+            </a>
+            <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+            </a>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-6">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-file-signature text-blue-600"></i> Perjanjian Sewa Digital
+                </h1>
+                <p class="text-gray-500 text-sm mt-0.5">Rekod semua perjanjian yang telah ditandatangani</p>
+            </div>
+            <a href="/staff/agreements/new"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 w-fit">
+                <i class="fas fa-plus"></i> Perjanjian Baru
+            </a>
+        </div>
+
+        {% if request.args.get('saved') %}
+        <div class="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-4 flex items-center gap-2 text-sm">
+            <i class="fas fa-check-circle text-green-500"></i> Perjanjian berjaya disimpan!
+        </div>
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <div class="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-blue-600">{{ agreements|length }}</div>
+                <div class="text-xs text-gray-400 mt-1">Jumlah Perjanjian</div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-green-600">{{ agreements|selectattr('signature_data')|list|length }}</div>
+                <div class="text-xs text-gray-400 mt-1">Ditandatangani</div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-purple-600">
+                    RM{{ agreements|sum(attribute='deposit')|int if agreements else 0 }}
+                </div>
+                <div class="text-xs text-gray-400 mt-1">Jumlah Deposit</div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <form method="GET" class="mb-4">
+            <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" name="q" value="{{ search }}" placeholder="Cari nama atau nombor telefon..."
+                    class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            </div>
+        </form>
+
+        <!-- List -->
+        {% if agreements %}
+        <div class="space-y-3">
+            {% for ag in agreements %}
+            <div class="bg-white rounded-2xl shadow-sm p-4 hover:shadow-md transition">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3 flex-1 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-file-signature text-blue-600"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-bold text-gray-800 text-sm">{{ ag['customer_name'] }}</div>
+                            <div class="text-gray-400 text-xs">{{ ag['customer_phone'] }}</div>
+                            <div class="text-gray-600 text-xs mt-1">
+                                <i class="fas fa-camera text-gray-300 mr-1"></i>{{ ag['equipment'] }}
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                                    <i class="fas fa-calendar mr-1"></i>{{ ag['pickup_date'] }} → {{ ag['return_date'] }}
+                                </span>
+                                <span class="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                                    Deposit: RM{{ ag['deposit'] }}
+                                </span>
+                                {% if ag['signature_data'] %}
+                                <span class="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">
+                                    <i class="fas fa-check mr-1"></i>Ditandatangani
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5 flex-shrink-0">
+                        <a href="/staff/agreements/{{ ag['id'] }}"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition text-center">
+                            <i class="fas fa-eye mr-1"></i> Lihat
+                        </a>
+                        <form method="POST" action="/staff/agreements/{{ ag['id'] }}/delete"
+                            onsubmit="return confirm('Padam perjanjian ini?')">
+                            <button type="submit"
+                                class="w-full bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-300 mt-2 text-right">{{ ag['signed_at'] }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl shadow-sm p-12 text-center text-gray-400">
+            <i class="fas fa-file-signature text-4xl mb-3 block"></i>
+            <p class="text-sm">Tiada perjanjian lagi.</p>
+            <a href="/staff/agreements/new" class="inline-block mt-3 bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
+                Buat Perjanjian Pertama
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

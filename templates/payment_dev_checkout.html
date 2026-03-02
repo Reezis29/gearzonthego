@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ gateway_label }} — Dev Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#0f172a; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .checkout-card { background:#fff; border-radius:20px; padding:32px; max-width:440px; width:100%; margin:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .dev-badge { display:inline-block; background:#fef3c7; color:#92400e; padding:4px 12px; border-radius:20px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
+        .gateway-header { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+        .gateway-icon { font-size:2.5rem; }
+        .gateway-name { font-size:1.2rem; font-weight:700; color:#1e293b; }
+        .gateway-mode { font-size:0.75rem; color:#94a3b8; }
+        .divider { height:1px; background:#e2e8f0; margin:20px 0; }
+        .booking-info { background:#f8fafc; border-radius:12px; padding:16px; margin-bottom:20px; }
+        .info-row { display:flex; justify-content:space-between; padding:6px 0; font-size:0.85rem; }
+        .info-label { color:#64748b; }
+        .info-value { font-weight:600; color:#1e293b; }
+        .amount-box { text-align:center; padding:20px; background:linear-gradient(135deg,#1e3a5f,#2563eb); border-radius:12px; margin-bottom:24px; }
+        .amount-label { color:rgba(255,255,255,0.7); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; }
+        .amount-value { color:#fff; font-size:2.2rem; font-weight:700; margin-top:4px; }
+        .btn { display:block; width:100%; padding:14px; border:none; border-radius:12px; font-size:1rem; font-weight:600; cursor:pointer; text-align:center; margin-bottom:10px; transition:all 0.2s; }
+        .btn-success { background:#059669; color:#fff; }
+        .btn-success:hover { background:#047857; }
+        .btn-fail { background:#f1f5f9; color:#64748b; }
+        .btn-fail:hover { background:#e2e8f0; }
+        .note { text-align:center; padding:16px; color:#94a3b8; font-size:0.7rem; line-height:1.5; }
+        .note strong { color:#64748b; }
+
+        {% if gateway == 'stripe' %}
+        .gateway-accent { border-top:4px solid #635bff; }
+        {% else %}
+        .gateway-accent { border-top:4px solid #00a651; }
+        {% endif %}
+
+        /* Simulated card form for Stripe */
+        .card-form { margin-bottom:20px; }
+        .card-form label { display:block; font-size:0.75rem; color:#64748b; margin-bottom:4px; font-weight:600; text-transform:uppercase; }
+        .card-form input { width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.9rem; margin-bottom:12px; font-family:'Poppins',sans-serif; }
+        .card-form input:focus { outline:none; border-color:#2563eb; }
+        .card-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+        /* Simulated bank list for Billplz */
+        .bank-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+        .bank-option { padding:10px; border:2px solid #e2e8f0; border-radius:8px; text-align:center; cursor:pointer; font-size:0.75rem; font-weight:600; color:#475569; transition:all 0.2s; }
+        .bank-option:hover, .bank-option.selected { border-color:#2563eb; background:#eff6ff; color:#2563eb; }
+    </style>
+</head>
+<body>
+    <div class="checkout-card gateway-accent">
+        <div class="dev-badge">⚠️ Dev / Sandbox Mode</div>
+
+        <div class="gateway-header">
+            <div class="gateway-icon">{{ gateway_icon }}</div>
+            <div>
+                <div class="gateway-name">{{ gateway_label }}</div>
+                <div class="gateway-mode">Simulated checkout — no real charges</div>
+            </div>
+        </div>
+
+        <div class="booking-info">
+            <div class="info-row">
+                <span class="info-label">Rujukan</span>
+                <span class="info-value">{{ booking.booking_ref }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Peranti</span>
+                <span class="info-value">{{ booking.camera_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tarikh</span>
+                <span class="info-value">{{ booking.start_date }} → {{ booking.end_date }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Pelanggan</span>
+                <span class="info-value">{{ booking.customer_name }}</span>
+            </div>
+        </div>
+
+        <div class="amount-box">
+            <div class="amount-label">Deposit Amount</div>
+            <div class="amount-value">RM {{ '%.0f' % (booking.deposit_amount or 200) }}</div>
+        </div>
+
+        {% if gateway == 'stripe' %}
+        <!-- Simulated card form -->
+        <div class="card-form">
+            <label>Card Number</label>
+            <input type="text" value="4242 4242 4242 4242" readonly style="background:#f8fafc;">
+            <div class="card-row">
+                <div>
+                    <label>Expiry</label>
+                    <input type="text" value="12/28" readonly style="background:#f8fafc;">
+                </div>
+                <div>
+                    <label>CVC</label>
+                    <input type="text" value="123" readonly style="background:#f8fafc;">
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Simulated bank selection -->
+        <div style="font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:8px;">Pilih Bank / E-Wallet</div>
+        <div class="bank-list">
+            <div class="bank-option selected" onclick="selectBank(this)">🏦 Maybank2u</div>
+            <div class="bank-option" onclick="selectBank(this)">🏦 CIMB Clicks</div>
+            <div class="bank-option" onclick="selectBank(this)">🏦 RHB Now</div>
+            <div class="bank-option" onclick="selectBank(this)">🏦 Public Bank</div>
+            <div class="bank-option" onclick="selectBank(this)">📱 DuitNow QR</div>
+            <div class="bank-option" onclick="selectBank(this)">📱 Touch n Go</div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/payment/dev-simulate">
+            <input type="hidden" name="booking_ref" value="{{ booking.booking_ref }}">
+            <input type="hidden" name="gateway" value="{{ gateway }}">
+            <button type="submit" name="action" value="success" class="btn btn-success">
+                ✅ Simulate Successful Payment
+            </button>
+            <button type="submit" name="action" value="fail" class="btn btn-fail">
+                ✖ Simulate Failed / Cancelled
+            </button>
+        </form>
+
+        <div class="note">
+            <strong>This is a simulated checkout page for development.</strong><br>
+            No real payment will be processed. Click "Simulate Successful Payment"<br>
+            to test the full booking confirmation flow.<br><br>
+            To enable real payments, configure the API keys in environment variables:<br>
+            {% if gateway == 'stripe' %}
+            <code>STRIPE_SECRET_KEY</code> · <code>STRIPE_PUBLISHABLE_KEY</code>
+            {% else %}
+            <code>BILLPLZ_API_KEY</code> · <code>BILLPLZ_COLLECTION_ID</code>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    function selectBank(el) {
+        document.querySelectorAll('.bank-option').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+    </script>
+</body>
+</html>
