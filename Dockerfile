@@ -17,11 +17,8 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p uploads
 
-# Make start script executable
-RUN chmod +x start.sh
-
-# Expose port
+# Expose port (Railway sets PORT dynamically)
 EXPOSE 8080
 
-# Use startup script for proper env var handling
-ENTRYPOINT ["bash", "start.sh"]
+# Use Python startup script - guaranteed to read PORT env var correctly
+CMD ["python3", "start.py"]
