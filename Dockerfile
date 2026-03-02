@@ -17,8 +17,8 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p uploads
 
-# Expose port
-EXPOSE 8080
+# Expose port (Railway sets PORT dynamically)
+EXPOSE ${PORT:-8080}
 
-# Run with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120", "app:app"]
+# Use shell form so $PORT env var is expanded at runtime
+CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --timeout 120 app:app
