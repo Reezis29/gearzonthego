@@ -11,7 +11,9 @@ import payment_gateways as pg
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'gearz_on_the_go_secret_2026')
 
-DB_PATH     = os.path.join(os.path.dirname(__file__), 'bookings.db')
+# Use /data for Railway persistent volume, fallback to local for development
+_data_dir = '/data' if os.path.isdir('/data') else os.path.dirname(__file__)
+DB_PATH     = os.path.join(_data_dir, 'bookings.db')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'heic', 'webp'}
 
