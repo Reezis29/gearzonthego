@@ -17,8 +17,11 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p uploads
 
-# Expose port (Railway sets PORT dynamically)
-EXPOSE ${PORT:-8080}
+# Make start script executable
+RUN chmod +x start.sh
 
-# Use shell form so $PORT env var is expanded at runtime
-CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --timeout 120 app:app
+# Expose port
+EXPOSE 8080
+
+# Use startup script for proper env var handling
+ENTRYPOINT ["bash", "start.sh"]
