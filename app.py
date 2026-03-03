@@ -170,8 +170,10 @@ def init_db():
     conn.close()
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10)  # 10s timeout to avoid blocking
     conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA journal_mode=WAL')  # WAL mode allows concurrent reads
+    conn.execute('PRAGMA busy_timeout=5000')  # 5s busy timeout
     return conn
 
 def allowed_file(filename):
@@ -327,35 +329,41 @@ def api_check():
     if not all([camera_id, start_date, end_date]):
         return jsonify({'error': 'Missing parameters'}), 400
 
-    # Unit-aware availability check
-    avail_units = get_available_units(camera_id, start_date, end_date)
-    available = len(avail_units) > 0
+    try:
+        # Unit-aware availability check
+        avail_units = get_available_units(camera_id, start_date, end_date)
+        available = len(avail_units) > 0
 
-    start = datetime.strptime(start_date, '%Y-%m-%d')
-    end   = datetime.strptime(end_date,   '%Y-%m-%d')
-    days = (end - start).days + 1
-    camera = CAMERA_MAP.get(camera_id, {})
-    price_key = "5" if days >= 5 else str(days)
-    price_per_day = camera.get('prices', {}).get(price_key)
-    total = price_per_day * days if price_per_day else None
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end   = datetime.strptime(end_date,   '%Y-%m-%d')
+        days = (end - start).days + 1
+        camera = CAMERA_MAP.get(camera_id, {})
+        price_key = "5" if days >= 5 else str(days)
+        price_per_day = camera.get('prices', {}).get(price_key)
+        total = price_per_day * days if price_per_day else None
 
-    # Get total units for this product
-    conn = get_db()
-    total_units = conn.execute(
-        "SELECT COUNT(*) FROM units WHERE product_id = ? AND status = 'available'",
-        (camera_id,)
-    ).fetchone()[0]
-    conn.close()
+        # Get total units for this product
+        conn = get_db()
+        try:
+            total_units = conn.execute(
+                "SELECT COUNT(*) FROM units WHERE product_id = ? AND status = 'available'",
+                (camera_id,)
+            ).fetchone()[0]
+        finally:
+            conn.close()
 
-    return jsonify({
-        'available': available,
-        'available_units': len(avail_units),
-        'total_units': total_units,
-        'days': days,
-        'price_per_day': price_per_day,
-        'total_price': total,
-        'camera_name': camera.get('name', '')
-    })
+        return jsonify({
+            'available': available,
+            'available_units': len(avail_units),
+            'total_units': total_units,
+            'days': days,
+            'price_per_day': price_per_day,
+            'total_price': total,
+            'camera_name': camera.get('name', '')
+        })
+    except Exception as e:
+        app.logger.error(f'api_check error: {e}')
+        return jsonify({'error': 'Server error', 'message': str(e)}), 500
 
 # ─── Staff Login/Logout ───────────────────────────────────────────────────────
 @app.route('/staff/login', methods=['GET', 'POST'])

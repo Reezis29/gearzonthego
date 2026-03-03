@@ -549,9 +549,30 @@
             resultDiv.className = 'rounded-xl p-5 text-center bg-gray-100 text-gray-500 text-sm';
             resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + (currentLang === 'ms' ? 'Sedang menyemak...' : 'Checking...');
             resultDiv.classList.remove('hidden');
-            const res = await fetch(`/api/check?camera_id=${cameraId}&start_date=${startDate}&end_date=${endDate}`);
-            const data = await res.json();
-            showAvailResult(resultDiv, data, cameraId, startDate, endDate);
+            try {
+                // Add 10s timeout to prevent infinite loading
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const res = await fetch(`/api/check?camera_id=${cameraId}&start_date=${startDate}&end_date=${endDate}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!res.ok) {
+                    throw new Error(`Server error: ${res.status}`);
+                }
+                const data = await res.json();
+                if (data.error) {
+                    throw new Error(data.message || data.error);
+                }
+                showAvailResult(resultDiv, data, cameraId, startDate, endDate);
+            } catch (err) {
+                resultDiv.className = 'rounded-xl p-5 text-center bg-orange-50 border border-orange-300 text-orange-800 text-sm';
+                if (err.name === 'AbortError') {
+                    resultDiv.innerHTML = '<i class="fas fa-clock mr-2"></i><strong>' + (currentLang === 'ms' ? 'Masa tamat.' : 'Request timed out.') + '</strong><br><span class="text-xs mt-1 block">' + (currentLang === 'ms' ? 'Sambungan lambat. Sila cuba lagi.' : 'Slow connection. Please try again.') + '</span><button onclick="checkAvailSection()" class="mt-2 px-4 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600">' + (currentLang === 'ms' ? 'Cuba Lagi' : 'Retry') + '</button>';
+                } else {
+                    resultDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i><strong>' + (currentLang === 'ms' ? 'Ralat sistem.' : 'System error.') + '</strong><br><span class="text-xs mt-1 block">' + (currentLang === 'ms' ? 'Sila cuba lagi atau hubungi kami.' : 'Please try again or contact us.') + '</span><button onclick="checkAvailSection()" class="mt-2 px-4 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600">' + (currentLang === 'ms' ? 'Cuba Lagi' : 'Retry') + '</button>';
+                }
+            }
         }
 
         function showAvailResult(div, data, cameraId, startDate, endDate) {
