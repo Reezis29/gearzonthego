@@ -160,7 +160,32 @@
         /* Availability Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         .modal-box { background: white; border-radius: 1rem; padding: 2rem; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        /* Calendar disabled dates */
+        /* ── Custom Availability Calendar ── */
+        .avail-cal-wrap { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .avail-cal-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #1e40af; color: white; }
+        .avail-cal-header button { background: none; border: none; color: white; cursor: pointer; font-size: 1.1rem; padding: 2px 8px; border-radius: 4px; transition: background 0.15s; }
+        .avail-cal-header button:hover { background: rgba(255,255,255,0.2); }
+        .avail-cal-header .month-label { font-weight: 700; font-size: 0.9rem; }
+        .avail-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; padding: 8px; }
+        .avail-cal-grid .day-header { text-align: center; font-size: 0.65rem; font-weight: 700; color: #6b7280; padding: 4px 0; }
+        .avail-cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.12s; position: relative; }
+        .avail-cal-day.other-month { color: #d1d5db; cursor: default; }
+        .avail-cal-day.past { color: #d1d5db; cursor: not-allowed; }
+        .avail-cal-day.booked { background: #fee2e2; color: #dc2626; cursor: not-allowed; text-decoration: line-through; }
+        .avail-cal-day.booked::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #dc2626; border-radius: 50%; }
+        .avail-cal-day.today:not(.booked) { border: 2px solid #2563eb; color: #2563eb; font-weight: 700; }
+        .avail-cal-day.selected-start, .avail-cal-day.selected-end { background: #2563eb; color: white; font-weight: 700; }
+        .avail-cal-day.in-range { background: #dbeafe; color: #1e40af; }
+        .avail-cal-day:not(.booked):not(.past):not(.other-month):hover { background: #bfdbfe; }
+        .avail-cal-legend { display: flex; gap: 12px; padding: 6px 10px 8px; font-size: 0.68rem; color: #6b7280; border-top: 1px solid #f3f4f6; flex-wrap: wrap; }
+        .avail-cal-legend span { display: flex; align-items: center; gap: 4px; }
+        .avail-cal-legend .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+        .avail-cal-loading { text-align: center; padding: 20px; color: #9ca3af; font-size: 0.8rem; }
+        .avail-date-display { background: white; border: 1.5px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: #374151; min-height: 38px; display: flex; align-items: center; cursor: pointer; transition: border-color 0.15s; }
+        .avail-date-display:hover { border-color: #2563eb; }
+        .avail-date-display.has-value { color: #1e40af; font-weight: 600; border-color: #2563eb; }
+        .avail-date-display .placeholder { color: #9ca3af; }
+        /* Calendar disabled dates (modal) */
         .cal-day.booked { background: #fee2e2; color: #ef4444; cursor: not-allowed; text-decoration: line-through; }
         .cal-day.available { background: #dcfce7; color: #16a34a; cursor: pointer; }
         .cal-day.selected { background: #2563eb; color: white; }
@@ -360,39 +385,71 @@
             <p class="text-center text-gray-500 mb-10 text-sm" data-ms="Pilih peranti dan tarikh untuk semak sama ada ia tersedia untuk disewa." data-en="Select a device and dates to check if it is available for rental.">Pilih peranti dan tarikh untuk semak sama ada ia tersedia untuk disewa.</p>
 
             <div class="bg-gray-50 rounded-2xl shadow-lg p-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <!-- Camera Select -->
-                    <div class="md:col-span-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Pilih Peranti" data-en="Select Device">Pilih Peranti</label>
-                        <select id="avail-camera" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="" data-ms="-- Pilih Peranti --" data-en="-- Select Device --">-- Pilih Peranti --</option>
-                            {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone'])] %}
-                            {% set group_names = {'gopro':'GoPro','insta360':'Insta360','dji-action':'DJI Camera','canon':'Canon','drone':'Drone'} %}
-                            <optgroup label="{{ group_names[tab_id] }}">
-                                {% for cam in cams %}
-                                <option value="{{ cam.id }}">{{ cam.name }}</option>
-                                {% endfor %}
-                            </optgroup>
+                <!-- Camera Select -->
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Pilih Peranti" data-en="Select Device">Pilih Peranti</label>
+                    <select id="avail-camera" onchange="loadBookedDates()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" data-ms="-- Pilih Peranti --" data-en="-- Select Device --">-- Pilih Peranti --</option>
+                        {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone'])] %}
+                        {% set group_names = {'gopro':'GoPro','insta360':'Insta360','dji-action':'DJI Camera','canon':'Canon','drone':'Drone'} %}
+                        <optgroup label="{{ group_names[tab_id] }}">
+                            {% for cam in cams %}
+                            <option value="{{ cam.id }}">{{ cam.name }}</option>
                             {% endfor %}
-                        </select>
+                        </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Custom Inline Calendar -->
+                <div id="avail-calendar-container" class="mb-5 hidden">
+                    <div class="text-xs font-semibold text-gray-500 mb-2" id="cal-instruction" data-ms="Klik tarikh mula, kemudian tarikh tamat" data-en="Click start date, then end date">Klik tarikh mula, kemudian tarikh tamat</div>
+                    <!-- Selected date display -->
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Tarikh Mula" data-en="Start Date">Tarikh Mula</label>
+                            <div id="avail-start-display" class="avail-date-display"><span class="placeholder" data-ms="Pilih tarikh" data-en="Select date">Pilih tarikh</span></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Tarikh Tamat" data-en="End Date">Tarikh Tamat</label>
+                            <div id="avail-end-display" class="avail-date-display"><span class="placeholder" data-ms="Pilih tarikh" data-en="Select date">Pilih tarikh</span></div>
+                        </div>
                     </div>
-                    <!-- Start Date -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Tarikh Mula" data-en="Start Date">Tarikh Mula</label>
-                        <input type="date" id="avail-start" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <!-- End Date -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Tarikh Tamat" data-en="End Date">Tarikh Tamat</label>
-                        <input type="date" id="avail-end" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <!-- Check Button -->
-                    <div class="flex items-end">
-                        <button onclick="checkAvailSection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition">
-                            <i class="fas fa-search mr-1"></i> <span data-ms="Semak" data-en="Check">Semak</span>
-                        </button>
+                    <!-- Calendar widget -->
+                    <div class="avail-cal-wrap">
+                        <div class="avail-cal-header">
+                            <button onclick="calPrevMonth()" aria-label="Previous month">&#8249;</button>
+                            <span class="month-label" id="cal-month-label"></span>
+                            <button onclick="calNextMonth()" aria-label="Next month">&#8250;</button>
+                        </div>
+                        <div id="avail-cal-grid" class="avail-cal-grid">
+                            <div class="avail-cal-loading" id="cal-loading"><i class="fas fa-spinner fa-spin mr-1"></i> <span data-ms="Memuatkan..." data-en="Loading...">Memuatkan...</span></div>
+                        </div>
+                        <div class="avail-cal-legend">
+                            <span><span class="dot" style="background:#fee2e2;border:1px solid #dc2626"></span> <span data-ms="Dah Ditempah" data-en="Booked">Dah Ditempah</span></span>
+                            <span><span class="dot" style="background:#dbeafe"></span> <span data-ms="Dipilih" data-en="Selected">Dipilih</span></span>
+                            <span><span class="dot" style="background:white;border:2px solid #2563eb"></span> <span data-ms="Hari Ini" data-en="Today">Hari Ini</span></span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Placeholder when no device selected -->
+                <div id="cal-no-device" class="mb-5 rounded-xl border-2 border-dashed border-gray-200 p-6 text-center text-gray-400 text-sm">
+                    <i class="fas fa-calendar-alt text-2xl mb-2 block"></i>
+                    <span data-ms="Pilih peranti di atas untuk lihat tarikh yang tersedia" data-en="Select a device above to view available dates">Pilih peranti di atas untuk lihat tarikh yang tersedia</span>
+                </div>
+
+                <!-- Hidden inputs for form submission compatibility -->
+                <input type="hidden" id="avail-start">
+                <input type="hidden" id="avail-end">
+
+                <!-- Check Button -->
+                <div id="avail-check-btn-wrap" class="hidden">
+                    <button onclick="checkAvailSection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm transition">
+                        <i class="fas fa-search mr-1"></i> <span data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</span>
+                    </button>
+                </div>
+                <div class="mb-4"></div>
 
                 <!-- Result -->
                 <div id="avail-result" class="hidden rounded-xl p-5 text-center"></div>
@@ -676,18 +733,211 @@
             });
         }
 
-        // ── Set min dates ──────────────────────────────────────────────────────
-        const today = new Date().toISOString().split('T')[0];
-        ['avail-start','avail-end','modal-start','modal-end'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.min = today;
-        });
-        document.getElementById('avail-start').addEventListener('change', function() {
-            document.getElementById('avail-end').min = this.value;
-        });
+        // ── Set min dates for modal ────────────────────────────────────────────
         document.getElementById('modal-start').addEventListener('change', function() {
             document.getElementById('modal-end').min = this.value;
         });
+
+        // ── Custom Availability Calendar Engine ────────────────────────────────
+        let calViewYear, calViewMonth;
+        let calBookedDates = new Set();
+        let calSelectingStart = true;
+        let calStartDate = null, calEndDate = null;
+
+        const MONTHS_MS = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+        const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const DAYS_MS = ['Isn','Sel','Rab','Kha','Jum','Sab','Ahd'];
+        const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+        function toYMD(d) {
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
+        function formatDisplay(ymd) {
+            if (!ymd) return '';
+            const [y,m,d] = ymd.split('-');
+            const months = currentLang === 'ms' ? MONTHS_MS : MONTHS_EN;
+            return parseInt(d) + ' ' + months[parseInt(m)-1] + ' ' + y;
+        }
+
+        async function loadBookedDates() {
+            const cameraId = document.getElementById('avail-camera').value;
+            const noDevice = document.getElementById('cal-no-device');
+            const calContainer = document.getElementById('avail-calendar-container');
+            const checkBtnWrap = document.getElementById('avail-check-btn-wrap');
+            const resultDiv = document.getElementById('avail-result');
+
+            // Reset state
+            calStartDate = null; calEndDate = null;
+            calSelectingStart = true;
+            document.getElementById('avail-start').value = '';
+            document.getElementById('avail-end').value = '';
+            updateDateDisplays();
+            resultDiv.classList.add('hidden');
+            document.getElementById('booking-form').classList.add('hidden');
+            checkBtnWrap.classList.add('hidden');
+
+            if (!cameraId) {
+                calContainer.classList.add('hidden');
+                noDevice.classList.remove('hidden');
+                return;
+            }
+
+            noDevice.classList.add('hidden');
+            calContainer.classList.remove('hidden');
+
+            // Show loading
+            const grid = document.getElementById('avail-cal-grid');
+            grid.innerHTML = '<div class="avail-cal-loading" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin mr-1"></i> ' + (currentLang === 'ms' ? 'Memuatkan...' : 'Loading...') + '</div>';
+
+            // Init calendar to current month
+            const now = new Date();
+            calViewYear = now.getFullYear();
+            calViewMonth = now.getMonth();
+            updateMonthLabel();
+
+            try {
+                const res = await fetch(`/api/availability/${cameraId}`);
+                const data = await res.json();
+                calBookedDates = new Set(data.booked_dates || []);
+            } catch(e) {
+                calBookedDates = new Set();
+            }
+            renderCalendar();
+        }
+
+        function updateMonthLabel() {
+            const months = currentLang === 'ms' ? MONTHS_MS : MONTHS_EN;
+            document.getElementById('cal-month-label').textContent = months[calViewMonth] + ' ' + calViewYear;
+        }
+
+        function calPrevMonth() {
+            const now = new Date();
+            if (calViewYear === now.getFullYear() && calViewMonth === now.getMonth()) return;
+            calViewMonth--;
+            if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+            updateMonthLabel();
+            renderCalendar();
+        }
+
+        function calNextMonth() {
+            calViewMonth++;
+            if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+            updateMonthLabel();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('avail-cal-grid');
+            const days = currentLang === 'ms' ? DAYS_MS : DAYS_EN;
+            const today = toYMD(new Date());
+            const firstDay = new Date(calViewYear, calViewMonth, 1);
+            // Monday-first: 0=Mon..6=Sun
+            let startDow = firstDay.getDay(); // 0=Sun
+            startDow = (startDow === 0) ? 6 : startDow - 1;
+            const daysInMonth = new Date(calViewYear, calViewMonth+1, 0).getDate();
+            const prevDays = new Date(calViewYear, calViewMonth, 0).getDate();
+
+            let html = days.map(d => `<div class="day-header">${d}</div>`).join('');
+
+            // Prev month filler
+            for (let i = startDow - 1; i >= 0; i--) {
+                html += `<div class="avail-cal-day other-month">${prevDays - i}</div>`;
+            }
+
+            // Current month days
+            for (let d = 1; d <= daysInMonth; d++) {
+                const ymd = calViewYear + '-' + String(calViewMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                let cls = 'avail-cal-day';
+                const isPast = ymd < today;
+                const isBooked = calBookedDates.has(ymd);
+                if (isPast) cls += ' past';
+                else if (isBooked) cls += ' booked';
+                if (ymd === today && !isBooked) cls += ' today';
+                if (calStartDate && ymd === calStartDate) cls += ' selected-start';
+                if (calEndDate && ymd === calEndDate) cls += ' selected-end';
+                if (calStartDate && calEndDate && ymd > calStartDate && ymd < calEndDate) cls += ' in-range';
+                const clickable = !isPast && !isBooked;
+                html += `<div class="${cls}" ${clickable ? `onclick="calDayClick('${ymd}')"` : ''} title="${ymd}">${d}</div>`;
+            }
+
+            // Next month filler
+            const total = startDow + daysInMonth;
+            const remainder = total % 7 === 0 ? 0 : 7 - (total % 7);
+            for (let d = 1; d <= remainder; d++) {
+                html += `<div class="avail-cal-day other-month">${d}</div>`;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        function calDayClick(ymd) {
+            if (calSelectingStart) {
+                calStartDate = ymd;
+                calEndDate = null;
+                calSelectingStart = false;
+                document.getElementById('avail-start').value = ymd;
+                document.getElementById('avail-end').value = '';
+                updateDateDisplays();
+                document.getElementById('avail-check-btn-wrap').classList.add('hidden');
+                document.getElementById('avail-result').classList.add('hidden');
+            } else {
+                if (ymd < calStartDate) {
+                    // Swap: clicked before start
+                    calEndDate = calStartDate;
+                    calStartDate = ymd;
+                } else {
+                    calEndDate = ymd;
+                }
+                // Check no booked dates in range
+                let rangeHasBooked = false;
+                let cur = new Date(calStartDate);
+                const end = new Date(calEndDate);
+                while (cur <= end) {
+                    if (calBookedDates.has(toYMD(cur))) { rangeHasBooked = true; break; }
+                    cur.setDate(cur.getDate() + 1);
+                }
+                if (rangeHasBooked) {
+                    // Reset and show warning
+                    calEndDate = null;
+                    calSelectingStart = true;
+                    calStartDate = null;
+                    document.getElementById('avail-start').value = '';
+                    document.getElementById('avail-end').value = '';
+                    updateDateDisplays();
+                    const resultDiv = document.getElementById('avail-result');
+                    resultDiv.className = 'rounded-xl p-5 text-center bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm';
+                    resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>' + (currentLang === 'ms' ? 'Terdapat tarikh yang sudah ditempah dalam julat ini. Sila pilih semula.' : 'There are booked dates in this range. Please reselect.');
+                    resultDiv.classList.remove('hidden');
+                } else {
+                    document.getElementById('avail-start').value = calStartDate;
+                    document.getElementById('avail-end').value = calEndDate;
+                    updateDateDisplays();
+                    document.getElementById('avail-check-btn-wrap').classList.remove('hidden');
+                    calSelectingStart = true;
+                }
+            }
+            renderCalendar();
+        }
+
+        function updateDateDisplays() {
+            const startDisp = document.getElementById('avail-start-display');
+            const endDisp = document.getElementById('avail-end-display');
+            const placeholderMs = 'Pilih tarikh'; const placeholderEn = 'Select date';
+            if (calStartDate) {
+                startDisp.innerHTML = formatDisplay(calStartDate);
+                startDisp.classList.add('has-value');
+            } else {
+                startDisp.innerHTML = `<span class="placeholder">${currentLang === 'ms' ? placeholderMs : placeholderEn}</span>`;
+                startDisp.classList.remove('has-value');
+            }
+            if (calEndDate) {
+                endDisp.innerHTML = formatDisplay(calEndDate);
+                endDisp.classList.add('has-value');
+            } else {
+                endDisp.innerHTML = `<span class="placeholder">${currentLang === 'ms' ? placeholderMs : placeholderEn}</span>`;
+                endDisp.classList.remove('has-value');
+            }
+        }
 
         // ── Booking state ─────────────────────────────────────────────────────
         let bookingData = { cameraId: '', cameraName: '', startDate: '', endDate: '', days: 0, pricePerDay: 0, totalPrice: 0 };
