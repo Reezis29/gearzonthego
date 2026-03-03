@@ -9,11 +9,146 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        .hero-bg { position: relative; overflow: hidden; }
-        .hero-bg video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); z-index: 0; object-fit: cover; }
-        .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 1; }
-        .hero-content { position: relative; z-index: 2; }
         html { scroll-behavior: smooth; }
+
+        /* ===== NEW HERO SECTION STYLES ===== */
+        .hero-new {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1a4a7a 100%);
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-new::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 70% 50%, rgba(37,99,235,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+            width: 100%;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37,99,235,0.2);
+            border: 1px solid rgba(37,99,235,0.4);
+            color: #93c5fd;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+        .hero-headline {
+            font-size: clamp(1.75rem, 4vw, 2.75rem);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 18px;
+            letter-spacing: -0.02em;
+        }
+        .hero-headline span {
+            color: #60a5fa;
+        }
+        .hero-sub {
+            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+            color: #cbd5e1;
+            line-height: 1.65;
+            margin-bottom: 32px;
+            max-width: 480px;
+        }
+        .hero-cta-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 16px 32px;
+            border-radius: 12px;
+            min-height: 54px;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(37,99,235,0.45);
+            width: 100%;
+            max-width: 340px;
+        }
+        .hero-cta-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(37,99,235,0.55);
+        }
+        .hero-trust {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 22px;
+        }
+        .hero-trust-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .hero-trust-item i {
+            color: #34d399;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .hero-image-wrap {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+        }
+        .hero-image-wrap img {
+            width: 100%;
+            height: 420px;
+            object-fit: cover;
+            display: block;
+            border-radius: 20px;
+        }
+        .hero-image-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            pointer-events: none;
+        }
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                padding: 40px 20px;
+                text-align: center;
+            }
+            .hero-image-wrap { order: -1; }
+            .hero-image-wrap img { height: 240px; }
+            .hero-cta-primary { max-width: 100%; }
+            .hero-sub { max-width: 100%; margin-left: auto; margin-right: auto; }
+            .hero-trust { justify-content: center; }
+            .hero-badge { margin-left: auto; margin-right: auto; }
+        }
+        /* ===== END HERO STYLES ===== */
         .tab-btn.active { background-color: #2563eb; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -63,24 +198,49 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero-bg h-[85vh] flex items-center text-white">
-        <video autoplay muted loop playsinline preload="auto">
-            <source src="/static/hero-bg.mp4" type="video/mp4">
-        </video>
-        <div class="hero-overlay"></div>
-        <div class="hero-content container mx-auto px-4 text-center">
-            <p class="text-blue-300 font-semibold tracking-widest uppercase mb-3 text-sm">Pantai Cenang, Langkawi</p>
-            <h1 class="text-4xl md:text-6xl font-bold mb-5 leading-tight" data-ms="Abadikan Setiap Detik<br>Percutian Anda" data-en="Capture Every Moment<br>Of Your Holiday">Abadikan Setiap Detik<br>Percutian Anda</h1>
-            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-gray-200" data-ms="Sewa Action Camera, 360° Camera, DSLR & Drone berkualiti tinggi. Pickup mudah di outlet kami di Cenang!" data-en="Rent high-quality Action Cameras, 360° Cameras, DSLRs & Drones. Easy pickup at our outlet in Cenang!">Sewa Action Camera, 360° Camera, DSLR & Drone berkualiti tinggi. Pickup mudah di outlet kami di Cenang!</p>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="#gear" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition" data-ms="Lihat Katalog & Harga" data-en="View Catalogue & Prices">Lihat Katalog & Harga</a>
-                <a href="#availability" class="bg-white hover:bg-gray-100 text-blue-700 px-8 py-3 rounded-lg font-bold text-lg transition flex items-center justify-center">
-                    <i class="fas fa-calendar-check mr-2"></i> <span data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</span>
+    <!-- ===== NEW HERO SECTION ===== -->
+    <section id="home" class="hero-new">
+        <div class="hero-inner">
+            <!-- Left: Text Content -->
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span data-ms="Pantai Cenang, Langkawi" data-en="Pantai Cenang, Langkawi">Pantai Cenang, Langkawi</span>
+                </div>
+                <h1 class="hero-headline">
+                    <span data-ms="Sewa Action Camera di Langkawi &mdash; <span class='text-blue-400'>Siap Pickup Hari Ini</span>" data-en="Rent Action Camera in Langkawi &mdash; <span class='text-blue-400'>Ready for Pickup Today</span>">
+                        Sewa Action Camera di Langkawi &mdash; <span class="text-blue-400">Siap Pickup Hari Ini</span>
+                    </span>
+                </h1>
+                <p class="hero-sub" data-ms="Tempah online dalam 60 saat. Dapatkan GoPro, Insta360 atau DJI sebelum percutian anda." data-en="Book online in 60 seconds. Secure your GoPro, Insta360 or DJI before your trip.">
+                    Tempah online dalam 60 saat. Dapatkan GoPro, Insta360 atau DJI sebelum percutian anda.
+                </p>
+                <a href="#availability" class="hero-cta-primary">
+                    <i class="fas fa-calendar-check"></i>
+                    <span data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</span>
                 </a>
+                <div class="hero-trust">
+                    <div class="hero-trust-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-ms="Pengesahan Segera" data-en="Instant Confirmation">Pengesahan Segera</span>
+                    </div>
+                    <div class="hero-trust-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-ms="Deposit Selamat RM200" data-en="Secure RM200 Deposit">Deposit Selamat RM200</span>
+                    </div>
+                    <div class="hero-trust-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-ms="Pickup di Pantai Cenang" data-en="Pickup at Pantai Cenang">Pickup di Pantai Cenang</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Right: Hero Image -->
+            <div class="hero-image-wrap">
+                <img src="/static/hero-image.jpg" alt="Action cameras for rent in Langkawi — GoPro, Insta360, DJI" loading="eager" width="680" height="420">
             </div>
         </div>
     </section>
+    <!-- ===== END NEW HERO SECTION ===== -->
 
     <!-- USP Section -->
     <section class="py-14 bg-white">
