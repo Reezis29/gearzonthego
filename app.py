@@ -352,6 +352,18 @@ def api_check():
         finally:
             conn.close()
 
+        # Build conflicts list when not available
+        conflicts = []
+        if not available:
+            booked_dates = get_booked_dates(camera_id)
+            requested = set(_date_range(start_date, end_date))
+            conflict_dates = sorted(requested & set(booked_dates))
+            # Format dates nicely for display
+            conflicts = [datetime.strptime(d, '%Y-%m-%d').strftime('%d %b %Y') for d in conflict_dates]
+            if not conflicts:
+                # Fallback: show the full requested range
+                conflicts = [f"{datetime.strptime(start_date, '%Y-%m-%d').strftime('%d %b')} - {datetime.strptime(end_date, '%Y-%m-%d').strftime('%d %b %Y')}"]
+
         return jsonify({
             'available': available,
             'available_units': len(avail_units),
@@ -359,7 +371,8 @@ def api_check():
             'days': days,
             'price_per_day': price_per_day,
             'total_price': total,
-            'camera_name': camera.get('name', '')
+            'camera_name': camera.get('name', ''),
+            'conflicts': conflicts
         })
     except Exception as e:
         app.logger.error(f'api_check error: {e}')

@@ -753,7 +753,10 @@
             } else {
                 bookForm.classList.add('hidden');
                 div.className = 'rounded-xl p-5 text-center bg-red-50 border border-red-300 text-red-800 text-sm';
-                div.innerHTML = `<div class="text-3xl mb-2">❌</div><div class="font-bold text-lg mb-1">${currentLang === 'ms' ? 'Tidak Tersedia' : 'Not Available'}</div><div class="mb-2">${currentLang === 'ms' ? 'Tarikh konflik:' : 'Conflicting dates:'} <strong>${data.conflicts.join(', ')}</strong></div><div class="text-xs">${currentLang === 'ms' ? 'Sila pilih tarikh lain atau hubungi kami.' : 'Please choose different dates or contact us.'}</div>`;
+                const conflictText = (data.conflicts && data.conflicts.length > 0)
+                    ? `<div class="mb-2">${currentLang === 'ms' ? 'Tarikh konflik:' : 'Conflicting dates:'} <strong>${data.conflicts.join(', ')}</strong></div>`
+                    : '';
+                div.innerHTML = `<div class="text-3xl mb-2">❌</div><div class="font-bold text-lg mb-1">${currentLang === 'ms' ? 'Tidak Tersedia' : 'Not Available'}</div>${conflictText}<div class="text-xs">${currentLang === 'ms' ? 'Sila pilih tarikh lain atau hubungi kami.' : 'Please choose different dates or contact us.'}</div>`;
             }
         }
 
@@ -858,7 +861,8 @@
                 bookBtnDiv.classList.remove('hidden');
             } else {
                 resultDiv.className = 'rounded-xl p-4 text-sm text-center bg-red-50 border border-red-300 text-red-800';
-                resultDiv.innerHTML = `❌ <strong>${currentLang === 'ms' ? 'Tidak Tersedia' : 'Not Available'}</strong> — ${currentLang === 'ms' ? 'Tarikh konflik:' : 'Conflicting dates:'} ${data.conflicts.join(', ')}`;
+                const conflictStr = (data.conflicts && data.conflicts.length > 0) ? ` — ${currentLang === 'ms' ? 'Tarikh konflik:' : 'Conflicting dates:'} ${data.conflicts.join(', ')}` : '';
+                resultDiv.innerHTML = `❌ <strong>${currentLang === 'ms' ? 'Tidak Tersedia' : 'Not Available'}</strong>${conflictStr}`;
             }
         }
 
