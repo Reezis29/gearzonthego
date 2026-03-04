@@ -157,6 +157,13 @@ def init_db():
         except:
             pass
 
+    # Safe migration: add pickup_time and return_time to agreements if not present
+    for col_def in ['pickup_time TEXT', 'return_time TEXT']:
+        try:
+            c.execute(f"ALTER TABLE agreements ADD COLUMN {col_def}")
+        except:
+            pass
+
     # Seed 1 unit per product if units table is empty
     existing_units = c.execute("SELECT COUNT(*) FROM units").fetchone()[0]
     if existing_units == 0:
