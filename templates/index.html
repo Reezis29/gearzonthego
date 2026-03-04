@@ -351,7 +351,7 @@
     <section id="gear" class="py-16 bg-gray-100">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-2" data-ms="Katalog & Harga Sewa" data-en="Rental Catalogue & Prices">Katalog & Harga Sewa</h2>
-            <p class="text-center text-gray-500 mb-8 text-sm" data-ms="Harga dikira per hari (RM/Hari). Klik 'Semak Tarikh' untuk periksa kekosongan." data-en="Price per day (RM/Day). Click 'Check Dates' to verify availability.">Harga dikira per hari (RM/Hari). Klik 'Semak Tarikh' untuk periksa kekosongan.</p>
+            <p class="text-center text-gray-500 mb-8 text-sm" data-ms="Harga dikira per hari (RM/Hari). Klik 'Sewa Sekarang' untuk semak kekosongan dan tempah." data-en="Price per day (RM/Day). Click 'Rent Now' to check availability and book.">Harga dikira per hari (RM/Hari). Klik 'Sewa Sekarang' untuk semak kekosongan dan tempah.</p>
             <div class="flex flex-wrap justify-center gap-2 mb-10">
                 <button onclick="showTab('gopro')" id="tab-gopro" class="tab-btn active px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">GoPro</button>
                 <button onclick="showTab('insta360')" id="tab-insta360" class="tab-btn px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">Insta360</button>
@@ -422,11 +422,8 @@
                             <button onclick="openAvailModal('{{ cam.id }}', '{{ cam.name }}')"
                                 class="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-1">
                                 <i class="fas fa-calendar-check text-xs"></i>
-                                <span data-ms="Semak Tarikh" data-en="Check Dates">Semak Tarikh</span>
+                                <span data-ms="Sewa Sekarang" data-en="Rent Now">Sewa Sekarang</span>
                             </button>
-                            <a href="https://wa.me/60124662939?text=Halo!%20Saya%20ingin%20sewa%20{{ cam.name | urlencode }}.%20Boleh%20semak%20kekosongan%3F" target="_blank"
-                                class="flex-1 text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold text-sm flex items-center justify-center"
-                                data-ms="Sewa Sekarang" data-en="Rent Now">Sewa Sekarang</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -534,8 +531,8 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Email (pilihan)" data-en="Email (optional)">Email (pilihan)</label>
-                            <input type="email" id="book-email" placeholder="email@contoh.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+<label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Email *" data-en="Email *">Email *</label>
+                             <input type="email" id="book-email" required placeholder="email@contoh.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="No. IC / Passport (pilihan)" data-en="IC / Passport No. (optional)">No. IC / Passport (pilihan)</label>
@@ -816,10 +813,7 @@
             document.querySelectorAll('.price-row span[data-ms]').forEach(el => {
                 el.textContent = el.getAttribute('data-' + lang);
             });
-            // Rent Now buttons
-            document.querySelectorAll('a[data-ms="Sewa Sekarang"]').forEach(btn => {
-                btn.textContent = lang === 'ms' ? 'Sewa Sekarang' : 'Rent Now';
-            });
+
         }
 
         // ── Set min dates for modal ────────────────────────────────────────────
@@ -1108,8 +1102,15 @@
             const errDiv = document.getElementById('booking-error');
             const btn = document.getElementById('book-submit-btn');
 
-            if (!name || !phone) {
-                errDiv.textContent = currentLang === 'ms' ? 'Sila isi nama dan nombor telefon.' : 'Please fill in name and phone number.';
+            if (!name || !phone || !email) {
+                errDiv.textContent = currentLang === 'ms' ? 'Sila isi nama, nombor telefon dan email.' : 'Please fill in name, phone number and email.';
+                errDiv.classList.remove('hidden');
+                return;
+            }
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errDiv.textContent = currentLang === 'ms' ? 'Sila masukkan alamat email yang sah.' : 'Please enter a valid email address.';
                 errDiv.classList.remove('hidden');
                 return;
             }
