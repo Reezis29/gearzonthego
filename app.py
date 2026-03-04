@@ -7,6 +7,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import wa_messages as wa
 import payment_gateways as pg
+import threading
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'gearz_on_the_go_secret_2026')
@@ -1477,6 +1478,38 @@ def _get_booking_for_payment(booking_ref):
     bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
     return bd
 
+def _send_booking_notifications(booking_ref):
+    """Send email and log WhatsApp link for confirmed booking (runs in background thread)."""
+    try:
+        from email_sender import send_booking_confirmation_email
+        conn = get_db()
+        b = conn.execute('SELECT * FROM bookings WHERE booking_ref = ?', (booking_ref,)).fetchone()
+        conn.close()
+        if not b:
+            return
+        bd = dict(b)
+        camera = CAMERA_MAP.get(bd['camera_id'], {})
+        bd['camera_name'] = camera.get('name', bd['camera_id'])
+        bd['num_days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
+        bd['price_per_day'] = bd.get('price_per_day') or 0
+        bd['total_price'] = bd.get('total_price') or 0
+        bd['deposit_amount'] = bd.get('deposit_amount') or 200
+
+        # Send confirmation email with PDF invoice
+        if bd.get('customer_email'):
+            send_booking_confirmation_email(bd)
+            app.logger.info(f'Confirmation email sent for {booking_ref}')
+        else:
+            app.logger.info(f'No email for {booking_ref}, skipping email')
+
+        # Log WhatsApp link for customer notification
+        wa_link = wa.customer_booking_confirmed_with_invoice(bd, bd['camera_name'])
+        app.logger.info(f'Customer WA link for {booking_ref}: {wa_link}')
+
+    except Exception as e:
+        app.logger.error(f'Notification error for {booking_ref}: {e}')
+
+
 def _mark_booking_paid(booking_ref, method, transaction_id=''):
     """Mark a booking as confirmed after successful RM30 booking fee payment."""
     conn = get_db()
@@ -1492,6 +1525,10 @@ def _mark_booking_paid(booking_ref, method, transaction_id=''):
     )
     conn.commit()
     conn.close()
+
+    # Send notifications in background thread (non-blocking)
+    t = threading.Thread(target=_send_booking_notifications, args=(booking_ref,), daemon=True)
+    t.start()
 
 @app.route('/api/payment/gateway-status')
 def api_gateway_status():

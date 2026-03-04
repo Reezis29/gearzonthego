@@ -183,6 +183,38 @@ def admin_thank_you(booking, camera_name=''):
     return wa_link(phone, text)
 
 
+def customer_booking_confirmed_with_invoice(booking, camera_name=''):
+    """Auto-send to customer after RM30 booking fee paid — booking confirmed notification."""
+    total = booking.get('total_price', 0)
+    remaining = total - 30
+    deposit = booking.get('deposit_amount', 200)
+    text = (
+        f"Assalamualaikum {booking.get('customer_name', '')} 👋\n\n"
+        f"*Tempahan anda telah DISAHKAN!* ✅\n"
+        f"Bayaran RM30 booking fee telah diterima.\n\n"
+        f"📋 *Butiran Tempahan:*\n"
+        f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
+        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Tarikh Ambil: {booking.get('start_date', '')}\n"
+        f"• Tarikh Pulang: {booking.get('end_date', '')}\n"
+    )
+    if booking.get('pickup_time'):
+        text += f"• Masa Ambil: {booking['pickup_time']}\n"
+    text += (
+        f"\n💳 *Bayaran Semasa Pickup:*\n"
+        f"• Baki Sewa: RM{remaining:.0f}\n"
+        f"• Deposit (boleh dikembalikan): RM{deposit:.0f}\n"
+        f"• JUMLAH: RM{(remaining + deposit):.0f}\n\n"
+        f"📍 *Lokasi Pickup:*\n"
+        f"Gearz On The Go, Pantai Cenang, Langkawi\n\n"
+        f"📧 Invois telah dihantar ke email anda.\n\n"
+        f"Sila bawa IC/Passport semasa pengambilan.\n"
+        f"Jumpa nanti! 😊"
+    )
+    phone = booking.get('customer_phone', '')
+    return wa_link(phone, text)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # ADMIN NOTIFICATION — new booking alert (admin clicks from dashboard)
 # ═══════════════════════════════════════════════════════════════════════════════
