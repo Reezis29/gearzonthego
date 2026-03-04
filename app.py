@@ -362,7 +362,9 @@ def api_check():
 
         start = datetime.strptime(start_date, '%Y-%m-%d')
         end   = datetime.strptime(end_date,   '%Y-%m-%d')
-        days = (end - start).days + 1
+        days = (end - start).days
+        if days < 1:
+            days = 1
         camera = CAMERA_MAP.get(camera_id, {})
         price_key = "5" if days >= 5 else str(days)
         price_per_day = camera.get('prices', {}).get(price_key)
@@ -1043,7 +1045,9 @@ def api_availability_check():
     avail_units = get_available_units(camera_id, start_date, end_date)
     available = len(avail_units) > 0
 
-    days = (end - start).days + 1
+    days = (end - start).days
+    if days < 1:
+        days = 1
     camera = CAMERA_MAP[camera_id]
     ppd, total = calculate_price(camera_id, days)
 
@@ -1112,7 +1116,9 @@ def api_create_booking():
     assigned_unit_id = assigned_unit['id']
 
     # Calculate price
-    days = (end - start).days + 1
+    days = (end - start).days
+    if days < 1:
+        days = 1
     ppd, total = calculate_price(camera_id, days)
     if ppd is None:
         return jsonify({'error': 'Pricing not available for this duration'}), 400
@@ -1222,7 +1228,7 @@ def api_booking_status(booking_ref):
         'return_time': bd.get('return_time', ''),
         'customer_name': bd['customer_name'],
         'customer_phone': bd['customer_phone'],
-        'days': (datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days + 1,
+        'days': max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1),
         'price_per_day': bd.get('price_per_day'),
         'total_price': bd.get('total_price'),
         'deposit_amount': bd.get('deposit_amount', 200),
@@ -1468,7 +1474,7 @@ def _get_booking_for_payment(booking_ref):
     bd = dict(b)
     camera = CAMERA_MAP.get(bd['camera_id'], {})
     bd['camera_name'] = camera.get('name', bd['camera_id'])
-    bd['days'] = (datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days + 1
+    bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
     return bd
 
 def _mark_booking_paid(booking_ref, method, transaction_id=''):
@@ -1677,7 +1683,7 @@ def booking_confirmation(booking_ref):
     camera = CAMERA_MAP.get(bd['camera_id'], {})
     bd['camera_name'] = camera.get('name', bd['camera_id'])
     bd['camera_image'] = camera.get('image', '')
-    bd['days'] = (datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days + 1
+    bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
 
     # Generate WhatsApp links
     wa_links = {
