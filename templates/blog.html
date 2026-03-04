@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Langkawi Travel & Camera Guide | Gearz On The Go Blog</title>
+    <meta name="description" content="Travel guides and camera tips for tourists visiting Langkawi. Learn where to film, what camera to use, and how to book easily.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.gearzonthego.com/blog">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Langkawi Travel & Camera Guide | Gearz On The Go Blog">
+    <meta property="og:description" content="Travel guides and camera tips for tourists visiting Langkawi. Learn where to film, what camera to use, and how to book easily.">
+    <meta property="og:url" content="https://www.gearzonthego.com/blog">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://www.gearzonthego.com/static/hero-image.jpg">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .category-btn.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .blog-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .blog-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+    </style>
+
+    <!-- BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.gearzonthego.com"},
+        {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.gearzonthego.com/blog"}
+      ]
+    }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-3 py-2 flex justify-between items-center">
+            <div class="flex items-center flex-shrink-0">
+                <a href="/" aria-label="Home">
+                    <img src="/static/logo-navbar.png?v=2" alt="Gearz On The Go" class="h-10 md:h-14 w-auto">
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6 font-medium text-gray-600 text-sm">
+                <a href="/" class="hover:text-blue-600 transition">Home</a>
+                <a href="/#gear" class="hover:text-blue-600 transition">Catalogue</a>
+                <a href="/#availability" class="hover:text-blue-600 transition">Check Dates</a>
+                <a href="/#how-it-works" class="hover:text-blue-600 transition">How to Rent</a>
+                <a href="/blog" class="text-blue-600 font-semibold transition">Blog</a>
+                <a href="/#contact" class="hover:text-blue-600 transition">Contact</a>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="/#availability" class="hidden md:inline-flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-full text-sm transition">
+                    <i class="fas fa-calendar-check text-xs"></i> Book Now
+                </a>
+                <!-- Mobile menu button -->
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden p-2 rounded text-gray-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2 text-sm font-medium text-gray-700">
+            <a href="/" class="block py-1 hover:text-blue-600">Home</a>
+            <a href="/#gear" class="block py-1 hover:text-blue-600">Catalogue</a>
+            <a href="/#availability" class="block py-1 hover:text-blue-600">Check Dates</a>
+            <a href="/#how-it-works" class="block py-1 hover:text-blue-600">How to Rent</a>
+            <a href="/blog" class="block py-1 text-blue-600 font-semibold">Blog</a>
+            <a href="/#contact" class="block py-1 hover:text-blue-600">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="bg-blue-900 text-white py-14 px-4">
+        <div class="container mx-auto text-center max-w-2xl">
+            <div class="inline-block bg-blue-700 text-blue-200 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">Travel & Camera Guide</div>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-3">Langkawi Travel & Camera Guide</h1>
+            <p class="text-blue-200 text-base md:text-lg">Tips, travel guides and filming ideas for your Langkawi adventure.</p>
+        </div>
+    </section>
+
+    <!-- Search & Filter -->
+    <section class="bg-white border-b border-gray-200 py-5 px-4 sticky top-14 z-40 shadow-sm">
+        <div class="container mx-auto max-w-5xl flex flex-col md:flex-row gap-3 items-center">
+            <!-- Search -->
+            <div class="relative w-full md:w-72">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="search-input" placeholder="Search articles..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <!-- Category Filters -->
+            <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+                <button onclick="filterCategory('all')" class="category-btn active px-4 py-1.5 rounded-full border border-blue-600 text-blue-600 text-sm font-semibold transition" data-cat="all">All</button>
+                <button onclick="filterCategory('langkawi-travel')" class="category-btn px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 text-sm font-semibold transition hover:border-blue-600 hover:text-blue-600" data-cat="langkawi-travel">Langkawi Travel</button>
+                <button onclick="filterCategory('camera-tips')" class="category-btn px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 text-sm font-semibold transition hover:border-blue-600 hover:text-blue-600" data-cat="camera-tips">Camera Tips</button>
+                <button onclick="filterCategory('travel-vlogging')" class="category-btn px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 text-sm font-semibold transition hover:border-blue-600 hover:text-blue-600" data-cat="travel-vlogging">Travel Vlogging</button>
+                <button onclick="filterCategory('langkawi-guides')" class="category-btn px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 text-sm font-semibold transition hover:border-blue-600 hover:text-blue-600" data-cat="langkawi-guides">Langkawi Guides</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Grid -->
+    <section class="py-12 px-4">
+        <div class="container mx-auto max-w-5xl">
+            <div id="blog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for post in posts %}
+                <article class="blog-card bg-white rounded-2xl overflow-hidden shadow-md" data-title="{{ post.title | lower }}" data-category="{{ post.category_slug }}">
+                    <a href="/blog/{{ post.slug }}">
+                        <div class="aspect-video bg-gray-200 overflow-hidden">
+                            {% if post.cover_image %}
+                            <img src="{{ post.cover_image }}" alt="{{ post.title }}" class="w-full h-full object-cover" loading="lazy">
+                            {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-800 flex items-center justify-center">
+                                <i class="fas fa-camera text-white text-4xl opacity-40"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="p-5">
+                        {% if post.category %}
+                        <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full mb-2">{{ post.category }}</span>
+                        {% endif %}
+                        <h2 class="text-base font-bold text-gray-900 mb-2 leading-snug">
+                            <a href="/blog/{{ post.slug }}" class="hover:text-blue-600 transition">{{ post.title }}</a>
+                        </h2>
+                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ post.excerpt }}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i>{{ post.read_time }} min read</span>
+                            <a href="/blog/{{ post.slug }}" class="text-blue-600 text-sm font-semibold hover:underline">Read More →</a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <!-- No results -->
+            <div id="no-results" class="hidden text-center py-16 text-gray-400">
+                <i class="fas fa-search text-4xl mb-3"></i>
+                <p class="text-lg font-medium">No articles found.</p>
+                <p class="text-sm mt-1">Try a different search term or category.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="bg-blue-900 text-white py-12 px-4">
+        <div class="container mx-auto text-center max-w-2xl">
+            <h2 class="text-2xl font-bold mb-2">Ready to capture your Langkawi adventure?</h2>
+            <p class="text-blue-200 mb-6">Reserve your GoPro, Insta360 or DJI Action camera online for only RM30.</p>
+            <a href="/#availability" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-full text-base transition">
+                <i class="fas fa-calendar-check mr-2"></i>Check Camera Availability
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-gray-800 pb-8 mb-6">
+                <div>
+                    <a href="/" aria-label="Home"><img src="/static/logo.png" alt="Gearz On The Go" class="h-12 w-auto mb-3"></a>
+                    <p class="text-sm">Camera & Drone Rental Service in Langkawi.</p>
+                    <p class="text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i> No 6 Maliwalk, Jalan Pantai Cenang, Langkawi</p>
+                    <p class="text-sm mt-1"><i class="fas fa-clock mr-1"></i> 2:30 PM – 11:00 PM (Every Day)</p>
+                    <p class="text-sm mt-1"><i class="fas fa-phone mr-1"></i> +601-24662939</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Quick Links</h4>
+                    <ul class="space-y-1 text-sm">
+                        <li><a href="/" class="hover:text-white transition">Home</a></li>
+                        <li><a href="/#gear" class="hover:text-white transition">Camera Catalogue</a></li>
+                        <li><a href="/blog" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="/gopro-rental-langkawi" class="hover:text-white transition">GoPro Rental</a></li>
+                        <li><a href="/insta360-rental-langkawi" class="hover:text-white transition">Insta360 Rental</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p class="text-center text-xs text-gray-600">&copy; 2026 Gearz On The Go Langkawi. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentCategory = 'all';
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cat === cat);
+            });
+            applyFilters();
+        }
+
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+
+        function applyFilters() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('#blog-grid article');
+            let visible = 0;
+            cards.forEach(card => {
+                const titleMatch = card.dataset.title.includes(query);
+                const catMatch = currentCategory === 'all' || card.dataset.category === currentCategory;
+                const show = titleMatch && catMatch;
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            document.getElementById('no-results').classList.toggle('hidden', visible > 0);
+        }
+    </script>
+</body>
+</html>

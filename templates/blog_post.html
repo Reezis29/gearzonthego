@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.meta_title or post.title }} | Gearz On The Go Blog</title>
+    <meta name="description" content="{{ post.meta_description or post.excerpt }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.gearzonthego.com/blog/{{ post.slug }}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ post.meta_title or post.title }}">
+    <meta property="og:description" content="{{ post.meta_description or post.excerpt }}">
+    <meta property="og:url" content="https://www.gearzonthego.com/blog/{{ post.slug }}">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="{{ post.cover_image or 'https://www.gearzonthego.com/static/hero-image.jpg' }}">
+    <meta property="article:published_time" content="{{ post.date }}">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Article content styles */
+        .article-body h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 0.75rem; color: #1e3a5f; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.4rem; }
+        .article-body h3 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: #1e40af; }
+        .article-body p { margin-bottom: 1rem; line-height: 1.8; color: #374151; }
+        .article-body ul, .article-body ol { margin: 0.75rem 0 1rem 1.5rem; }
+        .article-body ul { list-style-type: disc; }
+        .article-body ol { list-style-type: decimal; }
+        .article-body li { margin-bottom: 0.4rem; line-height: 1.7; color: #374151; }
+        .article-body a { color: #2563eb; text-decoration: underline; }
+        .article-body a:hover { color: #1d4ed8; }
+        .article-body strong { font-weight: 700; color: #111827; }
+        .article-body blockquote { border-left: 4px solid #2563eb; padding-left: 1rem; margin: 1.5rem 0; color: #4b5563; font-style: italic; background: #f0f7ff; padding: 1rem 1rem 1rem 1.25rem; border-radius: 0 0.5rem 0.5rem 0; }
+        .article-body img { border-radius: 0.75rem; margin: 1.5rem 0; max-width: 100%; }
+        /* TOC */
+        .toc-link { display: block; padding: 0.25rem 0; color: #4b5563; font-size: 0.875rem; border-left: 2px solid transparent; padding-left: 0.75rem; transition: all 0.2s; }
+        .toc-link:hover, .toc-link.active { color: #2563eb; border-left-color: #2563eb; }
+        .toc-link.h3 { padding-left: 1.5rem; font-size: 0.8rem; }
+    </style>
+
+    <!-- Article Schema JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "{{ post.title }}",
+      "image": "{{ post.cover_image or 'https://www.gearzonthego.com/static/hero-image.jpg' }}",
+      "datePublished": "{{ post.date }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ post.author or 'Gearz On The Go' }}"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Gearz On The Go",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.gearzonthego.com/static/logo.png"
+        }
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://www.gearzonthego.com/blog/{{ post.slug }}"
+      },
+      "description": "{{ post.meta_description or post.excerpt }}"
+    }
+    </script>
+
+    <!-- BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.gearzonthego.com"},
+        {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.gearzonthego.com/blog"},
+        {"@type": "ListItem", "position": 3, "name": "{{ post.title }}", "item": "https://www.gearzonthego.com/blog/{{ post.slug }}"}
+      ]
+    }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-3 py-2 flex justify-between items-center">
+            <div class="flex items-center flex-shrink-0">
+                <a href="/" aria-label="Home">
+                    <img src="/static/logo-navbar.png?v=2" alt="Gearz On The Go" class="h-10 md:h-14 w-auto">
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6 font-medium text-gray-600 text-sm">
+                <a href="/" class="hover:text-blue-600 transition">Home</a>
+                <a href="/#gear" class="hover:text-blue-600 transition">Catalogue</a>
+                <a href="/#availability" class="hover:text-blue-600 transition">Check Dates</a>
+                <a href="/#how-it-works" class="hover:text-blue-600 transition">How to Rent</a>
+                <a href="/blog" class="text-blue-600 font-semibold transition">Blog</a>
+                <a href="/#contact" class="hover:text-blue-600 transition">Contact</a>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="/#availability" class="hidden md:inline-flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-full text-sm transition">
+                    <i class="fas fa-calendar-check text-xs"></i> Book Now
+                </a>
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden p-2 rounded text-gray-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-2 text-sm font-medium text-gray-700">
+            <a href="/" class="block py-1 hover:text-blue-600">Home</a>
+            <a href="/#gear" class="block py-1 hover:text-blue-600">Catalogue</a>
+            <a href="/#availability" class="block py-1 hover:text-blue-600">Check Dates</a>
+            <a href="/#how-it-works" class="block py-1 hover:text-blue-600">How to Rent</a>
+            <a href="/blog" class="block py-1 text-blue-600 font-semibold">Blog</a>
+            <a href="/#contact" class="block py-1 hover:text-blue-600">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="bg-white border-b border-gray-100 py-2 px-4">
+        <div class="container mx-auto max-w-4xl text-xs text-gray-400">
+            <a href="/" class="hover:text-blue-600">Home</a>
+            <span class="mx-1">/</span>
+            <a href="/blog" class="hover:text-blue-600">Blog</a>
+            <span class="mx-1">/</span>
+            <span class="text-gray-600">{{ post.title }}</span>
+        </div>
+    </div>
+
+    <!-- Hero Image -->
+    <div class="w-full max-h-96 overflow-hidden bg-gray-200">
+        {% if post.cover_image %}
+        <img src="{{ post.cover_image }}" alt="{{ post.title }}" class="w-full max-h-96 object-cover" loading="eager">
+        {% else %}
+        <div class="w-full h-64 bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center">
+            <i class="fas fa-camera text-white text-6xl opacity-30"></i>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto max-w-5xl px-4 py-10">
+        <div class="flex flex-col lg:flex-row gap-10">
+
+            <!-- Article -->
+            <main class="flex-1 min-w-0">
+                <!-- Category + Meta -->
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    {% if post.category %}
+                    <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">{{ post.category }}</span>
+                    {% endif %}
+                    <span class="text-xs text-gray-400"><i class="fas fa-calendar mr-1"></i>{{ post.date }}</span>
+                    <span class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i>{{ post.read_time }} min read</span>
+                    <span class="text-xs text-gray-400"><i class="fas fa-user mr-1"></i>{{ post.author or 'Gearz On The Go' }}</span>
+                </div>
+
+                <!-- H1 Title -->
+                <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 leading-tight">{{ post.title }}</h1>
+
+                <!-- TOC (mobile — collapsible) -->
+                {% if toc %}
+                <div class="lg:hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full flex items-center justify-between font-bold text-blue-800 text-sm">
+                        <span><i class="fas fa-list mr-2"></i>Table of Contents</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <nav class="hidden mt-3 space-y-0.5" id="toc-mobile">
+                        {% for item in toc %}
+                        <a href="#{{ item.id }}" class="toc-link {% if item.level == 3 %}h3{% endif %}">{{ item.text }}</a>
+                        {% endfor %}
+                    </nav>
+                </div>
+                {% endif %}
+
+                <!-- Article Body -->
+                <article class="article-body">
+                    {{ content | safe }}
+                </article>
+
+                <!-- Recommended Camera Box -->
+                {% if post.recommended_camera %}
+                <div class="mt-10 bg-gradient-to-br from-blue-900 to-blue-700 text-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-camera text-orange-400 text-lg"></i>
+                        <h3 class="font-bold text-lg">Recommended Camera for This Activity</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-white/10 rounded-xl p-3">
+                            <p class="text-xs text-blue-200 mb-1">Activity</p>
+                            <p class="font-semibold text-sm">{{ post.recommended_activity }}</p>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-3">
+                            <p class="text-xs text-blue-200 mb-1">Recommended Camera</p>
+                            <p class="font-semibold text-sm">{{ post.recommended_camera }}</p>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-3">
+                            <p class="text-xs text-blue-200 mb-1">Starting From</p>
+                            <p class="font-semibold text-sm">RM80/day</p>
+                        </div>
+                    </div>
+                    <a href="{{ post.recommended_link or '/#availability' }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2.5 rounded-full text-sm transition">
+                        <i class="fas fa-calendar-check mr-1"></i>Check Availability
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- CTA Block -->
+                <div class="mt-10 bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 text-center">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Ready to capture your Langkawi adventure?</h3>
+                    <p class="text-gray-600 text-sm mb-4">Reserve your GoPro, Insta360 or DJI Action camera online for only <strong>RM30</strong>.</p>
+                    <a href="/#availability" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-full text-base transition">
+                        <i class="fas fa-calendar-check mr-2"></i>Check Camera Availability
+                    </a>
+                </div>
+
+                <!-- Related Articles -->
+                {% if related_posts %}
+                <div class="mt-12">
+                    <h3 class="text-xl font-bold text-gray-900 mb-5 border-b border-gray-200 pb-2">Related Articles</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        {% for rp in related_posts %}
+                        <a href="/blog/{{ rp.slug }}" class="group bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition">
+                            <div class="aspect-video bg-gray-200 overflow-hidden">
+                                {% if rp.cover_image %}
+                                <img src="{{ rp.cover_image }}" alt="{{ rp.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+                                {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-800 flex items-center justify-center">
+                                    <i class="fas fa-camera text-white text-2xl opacity-40"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="p-4">
+                                {% if rp.category %}
+                                <span class="text-xs text-blue-600 font-semibold">{{ rp.category }}</span>
+                                {% endif %}
+                                <p class="text-sm font-bold text-gray-800 mt-1 leading-snug group-hover:text-blue-600 transition">{{ rp.title }}</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </main>
+
+            <!-- Sidebar TOC (desktop) -->
+            {% if toc %}
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24 bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                        <i class="fas fa-list text-blue-600"></i> Table of Contents
+                    </h4>
+                    <nav class="space-y-0.5" id="toc-desktop">
+                        {% for item in toc %}
+                        <a href="#{{ item.id }}" class="toc-link {% if item.level == 3 %}h3{% endif %}">{{ item.text }}</a>
+                        {% endfor %}
+                    </nav>
+
+                    <!-- Sidebar CTA -->
+                    <div class="mt-6 bg-blue-900 text-white rounded-xl p-4 text-center">
+                        <p class="text-xs font-semibold mb-1">Camera Rental Langkawi</p>
+                        <p class="text-xs text-blue-200 mb-3">Reserve online for only RM30</p>
+                        <a href="/#availability" class="block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-full text-xs transition">
+                            Book Now
+                        </a>
+                    </div>
+                </div>
+            </aside>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-10 mt-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-gray-800 pb-8 mb-6">
+                <div>
+                    <a href="/" aria-label="Home"><img src="/static/logo.png" alt="Gearz On The Go" class="h-12 w-auto mb-3"></a>
+                    <p class="text-sm">Camera & Drone Rental Service in Langkawi.</p>
+                    <p class="text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i> No 6 Maliwalk, Jalan Pantai Cenang, Langkawi</p>
+                    <p class="text-sm mt-1"><i class="fas fa-clock mr-1"></i> 2:30 PM – 11:00 PM (Every Day)</p>
+                    <p class="text-sm mt-1"><i class="fas fa-phone mr-1"></i> +601-24662939</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Quick Links</h4>
+                    <ul class="space-y-1 text-sm">
+                        <li><a href="/" class="hover:text-white transition">Home</a></li>
+                        <li><a href="/#gear" class="hover:text-white transition">Camera Catalogue</a></li>
+                        <li><a href="/blog" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="/gopro-rental-langkawi" class="hover:text-white transition">GoPro Rental</a></li>
+                        <li><a href="/insta360-rental-langkawi" class="hover:text-white transition">Insta360 Rental</a></li>
+                        <li><a href="/camera-rental-pantai-cenang" class="hover:text-white transition">Camera Rental Pantai Cenang</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p class="text-center text-xs text-gray-600">&copy; 2026 Gearz On The Go Langkawi. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Active TOC highlight on scroll
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            headings.forEach(h => {
+                if (window.scrollY >= h.offsetTop - 120) current = h.id;
+            });
+            tocLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+            });
+        });
+    </script>
+</body>
+</html>

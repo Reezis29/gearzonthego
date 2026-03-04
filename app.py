@@ -1759,6 +1759,68 @@ def seo_pantai_cenang():
 def seo_things_to_do():
     return render_template('seo_things_to_do_langkawi_gopro.html')
 
+# ─── Blog Routes ─────────────────────────────────────────────────────────────
+from blog_engine import load_all_posts, load_post, get_related_posts
+
+@app.route('/blog')
+def blog_hub():
+    posts = load_all_posts()
+    return render_template('blog.html', posts=posts)
+
+@app.route('/blog/<slug>')
+def blog_post(slug):
+    post = load_post(slug)
+    if not post:
+        abort(404)
+    all_posts = load_all_posts()
+    related = get_related_posts(slug, all_posts, count=3)
+    return render_template(
+        'blog_post.html',
+        post=post,
+        content=post['content_html'],
+        toc=post['toc'],
+        related_posts=related
+    )
+
+# ─── Sitemap & Robots ───────────────────────────────────────────────────────
+from flask import make_response
+from blog_engine import get_all_slugs as get_blog_slugs
+
+@app.route('/sitemap.xml')
+def sitemap():
+    base = 'https://www.gearzonthego.com'
+    pages = [
+        ('/', '1.0', 'daily'),
+        ('/blog', '0.9', 'weekly'),
+        ('/gopro-rental-langkawi', '0.8', 'monthly'),
+        ('/insta360-rental-langkawi', '0.8', 'monthly'),
+        ('/dji-action-camera-rental-langkawi', '0.8', 'monthly'),
+        ('/camera-rental-pantai-cenang', '0.8', 'monthly'),
+        ('/things-to-do-in-langkawi-with-gopro', '0.8', 'monthly'),
+    ]
+    for slug in get_blog_slugs():
+        pages.append((f'/blog/{slug}', '0.7', 'monthly'))
+
+    xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for path, priority, freq in pages:
+        xml_lines.append(f'  <url>')
+        xml_lines.append(f'    <loc>{base}{path}</loc>')
+        xml_lines.append(f'    <changefreq>{freq}</changefreq>')
+        xml_lines.append(f'    <priority>{priority}</priority>')
+        xml_lines.append(f'  </url>')
+    xml_lines.append('</urlset>')
+    resp = make_response('\n'.join(xml_lines))
+    resp.headers['Content-Type'] = 'application/xml'
+    return resp
+
+@app.route('/robots.txt')
+def robots():
+    content = 'User-agent: *\nAllow: /\nSitemap: https://www.gearzonthego.com/sitemap.xml\n'
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/plain'
+    return resp
+
 # ─── Initialise DB ────────────────────────────────────────────────────────────
 with app.app_context():
     init_db()
