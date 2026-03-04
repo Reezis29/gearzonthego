@@ -59,7 +59,7 @@ def stripe_create_checkout(booking, base_url):
     Returns:
         dict with 'checkout_url' on success, or 'error' on failure
     """
-    deposit_amount = int(booking.get('deposit_amount', 200))
+    booking_fee = 30  # RM30 booking fee (changed from deposit)
     booking_ref = booking['booking_ref']
 
     # Dev mode: return a simulated checkout URL
@@ -82,10 +82,10 @@ def stripe_create_checkout(booking, base_url):
                 'price_data': {
                     'currency': 'myr',
                     'product_data': {
-                        'name': f"Deposit Sewa {booking.get('camera_name', 'Peralatan')}",
-                        'description': f"Tempahan {booking_ref} | {booking.get('start_date')} → {booking.get('end_date')} ({booking.get('days', '?')} hari)",
+                        'name': f"Gearz On The Go Camera Booking Fee",
+                        'description': f"Booking Fee {booking_ref} | {booking.get('camera_name', 'Camera')} | {booking.get('start_date')} → {booking.get('end_date')}",
                     },
-                    'unit_amount': deposit_amount * 100,  # Stripe uses cents
+                    'unit_amount': booking_fee * 100,  # Stripe uses cents
                 },
                 'quantity': 1,
             }],
@@ -169,7 +169,7 @@ def billplz_create_bill(booking, base_url):
     Returns:
         dict with 'bill_url' on success, or 'error' on failure
     """
-    deposit_amount = int(booking.get('deposit_amount', 200))
+    booking_fee = 30  # RM30 booking fee only
     booking_ref = booking['booking_ref']
 
     # Dev mode: return a simulated bill URL
@@ -193,9 +193,9 @@ def billplz_create_bill(booking, base_url):
 
         data = {
             'collection_id': BILLPLZ_COLLECTION_ID,
-            'description': f"Deposit Sewa {booking.get('camera_name', 'Peralatan')} - {booking_ref}",
+            'description': f"Gearz On The Go Camera Booking Fee – RM30",
             'name': booking.get('customer_name', 'Pelanggan'),
-            'amount': deposit_amount * 100,  # Billplz uses cents
+            'amount': booking_fee * 100,  # Billplz uses cents (RM30 booking fee)
             'callback_url': f"{base_url}/payment/billplz/callback",
             'redirect_url': f"{base_url}/payment/billplz/redirect",
             'reference_1_label': 'Booking Ref',

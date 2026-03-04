@@ -313,7 +313,26 @@ def calculate_price(camera_id, days):
 # ─── Public Routes ────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
-    return render_template('index.html', cameras=CAMERAS)
+    # Build availability_map for urgency indicators (units available today)
+    today = datetime.now().strftime('%Y-%m-%d')
+    tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    availability_map = {}
+    try:
+        conn = get_db()
+        for cam in CAMERAS:
+            avail_units = get_available_units(cam['id'], today, tomorrow)
+            total_units = conn.execute(
+                "SELECT COUNT(*) FROM units WHERE product_id = ? AND status = 'available'",
+                (cam['id'],)
+            ).fetchone()[0]
+            availability_map[cam['id']] = {
+                'available_units': len(avail_units),
+                'total_units': total_units
+            }
+        conn.close()
+    except Exception:
+        pass
+    return render_template('index.html', cameras=CAMERAS, availability_map=availability_map)
 
 @app.route('/api/availability/<camera_id>')
 def api_availability(camera_id):
@@ -1134,7 +1153,7 @@ def api_create_booking():
             pickup_time, return_time, booking_mode, unit_id)
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (camera_id, start_date, end_date, cust_name, cust_phone,
-         notes, customer_id, booking_ref, 'pending', 200, 'unpaid',
+         notes, customer_id, booking_ref, 'pending', 30, 'unpaid',
          total, ppd, 'online', cust_email, cust_ic,
          pickup_time, return_time, 'online', assigned_unit_id)
     )
@@ -1169,9 +1188,10 @@ def api_create_booking():
         'days': days,
         'price_per_day': ppd,
         'total_price': total,
+        'booking_fee': 30,
         'deposit': 200,
         'admin_wa_link': admin_wa_link,
-        'message': f'Tempahan {booking_ref} berjaya dicipta. Sila bayar deposit RM200 untuk pengesahan.'
+        'message': f'Tempahan {booking_ref} berjaya dicipta. Sila bayar booking fee RM30 untuk mengesahkan tempahan anda.'
     }), 201
 
 @app.route('/api/bookings/<booking_ref>')
@@ -1445,7 +1465,7 @@ def _get_booking_for_payment(booking_ref):
     return bd
 
 def _mark_booking_paid(booking_ref, method, transaction_id=''):
-    """Mark a booking as confirmed after successful payment."""
+    """Mark a booking as confirmed after successful RM30 booking fee payment."""
     conn = get_db()
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     conn.execute(
@@ -1454,8 +1474,8 @@ def _mark_booking_paid(booking_ref, method, transaction_id=''):
     )
     conn.execute(
         "INSERT INTO payments (booking_ref, amount, type, method, status, reference, created_at, verified_at, verified_by) "
-        "VALUES (?, (SELECT deposit_amount FROM bookings WHERE booking_ref=?), 'deposit', ?, 'verified', ?, ?, ?, 'auto')",
-        (booking_ref, booking_ref, method, transaction_id, now, now)
+        "VALUES (?, 30, 'booking_fee', ?, 'verified', ?, ?, ?, 'auto')",
+        (booking_ref, method, transaction_id, now, now)
     )
     conn.commit()
     conn.close()
@@ -1667,6 +1687,27 @@ def booking_confirmation(booking_ref):
 
     return render_template('booking_confirmation.html', booking=bd, wa_links=wa_links,
                            payment_status=payment_status, gateway_status=gateway_status)
+
+# ─── SEO Landing Pages ───────────────────────────────────────────────────────
+@app.route('/gopro-rental-langkawi')
+def seo_gopro_rental():
+    return render_template('seo_gopro_rental_langkawi.html')
+
+@app.route('/insta360-rental-langkawi')
+def seo_insta360_rental():
+    return render_template('seo_insta360_rental_langkawi.html')
+
+@app.route('/dji-action-camera-rental-langkawi')
+def seo_dji_rental():
+    return render_template('seo_dji_action_camera_rental_langkawi.html')
+
+@app.route('/camera-rental-pantai-cenang')
+def seo_pantai_cenang():
+    return render_template('seo_camera_rental_pantai_cenang.html')
+
+@app.route('/things-to-do-in-langkawi-with-gopro')
+def seo_things_to_do():
+    return render_template('seo_things_to_do_langkawi_gopro.html')
 
 # ─── Initialise DB ────────────────────────────────────────────────────────────
 with app.app_context():

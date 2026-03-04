@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengesahan Tempahan — Gearz On The Go</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Booking Confirmed — Gearz On The Go</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Poppins',sans-serif; background:#f0f2f5; min-height:100vh; }
-        .container { max-width:520px; margin:0 auto; padding:20px; }
+        .container { max-width:540px; margin:0 auto; padding:20px; }
         .logo { text-align:center; padding:20px 0 10px; }
         .logo h1 { font-size:1.4rem; color:#1e3a5f; }
         .logo span { color:#f97316; }
@@ -35,14 +35,37 @@
         .info-label { font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600; letter-spacing:0.5px; }
         .info-value { font-size:0.95rem; font-weight:600; color:#1e293b; margin-top:2px; }
 
-        .price-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; }
-        .price-row:last-child { border-bottom:none; }
-        .price-label { color:#64748b; font-size:0.9rem; }
-        .price-value { font-weight:600; color:#1e293b; }
-        .price-total { font-size:1.2rem; color:#059669; font-weight:700; }
-        .deposit-highlight { background:#fef3c7; padding:12px 16px; border-radius:10px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; }
-        .deposit-highlight .label { font-weight:600; color:#92400e; }
-        .deposit-highlight .amount { font-size:1.3rem; font-weight:700; color:#d97706; }
+        /* Payment breakdown */
+        .payment-breakdown { border-radius:14px; overflow:hidden; margin-bottom:16px; }
+        .pay-now-section { background:linear-gradient(135deg,#059669,#10b981); color:#fff; padding:20px 24px; }
+        .pay-now-section .label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; opacity:0.85; margin-bottom:6px; }
+        .pay-now-section .amount { font-size:2rem; font-weight:800; }
+        .pay-now-section .sub { font-size:0.8rem; opacity:0.9; margin-top:4px; }
+        .pay-at-pickup { background:#fff; border:2px solid #e2e8f0; border-top:none; padding:20px 24px; }
+        .pay-at-pickup .label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#64748b; margin-bottom:10px; }
+        .pickup-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:0.9rem; }
+        .pickup-row:last-child { border-bottom:none; }
+        .pickup-row .item { color:#475569; }
+        .pickup-row .val { font-weight:600; color:#1e293b; }
+        .pickup-deposit-note { background:#fef3c7; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; margin-top:12px; font-size:0.78rem; color:#92400e; line-height:1.5; }
+
+        /* Confirmed success banner */
+        .confirmed-banner { background:linear-gradient(135deg,#059669,#10b981); color:#fff; border-radius:16px; padding:24px; text-align:center; margin-bottom:16px; }
+        .confirmed-banner .icon { font-size:3rem; margin-bottom:8px; }
+        .confirmed-banner h2 { font-size:1.4rem; font-weight:800; margin-bottom:6px; }
+        .confirmed-banner p { font-size:0.85rem; opacity:0.9; line-height:1.5; }
+
+        /* Pickup location card */
+        .pickup-location { background:#fff; border-radius:16px; padding:20px 24px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .pickup-location h3 { font-size:0.95rem; font-weight:700; color:#1e3a5f; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+        .pickup-location .loc-name { font-weight:600; color:#1e293b; font-size:0.95rem; margin-bottom:4px; }
+        .pickup-location .loc-addr { font-size:0.8rem; color:#64748b; line-height:1.5; }
+        .maps-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px; background:#1e3a5f; color:#fff; border:none; border-radius:10px; font-size:0.9rem; font-weight:600; cursor:pointer; text-decoration:none; margin-top:14px; transition:background 0.2s; }
+        .maps-btn:hover { background:#172e4f; }
+
+        /* WhatsApp button */
+        .wa-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; background:#25D366; color:#fff; border:none; border-radius:12px; font-size:1rem; font-weight:600; cursor:pointer; text-align:center; text-decoration:none; margin-bottom:10px; transition:background 0.2s; }
+        .wa-btn:hover { background:#1da851; }
 
         /* Payment selection */
         .payment-section h3 { font-size:1rem; color:#1e3a5f; margin-bottom:16px; }
@@ -83,8 +106,6 @@
         .copy-btn { background:rgba(255,255,255,0.2); border:none; color:#fff; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer; }
         .copy-btn:active { background:rgba(255,255,255,0.4); }
 
-        .wa-btn { display:block; width:100%; padding:14px; background:#25D366; color:#fff; border:none; border-radius:12px; font-size:1rem; font-weight:600; cursor:pointer; text-align:center; text-decoration:none; margin-bottom:10px; }
-        .wa-btn:hover { background:#1da851; }
         .secondary-btn { display:block; width:100%; padding:12px; background:#f1f5f9; color:#475569; border:none; border-radius:12px; font-size:0.9rem; font-weight:500; cursor:pointer; text-align:center; text-decoration:none; }
 
         .steps { counter-reset:step; }
@@ -102,6 +123,11 @@
         .or-divider::before, .or-divider::after { content:''; flex:1; height:1px; background:#e2e8f0; }
 
         .footer-note { text-align:center; padding:20px; color:#94a3b8; font-size:0.75rem; }
+
+        /* Remaining payment at pickup notice */
+        .pickup-payment-notice { background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:18px 20px; margin-bottom:16px; }
+        .pickup-payment-notice h4 { font-size:0.9rem; font-weight:700; color:#1e40af; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .pickup-payment-notice .notice-text { font-size:0.82rem; color:#1e40af; line-height:1.6; }
     </style>
 </head>
 <body>
@@ -113,28 +139,40 @@
         <!-- Payment status alerts -->
         {% if payment_status == 'success' %}
         <div class="alert alert-success">
-            ✅ Pembayaran berjaya! Tempahan anda telah disahkan.
+            ✅ Payment successful! Your booking is confirmed.
         </div>
         {% elif payment_status == 'cancelled' %}
         <div class="alert alert-cancel">
-            ⚠️ Pembayaran dibatalkan. Sila cuba lagi atau pilih kaedah lain.
+            ⚠️ Payment cancelled. Please try again or choose another method.
         </div>
         {% endif %}
 
-        <!-- Booking Reference -->
+        {% set s = booking.get('status', 'pending') %}
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- CONFIRMED STATE — Show success banner                          -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        {% if s == 'confirmed' or payment_status == 'success' %}
+        <div class="confirmed-banner">
+            <div class="icon">✅</div>
+            <h2>BOOKING CONFIRMED</h2>
+            <p>Your camera has been reserved. Please pay the remaining rental and RM200 refundable security deposit at pickup.</p>
+        </div>
+        {% endif %}
+
+        <!-- Booking Reference Card -->
         <div class="card">
             <div class="status-center">
-                {% set s = booking.get('status', 'pending') %}
-                {% if s == 'pending' %}
-                    <span class="status status-pending">⏳ Menunggu Bayaran</span>
-                {% elif s == 'confirmed' %}
-                    <span class="status status-confirmed">✅ Disahkan</span>
+                {% if s == 'pending' and payment_status != 'success' %}
+                    <span class="status status-pending">⏳ Awaiting Payment</span>
+                {% elif s == 'confirmed' or payment_status == 'success' %}
+                    <span class="status status-confirmed">✅ Confirmed</span>
                 {% elif s == 'active' %}
-                    <span class="status status-active">📷 Sedang Disewa</span>
+                    <span class="status status-active">📷 Active Rental</span>
                 {% elif s == 'returned' %}
-                    <span class="status status-returned">✔ Dipulangkan</span>
+                    <span class="status status-returned">✔ Returned</span>
                 {% elif s == 'cancelled' %}
-                    <span class="status status-cancelled">✖ Dibatalkan</span>
+                    <span class="status status-cancelled">✖ Cancelled</span>
                 {% endif %}
             </div>
             <div class="booking-ref">{{ booking.booking_ref }}</div>
@@ -143,57 +181,67 @@
                 <img class="device-img" src="/static/images/{{ booking.camera_image }}" alt="{{ booking.camera_name }}" onerror="this.style.display='none'">
                 <div>
                     <div class="device-name">{{ booking.camera_name }}</div>
-                    <div style="color:#64748b;font-size:0.85rem;">{{ booking.days }} hari</div>
+                    <div style="color:#64748b;font-size:0.85rem;">{{ booking.days }} day{% if booking.days != 1 %}s{% endif %}</div>
                 </div>
             </div>
 
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label">Tarikh Ambil</div>
+                    <div class="info-label">Pickup Date</div>
                     <div class="info-value">{{ booking.start_date }}</div>
                     {% if booking.get('pickup_time') %}<div style="color:#2563eb;font-size:0.8rem;">{{ booking.pickup_time }}</div>{% endif %}
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Tarikh Pulang</div>
+                    <div class="info-label">Return Date</div>
                     <div class="info-value">{{ booking.end_date }}</div>
                     {% if booking.get('return_time') %}<div style="color:#dc2626;font-size:0.8rem;">{{ booking.return_time }}</div>{% endif %}
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Nama</div>
+                    <div class="info-label">Name</div>
                     <div class="info-value">{{ booking.customer_name }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Telefon</div>
+                    <div class="info-label">Phone / WhatsApp</div>
                     <div class="info-value">{{ booking.customer_phone }}</div>
                 </div>
             </div>
         </div>
 
-        <!-- Pricing -->
-        <div class="card">
-            <h3 style="font-size:0.95rem;color:#1e3a5f;margin-bottom:12px;">💰 Butiran Harga</h3>
-            <div class="price-row">
-                <span class="price-label">Harga/hari</span>
-                <span class="price-value">RM{{ '%.0f' % booking.price_per_day if booking.price_per_day else '-' }}</span>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- PAYMENT BREAKDOWN                                              -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <div class="payment-breakdown card" style="padding:0;">
+            <!-- Pay Now -->
+            <div class="pay-now-section">
+                <div class="label">💳 Pay Now (Online)</div>
+                <div class="amount">RM30</div>
+                <div class="sub">Booking Fee — secures your reservation</div>
             </div>
-            <div class="price-row">
-                <span class="price-label">{{ booking.days }} hari</span>
-                <span class="price-value price-total">RM{{ '%.0f' % booking.total_price if booking.total_price else '-' }}</span>
-            </div>
-            <div class="deposit-highlight">
-                <span class="label">Deposit Diperlukan</span>
-                <span class="amount">RM{{ '%.0f' % (booking.deposit_amount or 200) }}</span>
+            <!-- Pay at Pickup -->
+            <div class="pay-at-pickup">
+                <div class="label">🏪 Pay at Pickup</div>
+                <div class="pickup-row">
+                    <span class="item">Remaining Rental ({{ booking.days }} day{% if booking.days != 1 %}s{% endif %})</span>
+                    <span class="val">RM{{ '%.0f' % ((booking.total_price or 0) - 30) if booking.total_price else '-' }}</span>
+                </div>
+                <div class="pickup-row">
+                    <span class="item">Refundable Security Deposit</span>
+                    <span class="val">RM200</span>
+                </div>
+                <div class="pickup-deposit-note">
+                    🔒 RM200 refundable security deposit will be collected at pickup and returned after the camera is safely returned in good condition.
+                </div>
             </div>
         </div>
 
-        {% set s = booking.get('status', 'pending') %}
-        {% if s == 'pending' %}
+        {% if s == 'pending' and payment_status != 'success' %}
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
-        <!-- PAYMENT OPTIONS                                                -->
+        <!-- PAYMENT OPTIONS (pending state)                                -->
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <div class="card payment-section" id="paymentSection">
-            <h3>💳 Pilih Kaedah Bayaran Deposit</h3>
+            <h3>💳 Pay RM30 Booking Fee</h3>
+            <p style="font-size:0.82rem;color:#64748b;margin-bottom:16px;">Choose your payment method to confirm your booking.</p>
 
             <!-- Option 1: FPX / DuitNow (Billplz) -->
             <div class="payment-option" id="opt-billplz" onclick="selectPayment('billplz')">
@@ -201,7 +249,7 @@
                 <div class="icon">🏦</div>
                 <div class="details">
                     <div class="name">Online Banking (FPX / DuitNow)</div>
-                    <div class="desc">Maybank, CIMB, RHB, Public Bank, DuitNow QR & lain-lain</div>
+                    <div class="desc">Maybank, CIMB, RHB, Public Bank, DuitNow QR & more</div>
                 </div>
                 <span class="badge">Popular</span>
                 {% if gateway_status and gateway_status.dev_mode %}<span class="dev-tag">Dev Mode</span>{% endif %}
@@ -212,7 +260,7 @@
                 <div class="radio"></div>
                 <div class="icon">💳</div>
                 <div class="details">
-                    <div class="name">Kad Kredit / Debit</div>
+                    <div class="name">Credit / Debit Card</div>
                     <div class="desc">Visa, Mastercard, American Express</div>
                 </div>
                 {% if gateway_status and gateway_status.dev_mode %}<span class="dev-tag">Dev Mode</span>{% endif %}
@@ -223,149 +271,188 @@
                 <div class="radio"></div>
                 <div class="icon">📱</div>
                 <div class="details">
-                    <div class="name">Pindahan Bank Manual</div>
-                    <div class="desc">Transfer terus ke akaun Maybank + hantar bukti via WhatsApp</div>
+                    <div class="name">Manual Bank Transfer</div>
+                    <div class="desc">Transfer to Maybank account + send proof via WhatsApp</div>
                 </div>
             </div>
 
-            <!-- Pay button (changes based on selection) -->
+            <!-- Pay button -->
             <button class="pay-btn pay-btn-billplz" id="payBtn" onclick="processPayment()" disabled>
-                Pilih kaedah bayaran
+                Select payment method
             </button>
             <div class="pay-loading" id="payLoading">
                 <div style="font-size:1.5rem;margin-bottom:8px;">⏳</div>
-                Sedang memproses... Sila tunggu.
+                Processing... Please wait.
             </div>
         </div>
 
-        <!-- Bank Transfer Details (shown when bank option selected) -->
+        <!-- Bank Transfer Details -->
         <div class="bank-transfer-box" id="bankTransferBox">
             <div class="payment-box">
-                <h3>🏦 Butiran Akaun Bank</h3>
+                <h3>🏦 Bank Account Details</h3>
                 <div class="bank-info">
                     <div class="bank-row">
                         <span class="label">Bank</span>
                         <span class="value">Maybank</span>
                     </div>
                     <div class="bank-row">
-                        <span class="label">Nama Akaun</span>
+                        <span class="label">Account Name</span>
                         <span class="value">GEAR ETC SDN BHD</span>
                     </div>
                     <div class="bank-row">
-                        <span class="label">No. Akaun</span>
+                        <span class="label">Account No.</span>
                         <span class="value" id="bankAcc">552152001924</span>
-                        <button class="copy-btn" onclick="copyText('552152001924')">Salin</button>
+                        <button class="copy-btn" onclick="copyText('552152001924')">Copy</button>
+                    </div>
+                    <div class="bank-row">
+                        <span class="label">Amount</span>
+                        <span class="value">RM30 (Booking Fee)</span>
                     </div>
                 </div>
                 <div style="font-size:0.8rem;opacity:0.9;">
-                    📌 Sertakan <strong>{{ booking.booking_ref }}</strong> sebagai rujukan pembayaran
+                    📌 Include <strong>{{ booking.booking_ref }}</strong> as payment reference
                 </div>
             </div>
 
             <div class="card">
-                <h3 style="font-size:0.95rem;color:#1e3a5f;margin-bottom:16px;">📋 Langkah Seterusnya</h3>
+                <h3 style="font-size:0.95rem;color:#1e3a5f;margin-bottom:16px;">📋 Next Steps</h3>
                 <div class="steps">
                     <div class="step">
                         <div class="step-num">1</div>
-                        <div class="step-text"><strong>Bayar deposit RM{{ '%.0f' % (booking.deposit_amount or 200) }}</strong> ke akaun bank di atas</div>
+                        <div class="step-text"><strong>Transfer RM30 booking fee</strong> to the bank account above</div>
                     </div>
                     <div class="step">
                         <div class="step-num">2</div>
-                        <div class="step-text"><strong>Hantar bukti pembayaran</strong> melalui WhatsApp bersama nombor rujukan <strong>{{ booking.booking_ref }}</strong></div>
+                        <div class="step-text"><strong>Send payment proof</strong> via WhatsApp with reference <strong>{{ booking.booking_ref }}</strong></div>
                     </div>
                     <div class="step">
                         <div class="step-num">3</div>
-                        <div class="step-text"><strong>Tunggu pengesahan</strong> dari staff kami (biasanya dalam 30 minit)</div>
+                        <div class="step-text"><strong>Wait for confirmation</strong> from our staff (usually within 30 minutes)</div>
                     </div>
                     <div class="step">
                         <div class="step-num">4</div>
-                        <div class="step-text"><strong>Ambil peralatan</strong> pada tarikh yang ditetapkan</div>
+                        <div class="step-text"><strong>Pick up your camera</strong> and pay remaining rental + RM200 deposit at our outlet</div>
                     </div>
                 </div>
             </div>
 
             <a class="wa-btn" href="{{ wa_links.send_proof }}" target="_blank">
-                📱 Hantar Bukti Bayaran via WhatsApp
+                📱 Send Payment Proof via WhatsApp
             </a>
         </div>
 
-        {% elif s == 'confirmed' %}
-        <div class="card" style="background:#d1fae5;border:2px solid #059669;">
-            <div style="text-align:center;">
-                <div style="font-size:2rem;">✅</div>
-                <h3 style="color:#065f46;margin:8px 0;">Tempahan Disahkan!</h3>
-                <p style="color:#047857;font-size:0.85rem;">Deposit telah diterima. Sila datang ambil peralatan pada tarikh yang ditetapkan.</p>
+        {% elif s == 'confirmed' or payment_status == 'success' %}
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- CONFIRMED STATE — Pickup location + WhatsApp                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- Remaining Payment Reminder -->
+        <div class="pickup-payment-notice">
+            <h4>🏪 Remaining Payment at Pickup</h4>
+            <div class="notice-text">
+                Please bring the remaining rental payment and <strong>RM200 refundable security deposit</strong> when you come to pick up your camera.<br><br>
+                The RM200 deposit will be returned to you after the camera is safely returned in good condition.
             </div>
         </div>
-        <a class="wa-btn" href="{{ wa_links.pickup_enquiry }}" target="_blank">
-            📍 Tanya Butiran Pickup via WhatsApp
+
+        <!-- Pickup Location -->
+        <div class="pickup-location">
+            <h3>📍 Pickup Location</h3>
+            <div class="loc-name">Gearz On The Go – Pantai Cenang, Langkawi</div>
+            <div class="loc-addr">No 6 Maliwalk, Jalan Pantai Cenang<br>07000 Langkawi, Kedah DA<br>⏰ Open daily: 2:30 PM – 11:00 PM</div>
+            <a class="maps-btn" href="https://maps.app.goo.gl/RHjQg1rSfMcESExi9" target="_blank">
+                🗺️ Open Google Maps
+            </a>
+        </div>
+
+        <!-- WhatsApp Support Button -->
+        <a class="wa-btn" id="waConfirmBtn" href="#" target="_blank">
+            💬 Chat on WhatsApp
         </a>
+
         <a class="wa-btn" href="{{ wa_links.enquiry }}" target="_blank" style="background:#1e3a5f;">
-            💬 Hubungi Kami via WhatsApp
+            ❓ Ask About My Booking
         </a>
+
         {% elif s == 'active' %}
         <div class="card" style="background:#dbeafe;border:2px solid #2563eb;">
             <div style="text-align:center;">
                 <div style="font-size:2rem;">📷</div>
-                <h3 style="color:#1e40af;margin:8px 0;">Peralatan Sedang Disewa</h3>
-                <p style="color:#1d4ed8;font-size:0.85rem;">Sila pulangkan sebelum {{ booking.end_date }}{% if booking.get('return_time') %} {{ booking.return_time }}{% endif %}.</p>
+                <h3 style="color:#1e40af;margin:8px 0;">Camera Currently Rented</h3>
+                <p style="color:#1d4ed8;font-size:0.85rem;">Please return before {{ booking.end_date }}{% if booking.get('return_time') %} {{ booking.return_time }}{% endif %}.</p>
             </div>
         </div>
         {% elif s == 'returned' %}
         <div class="card" style="background:#f0fdf4;border:2px solid #22c55e;">
             <div style="text-align:center;">
                 <div style="font-size:2rem;">✔</div>
-                <h3 style="color:#166534;margin:8px 0;">Peralatan Dipulangkan</h3>
-                <p style="color:#15803d;font-size:0.85rem;">Terima kasih kerana menggunakan Gearz On The Go!</p>
+                <h3 style="color:#166534;margin:8px 0;">Camera Returned</h3>
+                <p style="color:#15803d;font-size:0.85rem;">Thank you for renting with Gearz On The Go!</p>
             </div>
         </div>
         {% elif s == 'cancelled' %}
         <div class="card" style="background:#fef2f2;border:2px solid #ef4444;">
             <div style="text-align:center;">
                 <div style="font-size:2rem;">✖</div>
-                <h3 style="color:#991b1b;margin:8px 0;">Tempahan Dibatalkan</h3>
-                <p style="color:#b91c1c;font-size:0.85rem;">Tempahan ini telah dibatalkan.</p>
+                <h3 style="color:#991b1b;margin:8px 0;">Booking Cancelled</h3>
+                <p style="color:#b91c1c;font-size:0.85rem;">This booking has been cancelled.</p>
             </div>
         </div>
         {% endif %}
 
-        <a class="secondary-btn" href="/" style="margin-top:10px;">← Kembali ke Laman Utama</a>
+        <a class="secondary-btn" href="/" style="margin-top:10px;">← Back to Homepage</a>
 
         <div class="footer-note">
-            Gearz On The Go — Sewa Kamera & Drone Langkawi<br>
-            Simpan halaman ini sebagai rujukan tempahan anda.
+            Gearz On The Go — Camera & Drone Rental Langkawi<br>
+            Save this page as your booking reference.
         </div>
     </div>
 
     <script>
     const BOOKING_REF = '{{ booking.booking_ref }}';
+    const CAMERA_NAME = '{{ booking.camera_name }}';
+    const PICKUP_DATE = '{{ booking.start_date }}';
+    const RETURN_DATE = '{{ booking.end_date }}';
+    const TOTAL_PRICE = {{ booking.total_price or 0 }};
+    const REMAINING = Math.max(0, TOTAL_PRICE - 30);
     let selectedPayment = null;
+
+    // Build WhatsApp confirmation message
+    const waMsg = encodeURIComponent(
+        `Hi! My booking is confirmed.\n\n` +
+        `Camera: ${CAMERA_NAME}\n` +
+        `Pickup: ${PICKUP_DATE}\n` +
+        `Return: ${RETURN_DATE}\n\n` +
+        `Paid today: RM30 booking fee.\n` +
+        `Remaining rental + RM200 refundable security deposit will be paid at pickup.\n\n` +
+        `Pickup location:\nhttps://maps.app.goo.gl/RHjQg1rSfMcESExi9`
+    );
+    const waBtn = document.getElementById('waConfirmBtn');
+    if (waBtn) {
+        waBtn.href = `https://wa.me/60124662939?text=${waMsg}`;
+    }
 
     function selectPayment(method) {
         selectedPayment = method;
-
-        // Update radio buttons
         document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
         document.getElementById('opt-' + method).classList.add('selected');
 
-        // Update pay button
         const btn = document.getElementById('payBtn');
         btn.disabled = false;
-
-        // Show/hide bank transfer details
         const bankBox = document.getElementById('bankTransferBox');
 
         if (method === 'stripe') {
             btn.className = 'pay-btn pay-btn-stripe';
-            btn.textContent = '💳 Bayar RM{{ "%.0f" % (booking.deposit_amount or 200) }} dengan Kad';
+            btn.textContent = '💳 Pay RM30 Booking Fee with Card';
             bankBox.classList.remove('active');
         } else if (method === 'billplz') {
             btn.className = 'pay-btn pay-btn-billplz';
-            btn.textContent = '🏦 Bayar RM{{ "%.0f" % (booking.deposit_amount or 200) }} dengan FPX / DuitNow';
+            btn.textContent = '🏦 Pay RM30 Booking Fee with FPX / DuitNow';
             bankBox.classList.remove('active');
         } else if (method === 'bank') {
             btn.className = 'pay-btn pay-btn-bank';
-            btn.textContent = '📱 Lihat Butiran Bank Transfer';
+            btn.textContent = '📱 View Bank Transfer Details';
             bankBox.classList.remove('active');
         }
     }
@@ -377,18 +464,15 @@
         const loading = document.getElementById('payLoading');
 
         if (selectedPayment === 'bank') {
-            // Show bank transfer details
             document.getElementById('bankTransferBox').classList.add('active');
-            btn.textContent = '✅ Butiran dipaparkan di bawah';
+            btn.textContent = '✅ Details shown below';
             btn.disabled = true;
-            // Scroll to bank details
             document.getElementById('bankTransferBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
 
-        // Online payment (Stripe or Billplz)
         btn.disabled = true;
-        btn.textContent = '⏳ Memproses...';
+        btn.textContent = '⏳ Processing...';
         loading.classList.add('active');
 
         try {
@@ -405,7 +489,6 @@
             const data = await response.json();
 
             if (data.success) {
-                // Redirect to payment gateway
                 const redirectUrl = data.checkout_url || data.bill_url;
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
@@ -413,15 +496,14 @@
                 }
             }
 
-            // Error
-            alert('Ralat: ' + (data.error || 'Tidak dapat memproses pembayaran. Sila cuba lagi.'));
+            alert('Error: ' + (data.error || 'Unable to process payment. Please try again.'));
             btn.disabled = false;
             btn.textContent = selectedPayment === 'stripe'
-                ? '💳 Bayar RM{{ "%.0f" % (booking.deposit_amount or 200) }} dengan Kad'
-                : '🏦 Bayar RM{{ "%.0f" % (booking.deposit_amount or 200) }} dengan FPX / DuitNow';
+                ? '💳 Pay RM30 Booking Fee with Card'
+                : '🏦 Pay RM30 Booking Fee with FPX / DuitNow';
 
         } catch (err) {
-            alert('Ralat rangkaian. Sila semak internet anda dan cuba lagi.');
+            alert('Network error. Please check your internet connection and try again.');
             btn.disabled = false;
         }
 
@@ -430,7 +512,7 @@
 
     function copyText(text) {
         navigator.clipboard.writeText(text).then(() => {
-            alert('Disalin!');
+            alert('Copied!');
         });
     }
     </script>
