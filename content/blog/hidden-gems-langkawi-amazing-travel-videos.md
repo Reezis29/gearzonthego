@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "Insta360 X5"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/hidden-gems-langkawi-videos.jpg"
 ---
 
 # Discover Langkawi's Secret Filming Spots: Capture Unforgettable Videos

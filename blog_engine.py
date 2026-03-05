@@ -81,7 +81,7 @@ def load_post(slug):
         'category': category,
         'category_slug': meta.get('category_slug', CATEGORY_SLUGS.get(category, 'general')),
         'date': str(meta.get('date', '')),
-        'cover_image': meta.get('cover_image', ''),
+        'cover_image': meta.get('cover_image', '') or meta.get('image', ''),
         'meta_title': meta.get('meta_title', ''),
         'meta_description': meta.get('meta_description', ''),
         'author': meta.get('author', 'Gearz On The Go'),

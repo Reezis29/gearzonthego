@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "Insta360 X4"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/insta360-langkawi-skycab.jpg"
 ---
 
 # Why an Insta360 is the Perfect Camera for the Langkawi SkyCab

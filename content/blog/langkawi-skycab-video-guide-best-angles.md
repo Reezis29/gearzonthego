@@ -13,6 +13,7 @@ read_time: 5
 recommended_activity: "Cable Car & Bridge Walk"
 recommended_camera: "Insta360 X5"
 recommended_link: "/insta360-rental-langkawi"
+image: "/static/blog/langkawi-skycab-video-guide.jpg"
 ---
 
 The Langkawi SkyCab is one of the most spectacular cable car rides in the world, and the Sky Bridge at the top is an architectural marvel. It’s a must-film location for any visitor. Here’s how to capture it perfectly.

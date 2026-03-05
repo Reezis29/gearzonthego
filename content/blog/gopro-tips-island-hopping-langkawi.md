@@ -6,6 +6,7 @@ category: "Camera Tips"
 recommended_camera: "GoPro Hero 12 Black"
 reading_time: 4
 date: "2026-03-05"
+image: "/static/blog/gopro-tips-island-hopping.jpg"
 ---
 
 # Mastering Island Hopping: Essential GoPro Tips for Langkawi Adventures

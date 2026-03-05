@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12 Black"
 reading_time: 7
 date: "2026-03-05"
+image: "/static/blog/why-rent-action-camera-langkawi.jpg"
 ---
 
 # Why Rent an Action Camera for Your Langkawi Trip: Capture Every Thrill!

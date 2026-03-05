@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/top-instagram-spots-langkawi.jpg"
 ---
 
 # Top Instagram Spots in Langkawi: Capture Your Perfect Shots

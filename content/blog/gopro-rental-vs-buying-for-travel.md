@@ -6,6 +6,7 @@ category: "Camera Tips"
 recommended_camera: "GoPro Hero 12"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/gopro-rental-vs-buying-travel.jpg"
 ---
 
 # GoPro Rental vs. Buying for Travel: Your Ultimate Langkawi Adventure Guide

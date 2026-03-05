@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "Insta360 X4"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/langkawi-skycab-travel-guide.jpg"
 ---
 
 # Langkawi SkyCab Travel Guide: Soar Above the Rainforest and Capture Breathtaking Views

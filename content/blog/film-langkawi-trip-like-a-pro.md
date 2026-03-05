@@ -6,6 +6,7 @@ category: "Travel Vlogging"
 recommended_camera: "DJI Action 5 Pro"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/film-langkawi-trip-like-a-pro.jpg"
 ---
 
 # Master Your Langkawi Trip: Pro Filming Tips & Camera Gear for Stunning Videos

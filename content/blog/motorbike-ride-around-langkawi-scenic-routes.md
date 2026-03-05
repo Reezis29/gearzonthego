@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "Insta360 X4"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/motorbike-ride-langkawi-scenic-routes.jpg"
 ---
 
 # Motorbike Ride Around Langkawi – Scenic Routes: Your Ultimate Guide to Island Exploration

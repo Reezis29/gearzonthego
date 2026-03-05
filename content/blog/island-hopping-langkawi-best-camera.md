@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "DJI Action 5 Pro"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/island-hopping-langkawi-camera.jpg"
 ---
 
 # Island Hopping Langkawi – Best Camera for the Trip

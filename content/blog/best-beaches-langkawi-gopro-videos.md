@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/best-beaches-langkawi-gopro.jpg"
 ---
 
 ## Best Beaches in Langkawi for GoPro Videos: Capture Your Tropical Adventures!

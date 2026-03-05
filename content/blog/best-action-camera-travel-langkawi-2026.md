@@ -6,6 +6,7 @@ category: "Camera Tips"
 recommended_camera: "GoPro Hero 13 Black"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/best-action-camera-travel-2026.jpg"
 ---
 
 # The Ultimate Guide to the Best Action Cameras for Travel in Langkawi 2026

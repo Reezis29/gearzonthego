@@ -6,6 +6,7 @@ category: "Travel Vlogging"
 recommended_camera: "Insta360 X4"
 reading_time: 4
 date: "2026-03-05"
+image: "/static/blog/best-camera-setup-travel-vloggers.jpg"
 ---
 
 # Best Camera Setup for Travel Vloggers in 2026

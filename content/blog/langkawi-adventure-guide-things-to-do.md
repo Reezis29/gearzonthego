@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 13"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/top-things-to-do-langkawi-adventure.jpg"
 ---
 
 # Langkawi Adventure Guide: Top Things to Do for Thrill-Seekers & Camera Tips

@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "DJI Action 5 Pro"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/best-time-visit-langkawi-photography.jpg"
 ---
 
 # Best Time to Visit Langkawi for Photography: Capture Your Perfect Shots

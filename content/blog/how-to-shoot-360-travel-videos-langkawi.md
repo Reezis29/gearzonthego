@@ -6,6 +6,7 @@ category: "Travel Vlogging"
 recommended_camera: "Insta360 X5"
 reading_time: 7
 date: "2026-03-05"
+image: "/static/blog/how-to-shoot-360-travel-videos.jpg"
 ---
 
 # How to Shoot Breathtaking 360 Travel Videos in Langkawi

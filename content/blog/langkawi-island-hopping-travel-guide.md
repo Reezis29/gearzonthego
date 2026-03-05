@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12"
 reading_time: 4
 date: "2026-03-05"
+image: "/static/blog/langkawi-island-hopping-travel-guide.jpg"
 ---
 
 # Langkawi Island Hopping: Your Ultimate Guide to Unforgettable Adventures & Epic Shots

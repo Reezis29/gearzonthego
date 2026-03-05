@@ -6,6 +6,7 @@ category: "Camera Tips"
 recommended_camera: "GoPro Hero 12 Black"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/best-camera-accessories-travel.jpg"
 ---
 
 # Best Camera Accessories for Travel in Langkawi: Gear Up for Adventure

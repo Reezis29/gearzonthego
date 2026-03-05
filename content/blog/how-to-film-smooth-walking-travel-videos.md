@@ -6,6 +6,7 @@ category: "Travel Vlogging"
 recommended_camera: "Insta360 X4"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/how-to-film-smooth-walking-videos.jpg"
 ---
 
 # How to Film Smooth Walking Travel Videos in Langkawi

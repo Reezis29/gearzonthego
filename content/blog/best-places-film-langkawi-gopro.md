@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12 Black"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/best-places-film-langkawi-gopro.jpg"
 ---
 
 # Best Places to Film in Langkawi with a GoPro: Capture Your Island Adventure!

@@ -6,6 +6,7 @@ category: "Camera Tips"
 recommended_camera: "GoPro Hero 12 Black"
 reading_time: 7
 date: "2026-03-05"
+image: "/static/blog/gopro-settings-beach-videos.jpg"
 ---
 
 # Master Your GoPro: Best Settings for Stunning Beach Videos in Langkawi

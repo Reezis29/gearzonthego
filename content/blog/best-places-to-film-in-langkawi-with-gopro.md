@@ -13,6 +13,7 @@ read_time: 6
 recommended_activity: "Island Hopping & Water Sports"
 recommended_camera: "GoPro Hero 13 Black"
 recommended_link: "/gopro-rental-langkawi"
+image: "/static/blog/best-places-film-langkawi-gopro.jpg"
 ---
 
 Langkawi, the Jewel of Kedah, is a paradise for travelers and content creators alike. With its stunning landscapes, pristine beaches, and lush rainforests, it’s the perfect place to put your GoPro to the test. Whether you're an adrenaline junkie or a nature lover, here are the best places to film in Langkawi to create a cinematic travel video.

@@ -6,6 +6,7 @@ category: "Travel Vlogging"
 recommended_camera: "GoPro Hero 12"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/langkawi-travel-video-guide-beginners.jpg"
 ---
 
 # Langkawi Travel Video Guide for Beginners: Capture Stunning Footage

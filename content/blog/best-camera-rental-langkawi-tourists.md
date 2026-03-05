@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12"
 reading_time: 6
 date: "2026-03-05"
+image: "/static/blog/best-camera-rental-langkawi-tourists.jpg"
 ---
 
 # Best Camera Rental in Langkawi for Tourists: Capture Every Moment!

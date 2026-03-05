@@ -6,6 +6,7 @@ category: "Travel Vlogging"
 recommended_camera: "GoPro Hero 12"
 reading_time: 3
 date: "2026-03-05"
+image: "/static/blog/how-to-start-travel-vlog-langkawi.jpg"
 ---
 
 # How to Start a Travel Vlog in Langkawi: Your Ultimate Guide to Capturing Paradise

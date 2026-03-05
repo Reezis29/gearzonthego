@@ -6,6 +6,7 @@ category: "Langkawi Travel"
 recommended_camera: "GoPro Hero 12"
 reading_time: 5
 date: "2026-03-05"
+image: "/static/blog/where-to-rent-gopro-langkawi.jpg"
 ---
 
 # Where to Rent a GoPro in Langkawi: Your Ultimate Guide to Capturing Island Adventures

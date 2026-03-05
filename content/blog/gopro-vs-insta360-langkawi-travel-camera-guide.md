@@ -6,6 +6,7 @@ category: "Camera Tips"
 recommended_camera: "Insta360 X5"
 reading_time: 7
 date: "2026-03-05"
+image: "/static/blog/gopro-vs-insta360-langkawi.jpg"
 ---
 
 # GoPro vs Insta360: Choosing Your Ultimate Adventure Camera for Langkawi

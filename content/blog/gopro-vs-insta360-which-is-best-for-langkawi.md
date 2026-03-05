@@ -13,6 +13,7 @@ read_time: 7
 recommended_activity: "360° Vlogging & Creative Shots"
 recommended_camera: "Insta360 X5"
 recommended_link: "/insta360-rental-langkawi"
+image: "/static/blog/gopro-vs-insta360-langkawi.jpg"
 ---
 
 So you're heading to Langkawi and want to capture every moment of your adventure. The two biggest names in the action camera world are GoPro and Insta360, but which one should you rent? As a leading [camera rental service in Langkawi](/), we're here to help you decide.
