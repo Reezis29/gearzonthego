@@ -521,11 +521,18 @@
                             <input type="tel" id="book-phone" placeholder="+60123456789" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <div>
-<label class="block text-xs font-semibold text-gray-600 mb-1">Email *</label>
-                             <input type="email" id="book-email" required placeholder="email@example.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email * <span class="text-gray-400 font-normal">(for booking confirmation)</span></label>
+                            <input type="email" id="book-email" required placeholder="email@example.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="validateEmailMatch()">
                         </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Confirm Email *</label>
+                            <input type="email" id="book-email-confirm" required placeholder="Re-enter your email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="validateEmailMatch()">
+                            <p id="email-match-msg" class="hidden text-xs mt-1"></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-3 mb-4">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">IC / Passport No. (optional)</label>
                             <input type="text" id="book-ic" placeholder="IC or Passport number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -1064,17 +1071,38 @@
             }
         }
 
+        // ── Email match validation ──────────────────────────────────────────────
+        function validateEmailMatch() {
+            const email = document.getElementById('book-email').value.trim();
+            const confirm = document.getElementById('book-email-confirm').value.trim();
+            const msg = document.getElementById('email-match-msg');
+            const confirmInput = document.getElementById('book-email-confirm');
+            if (!confirm) { msg.classList.add('hidden'); return; }
+            if (email === confirm) {
+                msg.textContent = '✓ Emails match';
+                msg.className = 'text-xs mt-1 text-green-600';
+                confirmInput.classList.remove('border-red-400');
+                confirmInput.classList.add('border-green-400');
+            } else {
+                msg.textContent = '✗ Emails do not match';
+                msg.className = 'text-xs mt-1 text-red-600';
+                confirmInput.classList.remove('border-green-400');
+                confirmInput.classList.add('border-red-400');
+            }
+        }
+
         // ── Submit Booking ─────────────────────────────────────────────────────
         async function submitBooking() {
             const name = document.getElementById('book-name').value.trim();
             const phone = document.getElementById('book-phone').value.trim();
             const email = document.getElementById('book-email').value.trim();
+            const emailConfirm = document.getElementById('book-email-confirm').value.trim();
             const ic = document.getElementById('book-ic').value.trim();
             const errDiv = document.getElementById('booking-error');
             const btn = document.getElementById('book-submit-btn');
 
-            if (!name || !phone || !email) {
-                errDiv.textContent = 'Please fill in name, phone number and email.';
+            if (!name || !phone || !email || !emailConfirm) {
+                errDiv.textContent = 'Please fill in all required fields including email confirmation.';
                 errDiv.classList.remove('hidden');
                 return;
             }
@@ -1084,6 +1112,13 @@
                 errDiv.textContent = 'Please enter a valid email address. Example: name@gmail.com';
                 errDiv.classList.remove('hidden');
                 document.getElementById('book-email').focus();
+                return;
+            }
+            // Validate email confirmation matches
+            if (email !== emailConfirm) {
+                errDiv.textContent = 'Emails do not match. Please re-enter your email carefully.';
+                errDiv.classList.remove('hidden');
+                document.getElementById('book-email-confirm').focus();
                 return;
             }
             errDiv.classList.add('hidden');

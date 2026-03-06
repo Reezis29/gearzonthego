@@ -145,7 +145,7 @@ def init_db():
     )''')
 
     # Safe migration: add unit_id to bookings if not present
-    for col_def in ['unit_id INTEGER']:
+    for col_def in ['unit_id INTEGER', 'return_reminder_sent INTEGER DEFAULT 0']:
         try:
             c.execute(f"ALTER TABLE bookings ADD COLUMN {col_def}")
         except:
@@ -1127,6 +1127,15 @@ def api_create_booking():
     booking_ref = generate_booking_ref()
     cust_email  = data.get('customer_email', '').strip()
     cust_ic     = data.get('customer_ic', '').strip()
+
+    # Validate email format on backend
+    if cust_email:
+        import re
+        email_regex = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,6}$')
+        if not email_regex.match(cust_email) or '..' in cust_email:
+            return jsonify({'error': 'Invalid email address format. Please enter a valid email.'}), 400
+    else:
+        return jsonify({'error': 'Email address is required to receive your booking confirmation.'}), 400
     pickup_time = data.get('pickup_time', '').strip()
     return_time = data.get('return_time', '').strip()
     notes       = data.get('notes', '').strip()
@@ -1821,9 +1830,85 @@ def robots():
     resp.headers['Content-Type'] = 'text/plain'
     return resp
 
+## ─── 3-Hour Return Reminder Scheduler ───────────────────────────────────────
+import time as _time
+
+def _parse_return_datetime(end_date_str, return_time_str):
+    """Parse end_date + return_time into a datetime object.
+    Tries multiple time formats. Falls back to 11:00 PM."""
+    rt_clean = (return_time_str or '').strip()
+    for fmt in ('%I:%M %p', '%H:%M', '%I %p', '%I:%M%p', '%I%p'):
+        try:
+            t = datetime.strptime(rt_clean.upper(), fmt)
+            d = datetime.strptime(end_date_str, '%Y-%m-%d')
+            return d.replace(hour=t.hour, minute=t.minute, second=0)
+        except ValueError:
+            continue
+    # Default: 11:00 PM on end_date
+    d = datetime.strptime(end_date_str, '%Y-%m-%d')
+    return d.replace(hour=23, minute=0, second=0)
+
+
+def _return_reminder_scheduler():
+    """Background thread: checks every 5 minutes for bookings due in ~3 hours
+    and sends a return reminder email if not already sent."""
+    _time.sleep(30)  # Wait 30s after startup before first check
+    while True:
+        try:
+            with app.app_context():
+                from email_sender import send_return_reminder_email
+                now = datetime.now()
+                # Check bookings due today or tomorrow (to catch early morning returns)
+                today_str = now.strftime('%Y-%m-%d')
+                tomorrow_str = (now + timedelta(days=1)).strftime('%Y-%m-%d')
+                conn = get_db()
+                active_bookings = conn.execute(
+                    """SELECT * FROM bookings
+                       WHERE status = 'active'
+                         AND end_date IN (?, ?)
+                         AND customer_email IS NOT NULL
+                         AND customer_email != ''
+                         AND (return_reminder_sent IS NULL OR return_reminder_sent = 0)""",
+                    (today_str, tomorrow_str)
+                ).fetchall()
+                conn.close()
+
+                for row in active_bookings:
+                    bd = dict(row)
+                    return_time_str = bd.get('return_time', '') or '23:00'
+                    rt = _parse_return_datetime(bd['end_date'], return_time_str)
+
+                    minutes_until_return = (rt - now).total_seconds() / 60
+                    # Send reminder if 2h45m (165 min) to 3h15m (195 min) before return
+                    if 165 <= minutes_until_return <= 195:
+                        camera = CAMERA_MAP.get(bd['camera_id'], {})
+                        bd['camera_name'] = camera.get('name', bd['camera_id'])
+                        bd['return_time'] = return_time_str
+                        ok = send_return_reminder_email(bd)
+                        if ok:
+                            conn2 = get_db()
+                            conn2.execute(
+                                "UPDATE bookings SET return_reminder_sent = 1 WHERE id = ?",
+                                (bd['id'],)
+                            )
+                            conn2.commit()
+                            conn2.close()
+                            app.logger.info(f"Return reminder sent for booking {bd.get('booking_ref')}")
+        except Exception as e:
+            try:
+                app.logger.error(f"Return reminder scheduler error: {e}")
+            except Exception:
+                pass
+        _time.sleep(300)  # Check every 5 minutes
+
+
 # ─── Initialise DB ────────────────────────────────────────────────────────────
 with app.app_context():
     init_db()
+
+# Start return reminder scheduler in background thread
+_reminder_thread = threading.Thread(target=_return_reminder_scheduler, daemon=True)
+_reminder_thread.start()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
