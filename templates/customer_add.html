@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tambah Customers — Gearz On The Go</title>
+<title>Add Customer — Gearz On The Go</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
@@ -18,15 +18,15 @@
   <div class="flex items-center gap-3">
     <a href="/staff" class="text-gray-300 hover:text-white text-sm"><i class="fas fa-calendar-alt mr-1"></i>Bookings</a>
     <a href="/staff/customers" class="text-blue-400 font-semibold text-sm"><i class="fas fa-users mr-1"></i>Customers</a>
-    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Log Logout</a>
+    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
   </div>
 </nav>
 
 <div class="max-w-3xl mx-auto px-4 py-8">
   <div class="mb-6">
     <a href="/staff/customers" class="text-blue-500 hover:underline text-sm"><i class="fas fa-arrow-left mr-1"></i>Back to Customer List</a>
-    <h1 class="text-2xl font-bold text-gray-800 mt-2"><i class="fas fa-user-plus text-blue-500 mr-2"></i>Daftar Customers Baru</h1>
-    <p class="text-gray-500 text-sm mt-1">Isi maklumat pelanggan, muat naik dokumen ID, dan rekodkan perjanjian sewa.</p>
+    <h1 class="text-2xl font-bold text-gray-800 mt-2"><i class="fas fa-user-plus text-blue-500 mr-2"></i>Register New Customer</h1>
+    <p class="text-gray-500 text-sm mt-1">Fill in customer details, upload ID documents, and record rental agreement.</p>
   </div>
 
   <form method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -38,8 +38,8 @@
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="sm:col-span-2">
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Name Penuh <span class="text-red-500">*</span></label>
-          <input type="text" name="full_name" required placeholder="Contoh: Ahmad bin Abdullah"
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
+          <input type="text" name="full_name" required placeholder="e.g. Ahmad bin Abdullah"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
         <div>
@@ -49,45 +49,45 @@
         </div>
         <div>
           <label class="block text-sm font-semibold text-gray-600 mb-1">Email</label>
-          <input type="email" name="email" placeholder="email@contoh.com"
+          <input type="email" name="email" placeholder="email@example.com"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
         <div class="sm:col-span-2">
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Nationality / Negara Asal</label>
-          <input type="text" name="nationality" placeholder="Contoh: Malaysia, Indonesia, Singapore, China..."
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Nationality</label>
+          <input type="text" name="nationality" placeholder="e.g. Malaysia, Indonesia, Singapore, China..."
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
       </div>
     </div>
 
-    <!-- Dokumen ID -->
+    <!-- ID Document -->
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-        <i class="fas fa-id-card text-green-500"></i> Dokumen Pengenalan Diri
+        <i class="fas fa-id-card text-green-500"></i> Identification Document
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Jenis Dokumen</label>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Document Type</label>
           <select name="id_type" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
             <option value="">-- Select Type --</option>
-            <option value="MyKad">MyKad (IC Malaysia)</option>
+            <option value="MyKad">MyKad (Malaysia IC)</option>
             <option value="Passport">Passport</option>
-            <option value="Driving License">Lesen Memandu</option>
-            <option value="Student ID">Kad Pelajar</option>
-            <option value="Other">Others</option>
+            <option value="Driving License">Driving License</option>
+            <option value="Student ID">Student ID</option>
+            <option value="Other">Other</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-semibold text-gray-600 mb-1">ID / Passport Number</label>
-          <input type="text" name="id_number" placeholder="Contoh: 900101-14-5678"
+          <input type="text" name="id_number" placeholder="e.g. 900101-14-5678"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
         <div class="sm:col-span-2">
           <label class="block text-sm font-semibold text-gray-600 mb-2">ID Photo / Passport</label>
           <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition cursor-pointer" onclick="document.getElementById('id_photo').click()">
             <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2 block"></i>
-            <p class="text-gray-500 text-sm">Klik untuk muat naik gambar ID/Passport</p>
-            <p class="text-gray-400 text-xs mt-1">Format: JPG, PNG, PDF, HEIC (Maks: 10MB)</p>
+            <p class="text-gray-500 text-sm">Click to upload ID/Passport photo</p>
+            <p class="text-gray-400 text-xs mt-1">Format: JPG, PNG, PDF, HEIC (Max: 10MB)</p>
             <div id="file_preview" class="mt-3 hidden">
               <img id="preview_img" src="" alt="Preview" class="max-h-40 mx-auto rounded-lg shadow"/>
               <p id="preview_name" class="text-green-600 text-sm mt-2 font-semibold"></p>
@@ -98,25 +98,25 @@
       </div>
     </div>
 
-    <!-- Agreements Sewa -->
+    <!-- Rental Agreement -->
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-        <i class="fas fa-file-signature text-purple-500"></i> Agreements Sewa
+        <i class="fas fa-file-signature text-purple-500"></i> Rental Agreement
       </h2>
 
       <!-- Agreement Text -->
       <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-700 mb-4 max-h-48 overflow-y-auto leading-relaxed">
-        <p class="font-bold text-center mb-3 text-gray-800">PERJANJIAN SEWA PERALATAN KAMERA</p>
-        <p class="mb-2"><strong>Gearz On The Go</strong> (selepas ini disebut "Penyewa") bersetuju untuk menyewakan peralatan kamera kepada pelanggan (selepas ini disebut "Penyewa Semula") tertakluk kepada terma dan syarat berikut:</p>
+        <p class="font-bold text-center mb-3 text-gray-800">CAMERA EQUIPMENT RENTAL AGREEMENT</p>
+        <p class="mb-2"><strong>Gearz On The Go</strong> (hereinafter referred to as "the Rental Provider") agrees to rent camera equipment to the customer (hereinafter referred to as "the Renter") subject to the following terms and conditions:</p>
         <ol class="list-decimal list-inside space-y-2 text-gray-600">
-          <li>Penyewa Semula bertanggungjawab sepenuhnya ke atas peralatan yang disewa sepanjang tempoh sewa.</li>
-          <li>Sebarang kerosakan, kehilangan, atau kecurian peralatan semasa tempoh sewa adalah tanggungjawab Penyewa Semula dan perlu dibayar ganti rugi mengikut harga pasaran semasa.</li>
-          <li>Equipment mesti dipulangkan dalam keadaan bersih dan baik seperti semasa diterima.</li>
-          <li>Equipment mesti dipulangkan pada tarikh dan masa yang telah dipersetujui. Kelewatan akan dikenakan caj tambahan.</li>
-          <li>Penyewa Semula tidak dibenarkan meminjamkan atau menyewakan semula peralatan kepada pihak ketiga.</li>
-          <li>Gearz On The Go berhak menolak permohonan sewa tanpa sebarang sebab.</li>
-          <li>Deposit mungkin diperlukan bergantung kepada jenis peralatan yang disewa.</li>
-          <li>Agreements ini adalah mengikat dan berkuat kuasa dari tarikh tandatangan.</li>
+          <li>The Renter is fully responsible for the rented equipment throughout the rental period.</li>
+          <li>Any damage, loss, or theft of equipment during the rental period is the responsibility of the Renter and must be compensated at current market value.</li>
+          <li>Equipment must be returned in clean and good condition as received.</li>
+          <li>Equipment must be returned on the agreed date and time. Late returns will incur additional charges.</li>
+          <li>The Renter is not permitted to lend or sub-rent the equipment to any third party.</li>
+          <li>Gearz On The Go reserves the right to refuse any rental application without reason.</li>
+          <li>A deposit may be required depending on the type of equipment rented.</li>
+          <li>This agreement is binding and effective from the date of signature.</li>
         </ol>
       </div>
 
@@ -124,28 +124,28 @@
         <input type="checkbox" name="agreement_signed" value="1" id="agreement_cb"
           class="mt-1 w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"/>
         <span class="text-sm text-gray-700">
-          <strong>Saya mengesahkan</strong> bahawa pelanggan telah membaca, memahami, dan bersetuju dengan semua terma dan syarat perjanjian sewa di atas.
-          Signature fizikal atau persetujuan lisan telah diperoleh.
+          <strong>I confirm</strong> that the customer has read, understood, and agreed to all the terms and conditions of the rental agreement above.
+          Physical signature or verbal consent has been obtained.
         </span>
       </label>
     </div>
 
-    <!-- Nota Tambahan -->
+    <!-- Additional Notes -->
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-        <i class="fas fa-sticky-note text-yellow-500"></i> Nota Tambahan
+        <i class="fas fa-sticky-note text-yellow-500"></i> Additional Notes
       </h2>
-      <textarea name="notes" rows="3" placeholder="Nota dalaman tentang pelanggan (tidak ditunjukkan kepada pelanggan)..."
+      <textarea name="notes" rows="3" placeholder="Internal notes about the customer (not shown to customer)..."
         class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
     </div>
 
     <!-- Submit -->
     <div class="flex gap-3">
       <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg transition">
-        <i class="fas fa-save mr-2"></i> Save Rekod Customers
+        <i class="fas fa-save mr-2"></i> Save Customer Record
       </button>
       <a href="/staff/customers" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold">
-        Batal
+        Cancel
       </a>
     </div>
   </form>
@@ -158,7 +158,7 @@ function previewFile(input) {
   const previewName = document.getElementById('preview_name');
   if (input.files && input.files[0]) {
     const file = input.files[0];
-    previewName.textContent = '✓ ' + file.name;
+    previewName.textContent = '\u2713 ' + file.name;
     preview.classList.remove('hidden');
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();

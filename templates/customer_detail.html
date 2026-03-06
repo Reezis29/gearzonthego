@@ -23,7 +23,7 @@
     <a href="/staff" class="text-gray-300 hover:text-white text-sm"><i class="fas fa-calendar-alt mr-1"></i>Bookings</a>
     <a href="/staff/customers" class="text-blue-400 font-semibold text-sm"><i class="fas fa-users mr-1"></i>Customers</a>
     <a href="/staff/agreements" class="text-gray-300 hover:text-white text-sm"><i class="fas fa-file-signature mr-1"></i>Agreements</a>
-    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Log Logout</a>
+    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
   </div>
 </nav>
 
@@ -39,9 +39,9 @@
       <a href="/staff/customers/{{ customer.id }}/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold text-sm">
         <i class="fas fa-edit mr-1"></i> Edit
       </a>
-      <form method="POST" action="/staff/customers/{{ customer.id }}/delete" onsubmit="return confirm('Padam rekod pelanggan ini? Actions ini tidak boleh dibatalkan.')">
+      <form method="POST" action="/staff/customers/{{ customer.id }}/delete" onsubmit="return confirm('Delete this customer record? This action cannot be undone.')">
         <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm">
-          <i class="fas fa-trash mr-1"></i> Padam
+          <i class="fas fa-trash mr-1"></i> Delete
         </button>
       </form>
     </div>
@@ -49,7 +49,7 @@
 
   {% if request.args.get('updated') %}
   <div class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg mb-4">
-    <i class="fas fa-check-circle mr-2"></i> Rekod pelanggan berjaya dikemaskini!
+    <i class="fas fa-check-circle mr-2"></i> Customer record successfully updated!
   </div>
   {% endif %}
 
@@ -65,7 +65,7 @@
         </h2>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span class="text-gray-400 block">Name Penuh</span>
+            <span class="text-gray-400 block">Full Name</span>
             <span class="font-semibold text-gray-800">{{ customer.full_name }}</span>
           </div>
           <div>
@@ -81,7 +81,7 @@
             <span class="font-semibold text-gray-800">{{ customer.nationality or '—' }}</span>
           </div>
           <div>
-            <span class="text-gray-400 block">Jenis Dokumen</span>
+            <span class="text-gray-400 block">Document Type</span>
             <span class="font-semibold text-gray-800">{{ customer.id_type or '—' }}</span>
           </div>
           <div>
@@ -89,29 +89,29 @@
             <span class="font-semibold text-gray-800 font-mono">{{ customer.id_number or '—' }}</span>
           </div>
           <div class="col-span-2">
-            <span class="text-gray-400 block">Date Daftar</span>
+            <span class="text-gray-400 block">Registration Date</span>
             <span class="font-semibold text-gray-800">{{ customer.created_at[:16] if customer.created_at else '—' }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Photo Customers bersama Device -->
+      <!-- Customer Photo with Device -->
       <div class="bg-white rounded-xl shadow p-6">
         <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-          <i class="fas fa-camera-retro text-green-500"></i> Photo Customers bersama Device
+          <i class="fas fa-camera-retro text-green-500"></i> Customer Photo with Device
         </h2>
         {% if customer_photos %}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {% for photo in customer_photos %}
           <div class="photo-card bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
-            <img src="/staff/uploads/{{ photo.filename }}" alt="Photo Customers"
+            <img src="/staff/uploads/{{ photo.filename }}" alt="Customer Photo"
               class="w-full h-48 object-cover cursor-pointer"
               onclick="openModal('/staff/uploads/{{ photo.filename }}')"/>
             <div class="p-3">
               <p class="text-sm font-semibold text-gray-700"><i class="fas fa-camera text-blue-400 mr-1"></i>{{ photo.camera }}</p>
               <p class="text-xs text-gray-400"><i class="fas fa-calendar mr-1"></i>{{ photo.date }}</p>
               <a href="/staff/uploads/{{ photo.filename }}" download class="mt-2 inline-flex items-center gap-1 text-blue-500 text-xs hover:underline">
-                <i class="fas fa-download"></i> Muat Turun
+                <i class="fas fa-download"></i> Download
               </a>
             </div>
           </div>
@@ -125,10 +125,10 @@
         {% endif %}
       </div>
 
-      <!-- Agreements Sewa -->
+      <!-- Rental Agreements -->
       <div class="bg-white rounded-xl shadow p-6">
         <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-          <i class="fas fa-file-signature text-purple-500"></i> Agreements Sewa Digital
+          <i class="fas fa-file-signature text-purple-500"></i> Digital Rental Agreements
         </h2>
         {% if agreements %}
         <div class="space-y-3">
@@ -154,7 +154,7 @@
         <div class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-4">
           <i class="fas fa-check-circle text-green-500 text-2xl"></i>
           <div>
-            <p class="font-bold text-green-700">Agreements Telah Signed</p>
+            <p class="font-bold text-green-700">Agreement Signed</p>
             <p class="text-green-600 text-sm">Date: {{ customer.agreement_date or '—' }}</p>
           </div>
         </div>
@@ -162,27 +162,27 @@
         <div class="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-lg p-4">
           <i class="fas fa-exclamation-circle text-orange-500 text-2xl"></i>
           <div>
-            <p class="font-bold text-orange-700">Agreements Belum Signed</p>
+            <p class="font-bold text-orange-700">Agreement Not Signed</p>
             <p class="text-orange-600 text-sm">Please update record after customer signs.</p>
           </div>
         </div>
         {% endif %}
       </div>
 
-      <!-- Nota -->
+      <!-- Notes -->
       {% if customer.notes %}
       <div class="bg-white rounded-xl shadow p-6">
         <h2 class="font-bold text-gray-700 text-lg mb-3 flex items-center gap-2">
-          <i class="fas fa-sticky-note text-yellow-500"></i> Nota Dalaman
+          <i class="fas fa-sticky-note text-yellow-500"></i> Internal Notes
         </h2>
         <p class="text-gray-600 text-sm leading-relaxed">{{ customer.notes }}</p>
       </div>
       {% endif %}
 
-      <!-- Sejarah Sewa -->
+      <!-- Rental History -->
       <div class="bg-white rounded-xl shadow p-6">
         <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-          <i class="fas fa-history text-blue-500"></i> Sejarah Sewa ({{ bookings|length }} rekod)
+          <i class="fas fa-history text-blue-500"></i> Rental History ({{ bookings|length }} records)
         </h2>
         {% if bookings %}
         <div class="space-y-3">
@@ -199,7 +199,7 @@
               <p class="text-gray-500">{{ b['start_date'] }} → {{ b['end_date'] }}</p>
             </div>
             {% if b['customer_photo'] %}
-            <span class="text-green-500 text-xs"><i class="fas fa-camera mr-1"></i>Photo ada</span>
+            <span class="text-green-500 text-xs"><i class="fas fa-camera mr-1"></i>Photo available</span>
             {% endif %}
           </div>
           {% endfor %}
@@ -223,27 +223,27 @@
           <img src="/staff/uploads/{{ customer.id_photo }}" alt="ID Photo"
             class="w-full rounded-lg shadow border border-gray-200 cursor-pointer"
             onclick="openModal('/staff/uploads/{{ customer.id_photo }}')"/>
-          <p class="text-xs text-gray-400 mt-2">Klik gambar untuk besarkan</p>
+          <p class="text-xs text-gray-400 mt-2">Click image to enlarge</p>
           <a href="/staff/uploads/{{ customer.id_photo }}" download class="mt-3 inline-flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold">
-            <i class="fas fa-download"></i> Muat Turun
+            <i class="fas fa-download"></i> Download
           </a>
         </div>
         {% else %}
         <div class="text-center py-8 text-gray-300">
           <i class="fas fa-id-card text-5xl mb-3 block"></i>
           <p class="text-sm text-gray-400">No photo ID/Passport</p>
-          <a href="/staff/customers/{{ customer.id }}/edit" class="mt-3 inline-block text-blue-500 text-sm underline">Muat naik sekarang</a>
+          <a href="/staff/customers/{{ customer.id }}/edit" class="mt-3 inline-block text-blue-500 text-sm underline">Upload now</a>
         </div>
         {% endif %}
       </div>
 
       <!-- Quick Actions -->
       <div class="bg-white rounded-xl shadow p-6">
-        <h2 class="font-bold text-gray-700 text-lg mb-4">Actions Pantas</h2>
+        <h2 class="font-bold text-gray-700 text-lg mb-4">Quick Actions</h2>
         <div class="space-y-2">
           <a href="https://wa.me/6{{ customer.phone|replace('+','') }}" target="_blank"
             class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold w-full">
-            <i class="fab fa-whatsapp text-lg"></i> WhatsApp Customers
+            <i class="fab fa-whatsapp text-lg"></i> WhatsApp Customer
           </a>
           <a href="/staff/customers/{{ customer.id }}/edit"
             class="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold w-full">
@@ -251,7 +251,7 @@
           </a>
           <a href="/staff/agreements/new?name={{ customer.full_name }}&phone={{ customer.phone }}"
             class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold w-full">
-            <i class="fas fa-file-signature"></i> Buat Agreements Baru
+            <i class="fas fa-file-signature"></i> Create New Agreement
           </a>
         </div>
       </div>
@@ -259,7 +259,7 @@
   </div>
 </div>
 
-<!-- Modal untuk besarkan gambar -->
+<!-- Modal to enlarge photo -->
 <div id="photoModal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4" onclick="this.classList.add('hidden')">
   <img id="modalImg" src="" alt="Photo" class="max-w-full max-h-full rounded-lg shadow-2xl"/>
 </div>

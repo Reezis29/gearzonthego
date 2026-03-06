@@ -55,13 +55,13 @@
             <h2 class="text-lg font-bold text-gray-800 mb-4">
                 <i class="fas fa-camera text-orange-500 mr-2"></i>Capture Customer Details
             </h2>
-            <p class="text-sm text-gray-500 mb-4">Lengkapkan maklumat pelanggan semasa ambil kamera di kedai.</p>
+            <p class="text-sm text-gray-500 mb-4">Complete customer details during camera pickup at the shop.</p>
 
             <form method="POST" action="/staff/booking/{{ booking['id'] }}/update" enctype="multipart/form-data">
 
-                <!-- Name (boleh kemaskini) -->
+                <!-- Name (editable) -->
                 <div class="mb-3">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Name Customers</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Customer Name</label>
                     <input type="text" name="customer_name" value="{{ booking['customer_name'] or '' }}"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -104,8 +104,8 @@
                     </label>
                     {% if booking.get('id_photo_url') %}
                     <div class="mb-2 p-2 bg-purple-50 rounded-lg">
-                        <img src="{{ booking['id_photo_url'] }}" class="max-h-20 mx-auto rounded" alt="ID sedia ada">
-                        <p class="text-xs text-purple-600 text-center mt-1">ID sedia ada — upload baru untuk ganti</p>
+                        <img src="{{ booking['id_photo_url'] }}" class="max-h-20 mx-auto rounded" alt="Existing ID">
+                        <p class="text-xs text-purple-600 text-center mt-1">Existing ID — upload new to replace</p>
                     </div>
                     {% endif %}
                     <div id="photoDropZone"
@@ -113,7 +113,7 @@
                         onclick="document.getElementById('photoIdInput').click()">
                         <div id="photoPlaceholder">
                             <i class="fas fa-camera text-gray-300 text-3xl mb-2"></i>
-                            <p class="text-sm text-gray-400">Klik untuk ambil gambar ID/Passport</p>
+                            <p class="text-sm text-gray-400">Click to capture ID/Passport photo</p>
                             <p class="text-xs text-gray-300">JPG, PNG, PDF, HEIC (max 10MB)</p>
                         </div>
                         <div id="photoPreview" class="hidden">
@@ -130,15 +130,15 @@
                         class="hidden" onchange="handlePhotoSelect(this)">
                 </div>
 
-                <!-- Photo Customers bersama Device -->
+                <!-- Customer Photo with Device -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-user-circle text-green-500 mr-1"></i> Photo Customers + Device
+                        <i class="fas fa-user-circle text-green-500 mr-1"></i> Customer Photo + Device
                     </label>
                     {% if booking.get('customer_photo_url') %}
                     <div class="mb-2 p-2 bg-green-50 rounded-lg">
-                        <img src="{{ booking['customer_photo_url'] }}" class="max-h-20 mx-auto rounded" alt="Photo sedia ada">
-                        <p class="text-xs text-green-600 text-center mt-1">Photo sedia ada — upload baru untuk ganti</p>
+                        <img src="{{ booking['customer_photo_url'] }}" class="max-h-20 mx-auto rounded" alt="Existing photo">
+                        <p class="text-xs text-green-600 text-center mt-1">Existing photo — upload new to replace</p>
                     </div>
                     {% endif %}
                     <div id="customerPhotoDropZone"
@@ -163,7 +163,7 @@
                         class="hidden" onchange="handleCustomerPhotoSelect(this)">
                 </div>
 
-                <!-- Nota -->
+                <!-- Notes -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Notes (Optional)</label>
                     <textarea name="notes" rows="2" placeholder="Additional notes..."
@@ -178,7 +178,7 @@
                     </button>
                     <button type="submit" name="redirect_sign" value="1"
                         class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
-                        <i class="fas fa-file-signature mr-1"></i> Save & Terus Sign Agreements
+                        <i class="fas fa-file-signature mr-1"></i> Save & Sign Agreement
                     </button>
                     <a href="/staff"
                         class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition">

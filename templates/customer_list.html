@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Database Customers — Gearz On The Go</title>
+<title>Customer Database — Gearz On The Go</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
@@ -18,7 +18,7 @@
   <div class="flex items-center gap-3">
     <a href="/staff" class="text-gray-300 hover:text-white text-sm"><i class="fas fa-calendar-alt mr-1"></i>Bookings</a>
     <a href="/staff/customers" class="text-blue-400 font-semibold text-sm"><i class="fas fa-users mr-1"></i>Customers</a>
-    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Log Logout</a>
+    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
   </div>
 </nav>
 
@@ -27,30 +27,30 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-users text-blue-500 mr-2"></i>Database Customers</h1>
-      <p class="text-gray-500 text-sm mt-1">Rekod maklumat dan dokumen pelanggan sewa kamera</p>
+      <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-users text-blue-500 mr-2"></i>Customer Database</h1>
+      <p class="text-gray-500 text-sm mt-1">Customer records and rental documentation</p>
     </div>
     <a href="/staff/customers/add" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 shadow">
-      <i class="fas fa-user-plus"></i> Tambah Customers Baru
+      <i class="fas fa-user-plus"></i> Add New Customer
     </a>
   </div>
 
   <!-- Alerts -->
   {% if request.args.get('added') %}
   <div class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
-    <i class="fas fa-check-circle"></i> Customers baru berjaya ditambah!
+    <i class="fas fa-check-circle"></i> New customer successfully added!
   </div>
   {% endif %}
   {% if request.args.get('deleted') %}
   <div class="bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
-    <i class="fas fa-trash"></i> Rekod pelanggan telah dipadam.
+    <i class="fas fa-trash"></i> Customer record has been deleted.
   </div>
   {% endif %}
 
   <!-- Search -->
   <form method="GET" class="mb-6">
     <div class="flex gap-2">
-      <input type="text" name="q" value="{{ search }}" placeholder="Cari nama, nombor telefon, atau nombor ID..."
+      <input type="text" name="q" value="{{ search }}" placeholder="Search name, phone number, or ID number..."
         class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm"/>
       <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold">
         <i class="fas fa-search"></i>
@@ -73,11 +73,11 @@
     </div>
     <div class="bg-white rounded-xl p-4 shadow text-center">
       <div class="text-3xl font-bold text-purple-600">{{ customers|selectattr('id_photo', 'ne', None)|selectattr('id_photo', 'ne', '')|list|length }}</div>
-      <div class="text-gray-500 text-sm mt-1">ID/Passport Disimpan</div>
+      <div class="text-gray-500 text-sm mt-1">ID/Passport Saved</div>
     </div>
     <div class="bg-white rounded-xl p-4 shadow text-center">
       <div class="text-3xl font-bold text-orange-600">{{ customers|selectattr('agreement_signed', 'equalto', 0)|list|length }}</div>
-      <div class="text-gray-500 text-sm mt-1">Belum Signature</div>
+      <div class="text-gray-500 text-sm mt-1">Not Signed</div>
     </div>
   </div>
 
@@ -89,13 +89,13 @@
         <thead class="bg-gray-800 text-white">
           <tr>
             <th class="px-4 py-3 text-left">#</th>
-            <th class="px-4 py-3 text-left">Name Penuh</th>
+            <th class="px-4 py-3 text-left">Full Name</th>
             <th class="px-4 py-3 text-left">Phone</th>
             <th class="px-4 py-3 text-left">Nationality</th>
-            <th class="px-4 py-3 text-left">Jenis ID</th>
+            <th class="px-4 py-3 text-left">ID Type</th>
             <th class="px-4 py-3 text-center">ID/Passport</th>
             <th class="px-4 py-3 text-center">Agreement</th>
-            <th class="px-4 py-3 text-left">Date Daftar</th>
+            <th class="px-4 py-3 text-left">Registered</th>
             <th class="px-4 py-3 text-center">Actions</th>
           </tr>
         </thead>
@@ -113,7 +113,7 @@
             <td class="px-4 py-3 text-center">
               {% if c.id_photo %}
               <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold">
-                <i class="fas fa-check-circle"></i> Ada
+                <i class="fas fa-check-circle"></i> Yes
               </span>
               {% else %}
               <span class="inline-flex items-center gap-1 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-semibold">
@@ -128,7 +128,7 @@
               </span>
               {% else %}
               <span class="inline-flex items-center gap-1 bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full font-semibold">
-                <i class="fas fa-clock"></i> Belum
+                <i class="fas fa-clock"></i> Pending
               </span>
               {% endif %}
             </td>
@@ -152,7 +152,7 @@
     <div class="text-center py-16 text-gray-400">
       <i class="fas fa-users text-5xl mb-4 block"></i>
       <p class="text-lg font-semibold">No customer records{% if search %} for search "{{ search }}"{% endif %}</p>
-      <p class="text-sm mt-1">{% if search %}Cuba carian lain atau <a href="/staff/customers" class="text-blue-500 underline">lihat semua</a>{% else %}Klik "Tambah Customers Baru" untuk mula{% endif %}</p>
+      <p class="text-sm mt-1">{% if search %}Try a different search or <a href="/staff/customers" class="text-blue-500 underline">view all</a>{% else %}Click "Add New Customer" to get started{% endif %}</p>
     </div>
     {% endif %}
   </div>

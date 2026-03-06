@@ -494,7 +494,7 @@ def staff_add_booking():
         except:
             pass
 
-    # Auto-create or update customer record bila ada nama pelanggan
+    # Auto-create or update customer record if customer name exists
     customer_id = None
     if customer_name:
         existing = None
@@ -871,7 +871,7 @@ def agreement_new():
             }
         conn.close()
     else:
-        # Baca dari URL params (dihantar dari borang tempahan)
+        # Read from URL params (sent from booking form)
         name  = request.args.get('name', '')
         phone = request.args.get('phone', '')
         equip = request.args.get('equipment', '')
@@ -910,7 +910,7 @@ def agreement_save():
 
     conn = get_db()
 
-    # Auto-create atau link rekod pelanggan
+    # Auto-create or link customer record
     customer_id = None
     if cust_name:
         existing = None
@@ -1205,7 +1205,7 @@ def api_create_booking():
         'booking_fee': 30,
         'deposit': 200,
         'admin_wa_link': admin_wa_link,
-        'message': f'Tempahan {booking_ref} has been created. Please pay the RM30 booking fee to confirm your booking.'
+        'message': f'Booking {booking_ref} has been created. Please pay the RM30 booking fee to confirm your booking.'
     }), 201
 
 @app.route('/api/bookings/<booking_ref>')
@@ -1283,7 +1283,7 @@ def api_payment_deposit():
         'booking_ref': booking_ref,
         'deposit_amount': deposit,
         'payment_status': 'pending',
-        'message': 'Pembayaran direkodkan. Staff akan mengesahkan dalam masa terdekat.'
+        'message': 'Payment recorded. Staff will verify shortly.'
     })
 
 @app.route('/api/bookings/confirm', methods=['POST'])
@@ -1322,7 +1322,7 @@ def api_booking_confirm():
         'success': True,
         'booking_ref': booking_ref,
         'status': 'confirmed',
-        'message': f'Tempahan {booking_ref} has been confirmed!'
+        'message': f'Booking {booking_ref} has been confirmed!'
     })
 
 # ═══════════════════════════════════════════════════════════════════════════════
