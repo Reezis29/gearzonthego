@@ -922,7 +922,7 @@ def agreement_save():
             ).fetchone()
         if existing:
             customer_id = existing['id']
-            # Kemaskini ic_number jika ada dan belum ada
+            # Update ic_number if available and not yet set
             if ic_number:
                 conn.execute(
                     "UPDATE customers SET id_number=? WHERE id=? AND (id_number IS NULL OR id_number='')",
@@ -1109,7 +1109,7 @@ def api_create_booking():
     # Unit-aware availability check (double-booking prevention)
     avail_units = get_available_units(camera_id, start_date, end_date)
     if not avail_units:
-        return jsonify({'error': 'Tarikh tidak tersedia — semua unit telah ditempah / Date conflict — all units booked for selected dates',
+        return jsonify({'error': 'Date not available — all units are booked for selected dates',
                         'available': False}), 409
 
     # Auto-assign first available unit
@@ -1205,7 +1205,7 @@ def api_create_booking():
         'booking_fee': 30,
         'deposit': 200,
         'admin_wa_link': admin_wa_link,
-        'message': f'Tempahan {booking_ref} berjaya dicipta. Sila bayar booking fee RM30 untuk mengesahkan tempahan anda.'
+        'message': f'Tempahan {booking_ref} has been created. Please pay the RM30 booking fee to confirm your booking.'
     }), 201
 
 @app.route('/api/bookings/<booking_ref>')
@@ -1322,7 +1322,7 @@ def api_booking_confirm():
         'success': True,
         'booking_ref': booking_ref,
         'status': 'confirmed',
-        'message': f'Tempahan {booking_ref} telah disahkan!'
+        'message': f'Tempahan {booking_ref} has been confirmed!'
     })
 
 # ═══════════════════════════════════════════════════════════════════════════════

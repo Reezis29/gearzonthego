@@ -194,7 +194,7 @@ def billplz_create_bill(booking, base_url):
         data = {
             'collection_id': BILLPLZ_COLLECTION_ID,
             'description': f"Gearz On The Go Camera Booking Fee – RM30",
-            'name': booking.get('customer_name', 'Pelanggan'),
+            'name': booking.get('customer_name', 'Customer'),
             'amount': booking_fee * 100,  # Billplz uses cents (RM30 booking fee)
             'callback_url': f"{base_url}/payment/billplz/callback",
             'redirect_url': f"{base_url}/payment/billplz/redirect",

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Perjanjian Sewa — Gearz On The Go</title>
+    <title>Rental Agreement — Gearz On The Go</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -80,11 +80,11 @@
                 <img src="/static/logo.png" alt="Gearz" class="h-9">
                 <div>
                     <div class="font-bold text-sm leading-tight">Gearz On The Go</div>
-                    <div class="text-blue-200 text-xs">Perjanjian Sewa Digital</div>
+                    <div class="text-blue-200 text-xs">Digital Rental Agreement</div>
                 </div>
             </div>
             <a href="/staff/agreements" class="text-blue-200 hover:text-white text-xs flex items-center gap-1 no-print">
-                <i class="fas fa-arrow-left"></i> Kembali
+                <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>
     </div>
@@ -92,86 +92,86 @@
     <div class="max-w-2xl mx-auto px-4 py-5">
 
         {% if signed %}
-        <!-- ── SIGNED VIEW ── -->
+        <!-- SIGNED VIEW -->
         <div class="section-card text-center py-8">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-check-circle text-green-500 text-3xl"></i>
             </div>
-            <h2 class="text-xl font-bold text-gray-800 mb-1">Perjanjian Telah Ditandatangani</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-1">Agreement Signed</h2>
             <p class="text-gray-500 text-sm mb-4">{{ agreement.signed_at }}</p>
             <div class="bg-gray-50 rounded-xl p-4 text-left mb-4">
                 <div class="grid grid-cols-2 gap-3 text-sm">
-                    <div><span class="text-gray-400 text-xs block">Nama</span><span class="font-semibold">{{ agreement.customer_name }}</span></div>
-                    <div><span class="text-gray-400 text-xs block">Telefon</span><span class="font-semibold">{{ agreement.customer_phone }}</span></div>
-                    <div><span class="text-gray-400 text-xs block">Peralatan</span><span class="font-semibold">{{ agreement.equipment }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Name</span><span class="font-semibold">{{ agreement.customer_name }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Phone</span><span class="font-semibold">{{ agreement.customer_phone }}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Equipment</span><span class="font-semibold">{{ agreement.equipment }}</span></div>
                     <div><span class="text-gray-400 text-xs block">Deposit</span><span class="font-semibold text-green-600">RM{{ agreement.deposit }}</span></div>
-                    <div><span class="text-gray-400 text-xs block">Tarikh Ambil</span><span class="font-semibold">{{ agreement.pickup_date }}{% if agreement.pickup_time %} <span class="text-indigo-600">{{ agreement.pickup_time }}</span>{% endif %}</span></div>
-                    <div><span class="text-gray-400 text-xs block">Tarikh Pulang</span><span class="font-semibold">{{ agreement.return_date }}{% if agreement.return_time %} <span class="text-red-500">{{ agreement.return_time }}</span>{% endif %}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Pickup Date</span><span class="font-semibold">{{ agreement.pickup_date }}{% if agreement.pickup_time %} <span class="text-indigo-600">{{ agreement.pickup_time }}</span>{% endif %}</span></div>
+                    <div><span class="text-gray-400 text-xs block">Return Date</span><span class="font-semibold">{{ agreement.return_date }}{% if agreement.return_time %} <span class="text-red-500">{{ agreement.return_time }}</span>{% endif %}</span></div>
                 </div>
             </div>
             {% if agreement.signature_data %}
             <div class="bg-white border border-gray-200 rounded-xl p-3 mb-4">
-                <p class="text-xs text-gray-400 mb-2">Tandatangan Pelanggan</p>
-                <img src="{{ agreement.signature_data }}" alt="Tandatangan" class="max-h-24 mx-auto">
+                <p class="text-xs text-gray-400 mb-2">Customer Signature</p>
+                <img src="{{ agreement.signature_data }}" alt="Signature" class="max-h-24 mx-auto">
             </div>
             {% endif %}
             <div class="flex gap-3 justify-center no-print">
                 <a href="/staff/agreements" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-semibold transition">
-                    <i class="fas fa-list mr-1"></i> Senarai
+                    <i class="fas fa-list mr-1"></i> List
                 </a>
                 <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
-                    <i class="fas fa-print mr-1"></i> Cetak
+                    <i class="fas fa-print mr-1"></i> Print
                 </button>
             </div>
         </div>
 
         {% else %}
-        <!-- ── SIGN FORM ── -->
+        <!-- SIGN FORM -->
 
-        <!-- Maklumat Sewa -->
+        <!-- Rental Details -->
         <div class="section-card">
             <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <i class="fas fa-camera text-blue-600"></i> Maklumat Sewaan
+                <i class="fas fa-camera text-blue-600"></i> Rental Details
             </h3>
                 <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs text-gray-500 block mb-1">Nama Penuh *</label>
-                            <input type="text" id="custName" placeholder="Nama pelanggan"
+                            <label class="text-xs text-gray-500 block mb-1">Full Name *</label>
+                            <input type="text" id="custName" placeholder="Customer name"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.customer_name if booking else '' }}">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-500 block mb-1">No. Telefon *</label>
+                            <label class="text-xs text-gray-500 block mb-1">Phone Number *</label>
                             <input type="tel" id="custPhone" placeholder="+601X-XXXXXXX"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.customer_phone if booking else '' }}">
                         </div>
                         <div class="col-span-2">
-                            <label class="text-xs text-gray-500 block mb-1">Peralatan Disewa *</label>
-                            <input type="text" id="equipment" placeholder="Contoh: GoPro Hero 13 Black"
+                            <label class="text-xs text-gray-500 block mb-1">Equipment Rented *</label>
+                            <input type="text" id="equipment" placeholder="e.g. GoPro Hero 13 Black"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.camera_name if booking else '' }}">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-500 block mb-1">Tarikh Ambil *</label>
+                            <label class="text-xs text-gray-500 block mb-1">Pickup Date *</label>
                             <input type="date" id="pickupDate"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.start_date if booking else '' }}">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-500 block mb-1">Masa Ambil</label>
+                            <label class="text-xs text-gray-500 block mb-1">Pickup Time</label>
                             <input type="time" id="pickupTime"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.pickup_time if booking and booking.pickup_time else '' }}">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-500 block mb-1">Tarikh Pulang *</label>
+                            <label class="text-xs text-gray-500 block mb-1">Return Date *</label>
                             <input type="date" id="returnDate"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.end_date if booking else '' }}">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-500 block mb-1">Masa Pulang</label>
+                            <label class="text-xs text-gray-500 block mb-1">Return Time</label>
                             <input type="time" id="returnTime"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value="{{ booking.return_time if booking and booking.return_time else '' }}">
@@ -182,79 +182,79 @@
                         class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="text-xs text-gray-500 block mb-1">No. IC / Passport</label>
-                    <input type="text" id="icNumber" placeholder="Nombor IC/Passport"
+                    <label class="text-xs text-gray-500 block mb-1">IC / Passport No.</label>
+                    <input type="text" id="icNumber" placeholder="IC or Passport number"
                         class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         value="{{ booking.ic_number if booking and booking.ic_number else '' }}">
                 </div>
             </div>
         </div>
 
-        <!-- Terma & Syarat -->
+        <!-- Terms & Conditions -->
         <div class="section-card">
             <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
-                <i class="fas fa-file-contract text-blue-600"></i> Terma &amp; Syarat Sewaan Peralatan
+                <i class="fas fa-file-contract text-blue-600"></i> Equipment Rental Terms &amp; Conditions
             </h3>
-            <p class="text-xs text-gray-400 mb-4">Sila baca sebelum membuat tempahan. Dengan membuat tempahan, anda bersetuju dengan terma di bawah.</p>
+            <p class="text-xs text-gray-400 mb-4">Please read before making a booking. By proceeding, you agree to the terms below.</p>
 
             <div class="term-item">
                 <span class="term-num">1</span>
-                <span><strong>Pengesahan Identiti</strong> — Penyewa perlu mengemukakan Kad Pengenalan / Pasport / Lesen Memandu yang sah. Pihak kami berhak meminta dokumen asal semasa pickup.</span>
+                <span><strong>Identity Verification</strong> - The renter must present a valid IC / Passport / Driving License. We reserve the right to request original documents during pickup.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">2</span>
-                <span><strong>Rekod Bukti Sewaan</strong> — Pihak kami boleh mengambil gambar penyewa bersama peralatan dan dokumen pengenalan untuk tujuan rekod &amp; keselamatan.</span>
+                <span><strong>Rental Proof Records</strong> - We may take photos of the renter with the equipment and identification documents for record and security purposes.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">3</span>
-                <span><strong>Deposit &amp; Bayaran</strong> — Deposit akan dikenakan mengikut pakej dan akan dipulangkan selepas pemulangan peralatan dalam keadaan: baik, lengkap dan berfungsi, tertakluk kepada pemeriksaan.</span>
+                <span><strong>Deposit &amp; Payment</strong> - A deposit will be charged according to the package and will be refunded after the equipment is returned in good, complete, and working condition, subject to inspection.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">4</span>
-                <span><strong>Pemeriksaan Semasa Pemulangan</strong> — Peralatan akan diperiksa semasa pemulangan. Jika pemeriksaan lanjut diperlukan (contoh: ujian fungsi), pemulangan deposit mungkin mengambil masa sehingga 24 jam.</span>
+                <span><strong>Return Inspection</strong> - Equipment will be inspected upon return. If further inspection is required (e.g. functionality testing), deposit refund may take up to 24 hours.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">5</span>
-                <span><strong>Kerosakan</strong> — Jika berlaku kerosakan akibat kecuaian/penyalahgunaan: deposit boleh ditahan dan penyewa bersetuju membayar caj berdasarkan kos pembaikan atau penggantian.</span>
+                <span><strong>Damage</strong> - If damage occurs due to negligence or misuse, the deposit may be withheld and the renter agrees to pay charges based on repair or replacement costs.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">6</span>
-                <span><strong>Kehilangan / Kecurian</strong> — Penyewa bertanggungjawab sepenuhnya jika berlaku kehilangan/kecurian/kerosakan teruk, dan bersetuju menanggung kos penuh penggantian.</span>
+                <span><strong>Loss / Theft</strong> - The renter is fully responsible for any loss, theft, or severe damage, and agrees to bear the full replacement cost.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">7</span>
-                <span><strong>Caj Lewat</strong> — Caj lewat dikenakan RM10 - RM20 per/jam selepas masa pemulangan yang dipersetujui. Caj dikira bermula minit pertama selepas tamat tempoh.</span>
+                <span><strong>Late Return Fee</strong> - A late fee of RM10 - RM20 per hour will be charged after the agreed return time. Charges begin from the first minute past the deadline.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">8</span>
-                <span><strong>Gagal Pulang Tanpa Makluman</strong> — Jika peralatan tidak dipulangkan melebihi 6 jam tanpa makluman, pihak kami berhak membuat laporan polis dan mengambil tindakan lanjut.</span>
+                <span><strong>Failure to Return Without Notice</strong> - If equipment is not returned within 6 hours without notice, we reserve the right to file a police report and take further action.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">9</span>
-                <span><strong>Tanggungjawab &amp; Penjagaan</strong> — Penyewa bertanggungjawab menjaga peralatan agar kekal selamat dan tidak terdedah kepada air, pasir, hentakan, suhu ekstrem atau risiko kerosakan.</span>
+                <span><strong>Responsibility &amp; Care</strong> - The renter is responsible for keeping the equipment safe and protected from water, sand, impact, extreme temperatures, or risk of damage.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">10</span>
-                <span><strong>Larangan Pengubahsuaian &amp; Serah kepada Pihak Ketiga</strong> — Penyewa tidak dibenarkan membuka, mengubah suai, menukar aksesori, atau menyerahkan peralatan kepada pihak lain tanpa kebenaran.</span>
+                <span><strong>No Modification &amp; Third-Party Transfer</strong> - The renter is not allowed to open, modify, change accessories, or hand over equipment to another party without permission.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">11</span>
-                <span><strong>Kegagalan Penggunaan</strong> — Pihak kami tidak bertanggungjawab atas kerugian penyewa akibat kegagalan penggunaan kerana salah penggunaan atau faktor luar kawalan.</span>
+                <span><strong>Usage Failure</strong> - We are not responsible for any loss incurred by the renter due to misuse or factors beyond our control.</span>
             </div>
             <div class="term-item">
                 <span class="term-num">12</span>
-                <span><strong>Hak Menolak Tempahan</strong> — Pihak kami berhak menolak tempahan atau membatalkan sewaan jika terdapat keraguan terhadap identiti/maklumat/risiko keselamatan.</span>
+                <span><strong>Right to Refuse Booking</strong> - We reserve the right to refuse a booking or cancel a rental if there are concerns regarding identity, information, or security risks.</span>
             </div>
         </div>
 
-        <!-- Senarai Peralatan -->
+        <!-- Equipment Checklist -->
         <div class="section-card">
             <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <i class="fas fa-list-check text-blue-600"></i> Senarai Peralatan Diserahkan
+                <i class="fas fa-list-check text-blue-600"></i> Equipment Handed Over
             </h3>
             <div class="grid grid-cols-2 gap-2 text-sm">
                 <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input type="checkbox" id="chk_camera" class="w-4 h-4 accent-blue-600"> Kamera / Camera
+                    <input type="checkbox" id="chk_camera" class="w-4 h-4 accent-blue-600"> Camera
                 </label>
                 <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input type="checkbox" id="chk_selfie" class="w-4 h-4 accent-blue-600"> Selfie Stick
@@ -280,17 +280,17 @@
             </div>
         </div>
 
-        <!-- Tandatangan -->
+        <!-- Signature -->
         <div class="section-card">
             <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
-                <i class="fas fa-pen-fancy text-blue-600"></i> Tandatangan Penyewa
+                <i class="fas fa-pen-fancy text-blue-600"></i> Renter's Signature
             </h3>
-            <p class="text-xs text-gray-400 mb-3">Tandatangan di bawah menggunakan jari atau stylus</p>
+            <p class="text-xs text-gray-400 mb-3">Sign below using your finger or stylus</p>
 
             <div class="sig-container" id="sigContainer">
                 <div class="sig-placeholder" id="sigPlaceholder">
                     <i class="fas fa-signature text-3xl mb-2 block"></i>
-                    <span class="text-sm">Tandatangan di sini</span>
+                    <span class="text-sm">Sign here</span>
                 </div>
                 <canvas id="signaturePad" class="w-full" height="180"></canvas>
             </div>
@@ -298,17 +298,17 @@
             <div class="flex gap-2 mt-3">
                 <button type="button" onclick="clearSignature()"
                     class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-semibold transition">
-                    <i class="fas fa-eraser mr-1"></i> Padam
+                    <i class="fas fa-eraser mr-1"></i> Clear
                 </button>
             </div>
         </div>
 
-        <!-- Pengesahan -->
+        <!-- Confirmation -->
         <div class="section-card bg-blue-50 border border-blue-100">
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" id="confirmCheck" class="w-5 h-5 accent-blue-600 mt-0.5 flex-shrink-0">
                 <span class="text-sm text-gray-700 leading-relaxed">
-                    Saya dengan ini <strong>memahami sepenuhnya</strong> syarat-syarat dan terma yang telah termaktub di dalam perjanjian ini. Dengan ini saya bersetuju untuk tidak membuat sebarang pertikaian atau tuntutan berbalas kepada pihak <strong>Gearz On The Go</strong>.
+                    I hereby <strong>fully understand</strong> the terms and conditions stated in this agreement. I agree not to make any disputes or counterclaims against <strong>Gearz On The Go</strong>.
                 </span>
             </label>
         </div>
@@ -321,14 +321,14 @@
         <!-- Submit Button -->
         <button onclick="submitAgreement()"
             class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 rounded-2xl text-base transition shadow-lg mb-6">
-            <i class="fas fa-check-circle mr-2"></i> Sahkan &amp; Tandatangan Perjanjian
+            <i class="fas fa-check-circle mr-2"></i> Confirm &amp; Sign Agreement
         </button>
 
         {% endif %}
     </div>
 
     <script>
-    // ── Signature Pad ──────────────────────────────────────────────────────────
+    // Signature Pad
     const canvas = document.getElementById('signaturePad');
     const ctx = canvas.getContext('2d');
     const container = document.getElementById('sigContainer');
@@ -393,7 +393,7 @@
         container.classList.remove('active');
     }
 
-    // ── Submit ─────────────────────────────────────────────────────────────────
+    // Submit
     function showError(msg) {
         document.getElementById('errorText').textContent = msg;
         document.getElementById('errorMsg').classList.remove('hidden');
@@ -416,17 +416,17 @@
         const ic      = document.getElementById('icNumber').value.trim();
         const confirm = document.getElementById('confirmCheck').checked;
 
-        if (!name)   return showError('Sila masukkan nama pelanggan.');
-        if (!phone)  return showError('Sila masukkan nombor telefon.');
-        if (!equip)  return showError('Sila masukkan peralatan yang disewa.');
-        if (!pickup) return showError('Sila pilih tarikh ambil.');
-        if (!ret)    return showError('Sila pilih tarikh pulang.');
-        if (!hasSig) return showError('Sila tandatangan di ruangan tandatangan.');
-        if (!confirm) return showError('Sila tandakan kotak pengesahan terma & syarat.');
+        if (!name)   return showError('Please enter the customer name.');
+        if (!phone)  return showError('Please enter the phone number.');
+        if (!equip)  return showError('Please enter the rented equipment.');
+        if (!pickup) return showError('Please select the pickup date.');
+        if (!ret)    return showError('Please select the return date.');
+        if (!hasSig) return showError('Please sign in the signature area.');
+        if (!confirm) return showError('Please tick the terms & conditions confirmation box.');
 
         // Collect accessories
         const accessories = [];
-        if (document.getElementById('chk_camera').checked)  accessories.push('Kamera');
+        if (document.getElementById('chk_camera').checked)  accessories.push('Camera');
         if (document.getElementById('chk_selfie').checked)  accessories.push('Selfie Stick');
         if (document.getElementById('chk_sd64').checked)    accessories.push('Memory Card 64GB');
         if (document.getElementById('chk_sd128').checked)   accessories.push('Memory Card 128GB');
@@ -453,7 +453,7 @@
 
         const btn = document.querySelector('button[onclick="submitAgreement()"]');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
 
         try {
             const res = await fetch('/staff/agreements/save', {
@@ -465,14 +465,14 @@
             if (data.success) {
                 window.location.href = '/staff/agreements/' + data.id;
             } else {
-                showError(data.error || 'Ralat semasa menyimpan. Cuba lagi.');
+                showError(data.error || 'Error saving. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sahkan & Tandatangan Perjanjian';
+                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Confirm & Sign Agreement';
             }
         } catch(e) {
-            showError('Ralat sambungan. Sila cuba lagi.');
+            showError('Connection error. Please try again.');
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Sahkan & Tandatangan Perjanjian';
+            btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Confirm & Sign Agreement';
         }
     }
     </script>

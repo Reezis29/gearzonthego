@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kemaskini Tempahan | Gearz On The Go</title>
+    <title>Update Booking | Gearz On The Go</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -13,10 +13,10 @@
     <nav class="bg-gray-900 text-white px-4 py-3 flex justify-between items-center shadow">
         <div class="flex items-center gap-3">
             <img src="/static/logo.png" alt="Gearz" class="h-10">
-            <span class="font-bold text-lg">Kemaskini Tempahan</span>
+            <span class="font-bold text-lg">Update Booking</span>
         </div>
         <a href="/staff" class="text-gray-300 hover:text-white text-sm transition">
-            <i class="fas fa-arrow-left mr-1"></i> Kembali
+            <i class="fas fa-arrow-left mr-1"></i> Back
         </a>
     </nav>
 
@@ -40,11 +40,11 @@
             </div>
             <div class="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                    <span class="text-gray-400">Nama:</span>
+                    <span class="text-gray-400">Name:</span>
                     <div class="font-semibold text-gray-800">{{ booking['customer_name'] or '—' }}</div>
                 </div>
                 <div>
-                    <span class="text-gray-400">Telefon:</span>
+                    <span class="text-gray-400">Phone:</span>
                     <div class="font-semibold text-gray-800">{{ booking['customer_phone'] or '—' }}</div>
                 </div>
             </div>
@@ -53,22 +53,22 @@
         <!-- Update Form -->
         <div class="bg-white rounded-2xl shadow p-5">
             <h2 class="text-lg font-bold text-gray-800 mb-4">
-                <i class="fas fa-camera text-orange-500 mr-2"></i>Ambil Maklumat Pelanggan
+                <i class="fas fa-camera text-orange-500 mr-2"></i>Capture Customer Details
             </h2>
             <p class="text-sm text-gray-500 mb-4">Lengkapkan maklumat pelanggan semasa ambil kamera di kedai.</p>
 
             <form method="POST" action="/staff/booking/{{ booking['id'] }}/update" enctype="multipart/form-data">
 
-                <!-- Nama (boleh kemaskini) -->
+                <!-- Name (boleh kemaskini) -->
                 <div class="mb-3">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Pelanggan</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Name Customers</label>
                     <input type="text" name="customer_name" value="{{ booking['customer_name'] or '' }}"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <!-- Telefon -->
+                <!-- Phone -->
                 <div class="mb-3">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">No. Telefon</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
                     <input type="text" name="customer_phone" value="{{ booking['customer_phone'] or '' }}"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -78,19 +78,19 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         <i class="fas fa-hashtag text-indigo-500 mr-1"></i> No. ID / Passport
                     </label>
-                    <input type="text" name="id_number" value="{{ booking.get('id_number', '') or '' }}" placeholder="Nombor IC atau Passport"
+                    <input type="text" name="id_number" value="{{ booking.get('id_number', '') or '' }}" placeholder="IC or Passport number"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <!-- Warganegara -->
+                <!-- Nationality -->
                 <div class="mb-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-flag text-blue-500 mr-1"></i> Warganegara
+                        <i class="fas fa-flag text-blue-500 mr-1"></i> Nationality
                     </label>
                     <select name="nationality"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">-- Pilih Warganegara --</option>
-                        {% set nationalities = ['Malaysia','Singapura','Indonesia','Thailand','Brunei','Filipina','Vietnam','Myanmar','China','Korea','Jepun','India','Australia','United Kingdom','United States','Lain-lain'] %}
+                        <option value="">-- Select Nationality --</option>
+                        {% set nationalities = ['Malaysia','Singapore','Indonesia','Thailand','Brunei','Philippines','Vietnam','Myanmar','China','Korea','Japan','India','Australia','United Kingdom','United States','Others'] %}
                         {% for n in nationalities %}
                         <option value="{{ n }}" {{ 'selected' if booking.get('nationality') == n else '' }}>{{ n }}</option>
                         {% endfor %}
@@ -114,14 +114,14 @@
                         <div id="photoPlaceholder">
                             <i class="fas fa-camera text-gray-300 text-3xl mb-2"></i>
                             <p class="text-sm text-gray-400">Klik untuk ambil gambar ID/Passport</p>
-                            <p class="text-xs text-gray-300">JPG, PNG, PDF, HEIC (maks 10MB)</p>
+                            <p class="text-xs text-gray-300">JPG, PNG, PDF, HEIC (max 10MB)</p>
                         </div>
                         <div id="photoPreview" class="hidden">
                             <img id="photoPreviewImg" src="" alt="Preview" class="max-h-32 mx-auto rounded-lg object-contain mb-2">
                             <p id="photoFileName" class="text-xs text-purple-600 font-semibold"></p>
                             <button type="button" onclick="clearPhoto(event)"
                                 class="text-xs text-red-500 hover:text-red-700 mt-1">
-                                <i class="fas fa-times mr-1"></i>Buang
+                                <i class="fas fa-times mr-1"></i>Remove
                             </button>
                         </div>
                     </div>
@@ -130,10 +130,10 @@
                         class="hidden" onchange="handlePhotoSelect(this)">
                 </div>
 
-                <!-- Photo Pelanggan bersama Device -->
+                <!-- Photo Customers bersama Device -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        <i class="fas fa-user-circle text-green-500 mr-1"></i> Photo Pelanggan + Device
+                        <i class="fas fa-user-circle text-green-500 mr-1"></i> Photo Customers + Device
                     </label>
                     {% if booking.get('customer_photo_url') %}
                     <div class="mb-2 p-2 bg-green-50 rounded-lg">
@@ -146,15 +146,15 @@
                         onclick="document.getElementById('customerPhotoInput').click()">
                         <div id="customerPhotoPlaceholder">
                             <i class="fas fa-camera-retro text-gray-300 text-3xl mb-2"></i>
-                            <p class="text-sm text-gray-400">Ambil gambar pelanggan bersama kamera/drone</p>
-                            <p class="text-xs text-gray-300">JPG, PNG, HEIC (maks 10MB)</p>
+                            <p class="text-sm text-gray-400">Take photo of customer with camera/drone</p>
+                            <p class="text-xs text-gray-300">JPG, PNG, HEIC (max 10MB)</p>
                         </div>
                         <div id="customerPhotoPreview" class="hidden">
                             <img id="customerPhotoPreviewImg" src="" alt="Preview" class="max-h-32 mx-auto rounded-lg object-contain mb-2">
                             <p id="customerPhotoFileName" class="text-xs text-green-600 font-semibold"></p>
                             <button type="button" onclick="clearCustomerPhoto(event)"
                                 class="text-xs text-red-500 hover:text-red-700 mt-1">
-                                <i class="fas fa-times mr-1"></i>Buang
+                                <i class="fas fa-times mr-1"></i>Remove
                             </button>
                         </div>
                     </div>
@@ -165,8 +165,8 @@
 
                 <!-- Nota -->
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nota (Pilihan)</label>
-                    <textarea name="notes" rows="2" placeholder="Nota tambahan..."
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Notes (Optional)</label>
+                    <textarea name="notes" rows="2" placeholder="Additional notes..."
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ booking['notes'] or '' }}</textarea>
                 </div>
 
@@ -174,15 +174,15 @@
                 <div class="space-y-2">
                     <button type="submit"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
-                        <i class="fas fa-save mr-1"></i> Simpan Kemaskini
+                        <i class="fas fa-save mr-1"></i> Save Update
                     </button>
                     <button type="submit" name="redirect_sign" value="1"
                         class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
-                        <i class="fas fa-file-signature mr-1"></i> Simpan & Terus Sign Perjanjian
+                        <i class="fas fa-file-signature mr-1"></i> Save & Terus Sign Agreements
                     </button>
                     <a href="/staff"
                         class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition">
-                        <i class="fas fa-arrow-left mr-1"></i> Kembali
+                        <i class="fas fa-arrow-left mr-1"></i> Back
                     </a>
                 </div>
             </form>

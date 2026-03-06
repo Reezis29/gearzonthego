@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,15 +67,15 @@
                 <span class="info-value">{{ booking.booking_ref }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Peranti</span>
+                <span class="info-label">Device</span>
                 <span class="info-value">{{ booking.camera_name }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Tarikh</span>
+                <span class="info-label">Date</span>
                 <span class="info-value">{{ booking.start_date }} → {{ booking.end_date }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Pelanggan</span>
+                <span class="info-label">Customers</span>
                 <span class="info-value">{{ booking.customer_name }}</span>
             </div>
         </div>
@@ -103,7 +103,7 @@
         </div>
         {% else %}
         <!-- Simulated bank selection -->
-        <div style="font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:8px;">Pilih Bank / E-Wallet</div>
+        <div style="font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:8px;">Select Bank / E-Wallet</div>
         <div class="bank-list">
             <div class="bank-option selected" onclick="selectBank(this)">🏦 Maybank2u</div>
             <div class="bank-option" onclick="selectBank(this)">🏦 CIMB Clicks</div>

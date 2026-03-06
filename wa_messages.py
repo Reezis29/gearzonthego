@@ -21,13 +21,13 @@ def customer_send_payment_proof(booking):
     text = (
         f"Assalamualaikum / Hi Gearz On The Go 👋\n\n"
         f"Saya telah membuat tempahan dan bayar deposit.\n\n"
-        f"📋 *Butiran Tempahan:*\n"
+        f"📋 *Booking Details:*\n"
         f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
-        f"• Peranti: {booking.get('camera_name', '')}\n"
-        f"• Tarikh: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n"
+        f"• Device: {booking.get('camera_name', '')}\n"
+        f"• Date: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n"
         f"• Jumlah: RM{booking.get('total_price', 0):.0f}\n"
         f"• Deposit: RM{booking.get('deposit_amount', 200):.0f}\n\n"
-        f"👤 *Maklumat Saya:*\n"
+        f"👤 *My Details:*\n"
         f"• Nama: {booking.get('customer_name', '')}\n"
         f"• Telefon: {booking.get('customer_phone', '')}\n"
     )
@@ -35,7 +35,7 @@ def customer_send_payment_proof(booking):
         text += f"• Email: {booking['customer_email']}\n"
     text += (
         f"\n📎 *Bukti pembayaran dilampirkan di bawah.*\n"
-        f"Mohon sahkan tempahan saya. Terima kasih! 🙏"
+        f"Please confirm my booking. Thank you! 🙏"
     )
     return wa_link(ADMIN_PHONE, text)
 
@@ -46,8 +46,8 @@ def customer_enquiry(booking):
         f"Hai Gearz On The Go 👋\n\n"
         f"Saya nak tanya tentang tempahan saya:\n"
         f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
-        f"• Peranti: {booking.get('camera_name', '')}\n"
-        f"• Tarikh: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n\n"
+        f"• Device: {booking.get('camera_name', '')}\n"
+        f"• Date: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n\n"
     )
     return wa_link(ADMIN_PHONE, text)
 
@@ -56,16 +56,16 @@ def customer_pickup_enquiry(booking):
     """Customer asks about pickup details (for confirmed bookings)."""
     text = (
         f"Hai Gearz On The Go 👋\n\n"
-        f"Tempahan saya *{booking.get('booking_ref', '')}* sudah disahkan.\n\n"
+        f"My booking *{booking.get('booking_ref', '')}* has been confirmed.\n\n"
         f"Saya nak tanya tentang pengambilan peralatan:\n"
-        f"• Peranti: {booking.get('camera_name', '')}\n"
-        f"• Tarikh Ambil: {booking.get('start_date', '')}\n"
+        f"• Device: {booking.get('camera_name', '')}\n"
+        f"• Pickup Date: {booking.get('start_date', '')}\n"
     )
     if booking.get('pickup_time'):
         text += f"• Masa Ambil: {booking['pickup_time']}\n"
     text += (
         f"\nBoleh saya datang ambil di outlet? "
-        f"Terima kasih! 🙏"
+        f"Thank you! 🙏"
     )
     return wa_link(ADMIN_PHONE, text)
 
@@ -80,10 +80,10 @@ def admin_remind_payment(booking, camera_name=''):
         f"Assalamualaikum {booking.get('customer_name', '')} 👋\n\n"
         f"Ini dari *Gearz On The Go* 📸\n\n"
         f"Kami perasan tempahan anda belum dibayar lagi:\n\n"
-        f"📋 *Butiran Tempahan:*\n"
+        f"📋 *Booking Details:*\n"
         f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
-        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
-        f"• Tarikh: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n"
+        f"• Device: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Date: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n"
     )
     if booking.get('total_price'):
         text += f"• Jumlah: RM{booking['total_price']:.0f}\n"
@@ -94,8 +94,8 @@ def admin_remind_payment(booking, camera_name=''):
         f"• Nama: GEAR ETC SDN BHD\n"
         f"• No. Akaun: 552152001924\n"
         f"• Rujukan: {booking.get('booking_ref', '')}\n\n"
-        f"Sila hantar bukti bayaran ke WhatsApp ini selepas transfer. "
-        f"Terima kasih! 🙏"
+        f"Please send proof of payment to this WhatsApp after transfer. "
+        f"Thank you! 🙏"
     )
     phone = booking.get('customer_phone', '')
     return wa_link(phone, text)
@@ -105,12 +105,12 @@ def admin_confirm_booking(booking, camera_name=''):
     """Admin notifies customer that booking is confirmed."""
     text = (
         f"Assalamualaikum {booking.get('customer_name', '')} 👋\n\n"
-        f"*Tempahan anda telah DISAHKAN!* ✅\n\n"
-        f"📋 *Butiran Tempahan:*\n"
+        f"*Your booking is CONFIRMED!* ✅\n\n"
+        f"📋 *Booking Details:*\n"
         f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
-        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
-        f"• Tarikh Ambil: {booking.get('start_date', '')}\n"
-        f"• Tarikh Pulang: {booking.get('end_date', '')}\n"
+        f"• Device: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Pickup Date: {booking.get('start_date', '')}\n"
+        f"• Return Date: {booking.get('end_date', '')}\n"
     )
     if booking.get('pickup_time'):
         text += f"• Masa Ambil: {booking['pickup_time']}\n"
@@ -121,7 +121,7 @@ def admin_confirm_booking(booking, camera_name=''):
         f"07000 Langkawi, Kedah\n"
         f"Google Maps: https://maps.app.goo.gl/gearz\n\n"
         f"⏰ *Waktu Operasi:* 2:30 PM – 11:00 PM\n\n"
-        f"Sila bawa IC/Passport semasa pengambilan.\n"
+        f"Please bring your IC/Passport during pickup.\n"
         f"Jumpa nanti! 😊"
     )
     phone = booking.get('customer_phone', '')
@@ -134,15 +134,15 @@ def admin_pickup_reminder(booking, camera_name=''):
         f"Hai {booking.get('customer_name', '')} 👋\n\n"
         f"Ini peringatan dari *Gearz On The Go* 📸\n\n"
         f"Peralatan anda sedia untuk diambil:\n"
-        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
-        f"• Tarikh Ambil: {booking.get('start_date', '')}\n"
+        f"• Device: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Pickup Date: {booking.get('start_date', '')}\n"
     )
     if booking.get('pickup_time'):
         text += f"• Masa Ambil: {booking['pickup_time']}\n"
     text += (
         f"\n📍 Gearz Gadget, Jalan Pantai Cenang, Langkawi\n"
         f"⏰ Waktu Operasi: 2:30 PM – 11:00 PM\n\n"
-        f"Sila bawa IC/Passport. Jumpa nanti! 😊"
+        f"Please bring your IC/Passport. See you soon! 😊"
     )
     phone = booking.get('customer_phone', '')
     return wa_link(phone, text)
@@ -153,16 +153,16 @@ def admin_return_reminder(booking, camera_name=''):
     text = (
         f"Hai {booking.get('customer_name', '')} 👋\n\n"
         f"Ini peringatan dari *Gearz On The Go* 📸\n\n"
-        f"Sila pulangkan peralatan anda:\n"
-        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
-        f"• Tarikh Pulang: {booking.get('end_date', '')}\n"
+        f"Please return your equipment:\n"
+        f"• Device: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Return Date: {booking.get('end_date', '')}\n"
     )
     if booking.get('return_time'):
         text += f"• Masa Pulang: {booking['return_time']}\n"
     text += (
         f"\n📍 Gearz Gadget, Jalan Pantai Cenang, Langkawi\n"
         f"⏰ Waktu Operasi: 2:30 PM – 11:00 PM\n\n"
-        f"Terima kasih kerana menyewa bersama kami! 🙏"
+        f"Thank you for renting with us! 🙏"
     )
     phone = booking.get('customer_phone', '')
     return wa_link(phone, text)
@@ -172,7 +172,7 @@ def admin_thank_you(booking, camera_name=''):
     """Admin sends thank you after equipment returned."""
     text = (
         f"Hai {booking.get('customer_name', '')} 👋\n\n"
-        f"Terima kasih kerana menyewa bersama *Gearz On The Go*! 🎉\n\n"
+        f"Thank you for renting with *Gearz On The Go*! 🎉\n\n"
         f"Kami harap anda puas hati dengan {camera_name or booking.get('camera_name', '')}.\n\n"
         f"Jika ada gambar/video best dari trip anda, "
         f"boleh tag kami di Instagram @gearzgadget 📸\n\n"
@@ -190,25 +190,25 @@ def customer_booking_confirmed_with_invoice(booking, camera_name=''):
     deposit = booking.get('deposit_amount', 200)
     text = (
         f"Assalamualaikum {booking.get('customer_name', '')} 👋\n\n"
-        f"*Tempahan anda telah DISAHKAN!* ✅\n"
-        f"Bayaran RM30 booking fee telah diterima.\n\n"
-        f"📋 *Butiran Tempahan:*\n"
+        f"*Your booking is CONFIRMED!* ✅\n"
+        f"RM30 booking fee payment received.\n\n"
+        f"📋 *Booking Details:*\n"
         f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
-        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
-        f"• Tarikh Ambil: {booking.get('start_date', '')}\n"
-        f"• Tarikh Pulang: {booking.get('end_date', '')}\n"
+        f"• Device: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Pickup Date: {booking.get('start_date', '')}\n"
+        f"• Return Date: {booking.get('end_date', '')}\n"
     )
     if booking.get('pickup_time'):
         text += f"• Masa Ambil: {booking['pickup_time']}\n"
     text += (
-        f"\n💳 *Bayaran Semasa Pickup:*\n"
+        f"\n💳 *Payment at Pickup:*\n"
         f"• Baki Sewa: RM{remaining:.0f}\n"
         f"• Deposit (boleh dikembalikan): RM{deposit:.0f}\n"
         f"• JUMLAH: RM{(remaining + deposit):.0f}\n\n"
         f"📍 *Lokasi Pickup:*\n"
         f"Gearz On The Go, Pantai Cenang, Langkawi\n\n"
         f"📧 Invois telah dihantar ke email anda.\n\n"
-        f"Sila bawa IC/Passport semasa pengambilan.\n"
+        f"Please bring your IC/Passport during pickup.\n"
         f"Jumpa nanti! 😊"
     )
     phone = booking.get('customer_phone', '')
@@ -225,21 +225,21 @@ def admin_new_booking_alert(booking, camera_name=''):
         f"🔔 *TEMPAHAN BARU DITERIMA*\n\n"
         f"📋 *Butiran:*\n"
         f"• Rujukan: *{booking.get('booking_ref', '')}*\n"
-        f"• Peranti: {camera_name or booking.get('camera_name', '')}\n"
-        f"• Tarikh: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n"
+        f"• Device: {camera_name or booking.get('camera_name', '')}\n"
+        f"• Date: {booking.get('start_date', '')} → {booking.get('end_date', '')}\n"
     )
     if booking.get('total_price'):
         text += f"• Jumlah: RM{booking['total_price']:.0f}\n"
     text += (
         f"• Deposit: RM{booking.get('deposit_amount', 200):.0f}\n\n"
-        f"👤 *Pelanggan:*\n"
+        f"👤 *Customer:*\n"
         f"• Nama: {booking.get('customer_name', '')}\n"
         f"• Telefon: {booking.get('customer_phone', '')}\n"
     )
     if booking.get('customer_email'):
         text += f"• Email: {booking['customer_email']}\n"
     text += (
-        f"\n⏳ Status: Menunggu Bayaran\n"
-        f"Sila pantau pembayaran deposit."
+        f"\n⏳ Status: Payment Pending\n"
+        f"Please monitor deposit payment."
     )
     return wa_link(ADMIN_PHONE, text)

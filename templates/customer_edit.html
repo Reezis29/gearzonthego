@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Edit Pelanggan — Gearz On The Go</title>
+<title>Edit Customers — Gearz On The Go</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
@@ -16,33 +16,33 @@
     <span class="font-bold text-lg">Gearz On The Go — Staff Panel</span>
   </div>
   <div class="flex items-center gap-3">
-    <a href="/staff" class="text-gray-300 hover:text-white text-sm"><i class="fas fa-calendar-alt mr-1"></i>Tempahan</a>
-    <a href="/staff/customers" class="text-blue-400 font-semibold text-sm"><i class="fas fa-users mr-1"></i>Pelanggan</a>
-    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Log Keluar</a>
+    <a href="/staff" class="text-gray-300 hover:text-white text-sm"><i class="fas fa-calendar-alt mr-1"></i>Bookings</a>
+    <a href="/staff/customers" class="text-blue-400 font-semibold text-sm"><i class="fas fa-users mr-1"></i>Customers</a>
+    <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Log Logout</a>
   </div>
 </nav>
 
 <div class="max-w-3xl mx-auto px-4 py-8">
   <div class="mb-6">
-    <a href="/staff/customers/{{ customer.id }}" class="text-blue-500 hover:underline text-sm"><i class="fas fa-arrow-left mr-1"></i>Kembali ke Profil</a>
-    <h1 class="text-2xl font-bold text-gray-800 mt-2"><i class="fas fa-edit text-yellow-500 mr-2"></i>Edit Pelanggan: {{ customer.full_name }}</h1>
+    <a href="/staff/customers/{{ customer.id }}" class="text-blue-500 hover:underline text-sm"><i class="fas fa-arrow-left mr-1"></i>Back ke Profil</a>
+    <h1 class="text-2xl font-bold text-gray-800 mt-2"><i class="fas fa-edit text-yellow-500 mr-2"></i>Edit Customers: {{ customer.full_name }}</h1>
   </div>
 
   <form method="POST" enctype="multipart/form-data" class="space-y-6">
 
-    <!-- Maklumat Peribadi -->
+    <!-- Personal Information -->
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-        <i class="fas fa-user text-blue-500"></i> Maklumat Peribadi
+        <i class="fas fa-user text-blue-500"></i> Personal Information
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="sm:col-span-2">
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Nama Penuh <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Name Penuh <span class="text-red-500">*</span></label>
           <input type="text" name="full_name" required value="{{ customer.full_name }}"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Nombor Telefon <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
           <input type="tel" name="phone" required value="{{ customer.phone }}"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
@@ -52,7 +52,7 @@
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
         <div class="sm:col-span-2">
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Warganegara / Negara Asal</label>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Nationality / Negara Asal</label>
           <input type="text" name="nationality" value="{{ customer.nationality or '' }}"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
@@ -68,26 +68,26 @@
         <div>
           <label class="block text-sm font-semibold text-gray-600 mb-1">Jenis Dokumen</label>
           <select name="id_type" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
-            <option value="">-- Pilih Jenis --</option>
+            <option value="">-- Select Type --</option>
             <option value="MyKad" {% if customer.id_type == 'MyKad' %}selected{% endif %}>MyKad (IC Malaysia)</option>
             <option value="Passport" {% if customer.id_type == 'Passport' %}selected{% endif %}>Passport</option>
             <option value="Driving License" {% if customer.id_type == 'Driving License' %}selected{% endif %}>Lesen Memandu</option>
             <option value="Student ID" {% if customer.id_type == 'Student ID' %}selected{% endif %}>Kad Pelajar</option>
-            <option value="Other" {% if customer.id_type == 'Other' %}selected{% endif %}>Lain-lain</option>
+            <option value="Other" {% if customer.id_type == 'Other' %}selected{% endif %}>Others</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-600 mb-1">Nombor ID / Passport</label>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">ID / Passport Number</label>
           <input type="text" name="id_number" value="{{ customer.id_number or '' }}"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
         </div>
         <div class="sm:col-span-2">
-          <label class="block text-sm font-semibold text-gray-600 mb-2">Ganti Gambar ID/Passport (biarkan kosong jika tidak mahu tukar)</label>
+          <label class="block text-sm font-semibold text-gray-600 mb-2">Ganti ID Photo/Passport (biarkan kosong jika tidak mahu tukar)</label>
           {% if customer.id_photo %}
           <div class="mb-3 p-3 bg-gray-50 rounded-lg flex items-center gap-3">
             <img src="/staff/uploads/{{ customer.id_photo }}" alt="Current ID" class="h-16 w-24 object-cover rounded border"/>
             <div>
-              <p class="text-sm font-semibold text-gray-700">Gambar semasa</p>
+              <p class="text-sm font-semibold text-gray-700">Current photo</p>
               <p class="text-xs text-gray-400">Muat naik gambar baru untuk menggantikan</p>
             </div>
           </div>
@@ -108,16 +108,16 @@
     <!-- Agreement -->
     <div class="bg-white rounded-xl shadow p-6">
       <h2 class="font-bold text-gray-700 text-lg mb-4 flex items-center gap-2">
-        <i class="fas fa-file-signature text-purple-500"></i> Status Perjanjian Sewa
+        <i class="fas fa-file-signature text-purple-500"></i> Status Agreements Sewa
       </h2>
       <label class="flex items-start gap-3 cursor-pointer">
         <input type="checkbox" name="agreement_signed" value="1" id="agreement_cb"
           {% if customer.agreement_signed %}checked{% endif %}
           class="mt-1 w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"/>
         <span class="text-sm text-gray-700">
-          <strong>Perjanjian telah ditandatangani</strong> — Pelanggan telah membaca dan bersetuju dengan semua terma dan syarat sewa.
+          <strong>Agreements telah ditandatangani</strong> — Customers telah membaca dan bersetuju dengan semua terma dan syarat sewa.
           {% if customer.agreement_date %}
-          <span class="block text-gray-400 text-xs mt-1">Tarikh asal: {{ customer.agreement_date }}</span>
+          <span class="block text-gray-400 text-xs mt-1">Date asal: {{ customer.agreement_date }}</span>
           {% endif %}
         </span>
       </label>
@@ -134,7 +134,7 @@
     <!-- Submit -->
     <div class="flex gap-3">
       <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg transition">
-        <i class="fas fa-save mr-2"></i> Simpan Perubahan
+        <i class="fas fa-save mr-2"></i> Save Perubahan
       </button>
       <a href="/staff/customers/{{ customer.id }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold">
         Batal

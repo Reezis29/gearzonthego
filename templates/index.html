@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -154,9 +154,7 @@
         .tab-content.active { display: block; }
         .price-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #e5e7eb; font-size: 0.85rem; }
         .price-row:last-child { border-bottom: none; }
-        .lang-btn { cursor: pointer; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 2px solid #2563eb; transition: all 0.2s; }
-        .lang-btn.active { background-color: #2563eb; color: white; }
-        .lang-btn:not(.active) { background-color: white; color: #2563eb; }
+
         /* Availability Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         .modal-box { background: white; border-radius: 1rem; padding: 2rem; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
@@ -208,21 +206,14 @@
             </div>
             <!-- Desktop Nav -->
             <div class="hidden md:flex space-x-6 font-medium text-gray-600 text-sm">
-                <a href="#home" class="hover:text-blue-600 transition" data-ms="Utama" data-en="Home">Utama</a>
-                <a href="#gear" class="hover:text-blue-600 transition" data-ms="Katalog" data-en="Catalogue">Katalog</a>
-                <a href="#availability" class="hover:text-blue-600 transition" data-ms="Semak Tarikh" data-en="Check Dates">Semak Tarikh</a>
-                <a href="#how-it-works" class="hover:text-blue-600 transition" data-ms="Cara Sewa" data-en="How to Rent">Cara Sewa</a>
-                <a href="#info" class="hover:text-blue-600 transition" data-ms="Maklumat" data-en="Info">Maklumat</a>
-                <a href="/blog" class="hover:text-blue-600 transition" data-ms="Blog" data-en="Blog">Blog</a>
+                <a href="#home" class="hover:text-blue-600 transition">Home</a>
+                <a href="#gear" class="hover:text-blue-600 transition">Catalogue</a>
+                <a href="#availability" class="hover:text-blue-600 transition">Check Dates</a>
+                <a href="#how-it-works" class="hover:text-blue-600 transition">How to Rent</a>
+                <a href="#info" class="hover:text-blue-600 transition">Info</a>
+                <a href="/blog" class="hover:text-blue-600 transition">Blog</a>
             </div>
-            <!-- Right side: Lang toggle -->
-            <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1">
-                    <button class="lang-btn active" id="btn-ms" onclick="setLang('ms')">BM</button>
-                    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-                </div>
 
-            </div>
         </div>
     </nav>
 
@@ -233,21 +224,19 @@
             <div class="hero-text">
                 <div class="hero-badge">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span data-ms="Pantai Cenang, Langkawi" data-en="Pantai Cenang, Langkawi">Pantai Cenang, Langkawi</span>
+                    <span>Pantai Cenang, Langkawi</span>
                 </div>
                 <h1 class="hero-headline">
-                    <span data-ms="Sewa Action Camera di Langkawi &mdash; <span class='text-blue-400'>Siap Pickup Hari Ini</span>" data-en="Rent Action Camera in Langkawi &mdash; <span class='text-blue-400'>Ready for Pickup Today</span>">
-                        Sewa Action Camera di Langkawi &mdash; <span class="text-blue-400">Siap Pickup Hari Ini</span>
-                    </span>
+                    Rent Action Camera in Langkawi &mdash; <span class="text-blue-400">Ready for Pickup Today</span>
                 </h1>
-                <p class="hero-sub" data-ms="Tempah online dalam 60 saat. Dapatkan GoPro, Insta360 atau DJI sebelum percutian anda." data-en="Book online in 60 seconds. Secure your GoPro, Insta360 or DJI before your trip.">
-                    Tempah online dalam 60 saat. Dapatkan GoPro, Insta360 atau DJI sebelum percutian anda.
+                <p class="hero-sub">
+                    Book online in 60 seconds. Secure your GoPro, Insta360 or DJI before your trip.
                 </p>
                 <a href="#availability" class="hero-cta-primary">
                     <i class="fas fa-calendar-check"></i>
-                    <span data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</span>
+                    <span>Check Availability</span>
                 </a>
-                <p style="color:#94a3b8;font-size:0.78rem;margin-top:10px;text-align:left;" data-ms="Tempah kamera anda hanya dengan RM30" data-en="Reserve your camera for only RM30">Reserve your camera for only RM30</p>
+                <p style="color:#94a3b8;font-size:0.78rem;margin-top:10px;text-align:left;" >Reserve your camera for only RM30</p>
 
                 <!-- Trust social proof -->
                 <div style="margin-top:20px;padding:14px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;">
@@ -255,15 +244,15 @@
                     <div class="hero-trust">
                         <div class="hero-trust-item">
                             <i class="fas fa-check-circle"></i>
-                            <span data-ms="Peralatan kamera disahkan" data-en="Verified camera equipment">Verified camera equipment</span>
+                            <span>Verified camera equipment</span>
                         </div>
                         <div class="hero-trust-item">
                             <i class="fas fa-check-circle"></i>
-                            <span data-ms="Pickup mudah di Pantai Cenang" data-en="Easy pickup near Pantai Cenang">Easy pickup near Pantai Cenang</span>
+                            <span>Easy pickup near Pantai Cenang</span>
                         </div>
                         <div class="hero-trust-item">
                             <i class="fas fa-check-circle"></i>
-                            <span data-ms="Tempah dalam 1 minit" data-en="Fast booking in 1 minute">Fast booking in 1 minute</span>
+                            <span>Fast booking in 1 minute</span>
                         </div>
                     </div>
                 </div>
@@ -282,23 +271,23 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div class="p-5">
                     <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-store text-xl"></i></div>
-                    <h3 class="text-lg font-bold mb-1" data-ms="Pickup di Cenang" data-en="Pickup in Cenang">Pickup di Cenang</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Ambil & pulang di outlet kami di Jalan Pantai Cenang." data-en="Pick up & return at our outlet at Jalan Pantai Cenang.">Ambil & pulang di outlet kami di Jalan Pantai Cenang.</p>
+                    <h3 class="text-lg font-bold mb-1">Pickup in Cenang</h3>
+                    <p class="text-gray-500 text-sm">Pick up & return at our outlet at Jalan Pantai Cenang.</p>
                 </div>
                 <div class="p-5">
                     <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-camera text-xl"></i></div>
-                    <h3 class="text-lg font-bold mb-1" data-ms="Pelbagai Pilihan" data-en="Wide Selection">Pelbagai Pilihan</h3>
-                    <p class="text-gray-500 text-sm" data-ms="GoPro, Insta360, DJI, Canon, Drone & lebih lagi." data-en="GoPro, Insta360, DJI, Canon, Drone & more.">GoPro, Insta360, DJI, Canon, Drone & lebih lagi.</p>
+                    <h3 class="text-lg font-bold mb-1">Wide Selection</h3>
+                    <p class="text-gray-500 text-sm">GoPro, Insta360, DJI, Canon, Drone & more.</p>
                 </div>
                 <div class="p-5">
                     <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tags text-xl"></i></div>
-                    <h3 class="text-lg font-bold mb-1" data-ms="Harga Jimat" data-en="Affordable Prices">Harga Jimat</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Sewa bermula RM30/hari. Lebih lama, lebih jimat!" data-en="Rental starts from RM30/day. Longer rental, better price!">Sewa bermula RM30/hari. Lebih lama, lebih jimat!</p>
+                    <h3 class="text-lg font-bold mb-1">Affordable Prices</h3>
+                    <p class="text-gray-500 text-sm">Rental starts from RM30/day. Longer rental, better price!</p>
                 </div>
                 <div class="p-5">
                     <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-headset text-xl"></i></div>
-                    <h3 class="text-lg font-bold mb-1" data-ms="Khidmat Mesra" data-en="Friendly Service">Khidmat Mesra</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Kami sedia membantu dari booking hingga pulangan." data-en="We are ready to assist from booking to return.">Kami sedia membantu dari booking hingga pulangan.</p>
+                    <h3 class="text-lg font-bold mb-1">Friendly Service</h3>
+                    <p class="text-gray-500 text-sm">We are ready to assist from booking to return.</p>
                 </div>
             </div>
         </div>
@@ -307,8 +296,8 @@
     <!-- Popular Cameras Section -->
     <section id="popular-cameras" class="py-16 bg-blue-900">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-2 text-white" data-ms="Kamera Terbaik untuk Pengembaraan Langkawi Anda" data-en="Best Cameras for Your Langkawi Adventure">Best Cameras for Your Langkawi Adventure</h2>
-            <p class="text-center text-blue-300 mb-10 text-sm" data-ms="Pilih kamera yang sesuai dengan aktiviti anda" data-en="Choose the right camera for your activities">Choose the right camera for your activities</p>
+            <h2 class="text-3xl font-bold text-center mb-2 text-white">Best Cameras for Your Langkawi Adventure</h2>
+            <p class="text-center text-blue-300 mb-10 text-sm">Choose the right camera for your activities</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                 <!-- Insta360 -->
                 <div class="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition hover:-translate-y-1">
@@ -318,8 +307,8 @@
                     <div class="p-6">
                         <div class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full mb-3">360° Camera</div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">Insta360</h3>
-                        <p class="text-gray-600 text-sm mb-4" data-ms="Sempurna untuk Langkawi SkyCab dan pemandangan panoramik." data-en="Perfect for Langkawi SkyCab and panoramic views.">Perfect for Langkawi SkyCab and panoramic views.</p>
-                        <a href="#availability" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition" data-ms="Semak Kekosongan" data-en="Check Availability">Check Availability</a>
+                        <p class="text-gray-600 text-sm mb-4">Perfect for Langkawi SkyCab and panoramic views.</p>
+                        <a href="#availability" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition" >Check Availability</a>
                     </div>
                 </div>
                 <!-- GoPro -->
@@ -330,8 +319,8 @@
                     <div class="p-6">
                         <div class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full mb-3">Action Camera</div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">GoPro</h3>
-                        <p class="text-gray-600 text-sm mb-4" data-ms="Terbaik untuk island hopping dan aktiviti pantai." data-en="Best for island hopping and beach adventures.">Best for island hopping and beach adventures.</p>
-                        <a href="#availability" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-lg text-sm transition" data-ms="Semak Kekosongan" data-en="Check Availability">Check Availability</a>
+                        <p class="text-gray-600 text-sm mb-4">Best for island hopping and beach adventures.</p>
+                        <a href="#availability" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-lg text-sm transition" >Check Availability</a>
                     </div>
                 </div>
                 <!-- DJI Action -->
@@ -342,8 +331,8 @@
                     <div class="p-6">
                         <div class="inline-block bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full mb-3">DJI Camera</div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">DJI Action</h3>
-                        <p class="text-gray-600 text-sm mb-4" data-ms="Sesuai untuk perjalanan motosikal di sekitar Langkawi." data-en="Great for motorbike rides around Langkawi.">Great for motorbike rides around Langkawi.</p>
-                        <a href="#availability" class="block w-full text-center bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 rounded-lg text-sm transition" data-ms="Semak Kekosongan" data-en="Check Availability">Check Availability</a>
+                        <p class="text-gray-600 text-sm mb-4">Great for motorbike rides around Langkawi.</p>
+                        <a href="#availability" class="block w-full text-center bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 rounded-lg text-sm transition" >Check Availability</a>
                     </div>
                 </div>
             </div>
@@ -353,8 +342,8 @@
     <!-- Gear Catalog with Tabs -->
     <section id="gear" class="py-16 bg-gray-100">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-2" data-ms="Katalog & Harga Sewa" data-en="Rental Catalogue & Prices">Katalog & Harga Sewa</h2>
-            <p class="text-center text-gray-500 mb-8 text-sm" data-ms="Harga dikira per hari (RM/Hari). Klik 'Sewa Sekarang' untuk semak kekosongan dan tempah." data-en="Price per day (RM/Day). Click 'Rent Now' to check availability and book.">Harga dikira per hari (RM/Hari). Klik 'Sewa Sekarang' untuk semak kekosongan dan tempah.</p>
+            <h2 class="text-3xl font-bold text-center mb-2">Rental Catalogue & Prices</h2>
+            <p class="text-center text-gray-500 mb-8 text-sm">Price per day (RM/Day). Click 'Rent Now' to check availability and book.</p>
             <div class="flex flex-wrap justify-center gap-2 mb-10">
                 <button onclick="showTab('gopro')" id="tab-gopro" class="tab-btn active px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">GoPro</button>
                 <button onclick="showTab('insta360')" id="tab-insta360" class="tab-btn px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">Insta360</button>
@@ -366,11 +355,11 @@
             {% set cam_data = {
                 'gopro': [
                     {'id':'gopro11','name':'GoPro Hero 11 Black','badge':'Action Camera','badge_class':'bg-blue-100 text-blue-700','img':'gopro11.png','p1':80,'p2':70,'p3':60,'p5':50},
-                    {'id':'gopro13','name':'GoPro Hero 13 Black','badge':'Terbaru','badge_class':'bg-orange-100 text-orange-700','img':'gopro13.png','p1':85,'p2':75,'p3':65,'p5':55}
+                    {'id':'gopro13','name':'GoPro Hero 13 Black','badge':'New','badge_class':'bg-orange-100 text-orange-700','img':'gopro13.png','p1':85,'p2':75,'p3':65,'p5':55}
                 ],
                 'insta360': [
                     {'id':'insta360x3','name':'Insta360 X3','badge':'360°','badge_class':'bg-blue-100 text-blue-700','img':'insta360x3.jpg','p1':85,'p2':75,'p3':65,'p5':55},
-                    {'id':'insta360x5','name':'Insta360 X5','badge':'Terbaru 360°','badge_class':'bg-orange-100 text-orange-700','img':'insta360x5.jpg','p1':100,'p2':90,'p3':80,'p5':70},
+                    {'id':'insta360x5','name':'Insta360 X5','badge':'New 360°','badge_class':'bg-orange-100 text-orange-700','img':'insta360x5.jpg','p1':100,'p2':90,'p3':80,'p5':70},
                     {'id':'insta360ace2','name':'Insta360 Ace Pro 2','badge':'Action','badge_class':'bg-purple-100 text-purple-700','img':'insta360acepro2.jpg','p1':90,'p2':80,'p3':70,'p5':60}
                 ],
                 'dji': [
@@ -387,7 +376,7 @@
                 ],
                 'drone': [
                     {'id':'dji_neo','name':'DJI Neo','badge':'Drone','badge_class':'bg-blue-100 text-blue-700','img':'dji_neo.jpg','p1':70,'p2':60,'p3':50,'p5':40},
-                    {'id':'dji_neo2','name':'DJI Neo 2','badge':'Drone Terbaru','badge_class':'bg-orange-100 text-orange-700','img':'dji_neo2.jpg','p1':80,'p2':70,'p3':65,'p5':55},
+                    {'id':'dji_neo2','name':'DJI Neo 2','badge':'New Drone','badge_class':'bg-orange-100 text-orange-700','img':'dji_neo2.jpg','p1':80,'p2':70,'p3':65,'p5':55},
                     {'id':'dji_mini4pro','name':'DJI Mini 4 Pro','badge':'Pro Drone','badge_class':'bg-yellow-100 text-yellow-700','img':'drone-mini4pro.jpg','p1':280,'p2':260,'p3':240,'p5':220}
                 ]
             } %}
@@ -396,7 +385,7 @@
             <div id="tab-content-{{ tab_id }}" class="tab-content {% if tab_id == 'gopro' %}active{% endif %}">
                 {% if tab_id == 'drone' %}
                 <div class="mb-4 text-center">
-                    <p class="text-sm text-gray-500 bg-blue-50 inline-block px-4 py-2 rounded-full"><i class="fas fa-info-circle mr-1 text-blue-500"></i> <span data-ms="Semua drone disertakan dengan 2 bateri, memori 64GB & beg." data-en="All drones come with 2 batteries, 64GB memory & bag.">Semua drone disertakan dengan 2 bateri, memori 64GB & beg.</span></p>
+                    <p class="text-sm text-gray-500 bg-blue-50 inline-block px-4 py-2 rounded-full"><i class="fas fa-info-circle mr-1 text-blue-500">All drones come with 2 batteries, 64GB memory & bag.</i> <span>All drone disertakan dengan 2 bateri, memori 64GB & beg.</span></p>
                 </div>
                 {% endif %}
                 <div class="grid grid-cols-1 md:grid-cols-{% if cams|length == 2 %}2{% else %}3{% endif %} gap-6 max-w-{% if cams|length == 2 %}3xl{% else %}5xl{% endif %} mx-auto">
@@ -416,16 +405,16 @@
                             </div>
                         </div>
                         <div class="space-y-1 mb-4">
-                            <div class="price-row"><span class="text-gray-600" data-ms="1 Hari" data-en="1 Day">1 Hari</span><span class="font-bold text-blue-600">RM {{ cam.p1 }}</span></div>
-                            <div class="price-row"><span class="text-gray-600" data-ms="2 Hari" data-en="2 Days">2 Hari</span><span class="font-bold text-blue-600">{% if cam.p2 %}RM {{ cam.p2 }}/hari{% else %}<span data-ms="Hubungi kami" data-en="Contact us">Hubungi kami</span>{% endif %}</span></div>
-                            <div class="price-row"><span class="text-gray-600" data-ms="3 Hari" data-en="3 Days">3 Hari</span><span class="font-bold text-blue-600">{% if cam.p3 %}RM {{ cam.p3 }}/hari{% else %}<span data-ms="Hubungi kami" data-en="Contact us">Hubungi kami</span>{% endif %}</span></div>
-                            <div class="price-row"><span class="text-gray-600" data-ms="5–7 Hari" data-en="5–7 Days">5–7 Hari</span><span class="font-bold text-green-600">{% if cam.p5 %}RM {{ cam.p5 }}/hari{% else %}<span data-ms="Hubungi kami" data-en="Contact us">Hubungi kami</span>{% endif %}</span></div>
+                            <div class="price-row"><span class="text-gray-600">1 Day</span><span class="font-bold text-blue-600">RM {{ cam.p1 }}</span></div>
+                            <div class="price-row"><span class="text-gray-600">2 Days</span><span class="font-bold text-blue-600">{% if cam.p2 %}RM {{ cam.p2 }}/day{% else %}Contact us{% endif %}</span></div>
+                            <div class="price-row"><span class="text-gray-600">3 Days</span><span class="font-bold text-blue-600">{% if cam.p3 %}RM {{ cam.p3 }}/day{% else %}Contact us{% endif %}</span></div>
+                            <div class="price-row"><span class="text-gray-600">5–7 Days</span><span class="font-bold text-green-600">{% if cam.p5 %}RM {{ cam.p5 }}/day{% else %}Contact us{% endif %}</span></div>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="openAvailModal('{{ cam.id }}', '{{ cam.name }}')"
                                 class="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-1">
                                 <i class="fas fa-calendar-check text-xs"></i>
-                                <span data-ms="Sewa Sekarang" data-en="Rent Now">Sewa Sekarang</span>
+                                <span>Rent Now</span>
                             </button>
                         </div>
                     </div>
@@ -439,15 +428,15 @@
     <!-- Availability Checker Section -->
     <section id="availability" class="py-16 bg-white">
         <div class="container mx-auto px-4 max-w-3xl">
-            <h2 class="text-3xl font-bold text-center mb-2" data-ms="Semak Kekosongan Peranti" data-en="Check Device Availability">Semak Kekosongan Peranti</h2>
-            <p class="text-center text-gray-500 mb-10 text-sm" data-ms="Pilih peranti dan tarikh untuk semak sama ada ia tersedia untuk disewa." data-en="Select a device and dates to check if it is available for rental.">Pilih peranti dan tarikh untuk semak sama ada ia tersedia untuk disewa.</p>
+            <h2 class="text-3xl font-bold text-center mb-2">Check Device Availability</h2>
+            <p class="text-center text-gray-500 mb-10 text-sm">Select a device and dates to check if it is available for rental.</p>
 
             <div class="bg-gray-50 rounded-2xl shadow-lg p-8">
                 <!-- Camera Select -->
                 <div class="mb-5">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Pilih Peranti" data-en="Select Device">Pilih Peranti</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Select Device</label>
                     <select id="avail-camera" onchange="loadBookedDates()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" data-ms="-- Pilih Peranti --" data-en="-- Select Device --">-- Pilih Peranti --</option>
+                        <option value="">-- Select Device --</option>
                         {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone'])] %}
                         {% set group_names = {'gopro':'GoPro','insta360':'Insta360','dji-action':'DJI Camera','canon':'Canon','drone':'Drone'} %}
                         <optgroup label="{{ group_names[tab_id] }}">
@@ -461,16 +450,16 @@
 
                 <!-- Custom Inline Calendar -->
                 <div id="avail-calendar-container" class="mb-5 hidden">
-                    <div class="text-xs font-semibold text-gray-500 mb-2" id="cal-instruction" data-ms="Klik tarikh mula, kemudian tarikh tamat" data-en="Click start date, then end date">Klik tarikh mula, kemudian tarikh tamat</div>
+                    <div class="text-xs font-semibold text-gray-500 mb-2" id="cal-instruction">Click start date, then end date</div>
                     <!-- Selected date display -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Tarikh Mula" data-en="Start Date">Tarikh Mula</label>
-                            <div id="avail-start-display" class="avail-date-display"><span class="placeholder" data-ms="Pilih tarikh" data-en="Select date">Pilih tarikh</span></div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Start Date</label>
+                            <div id="avail-start-display" class="avail-date-display"><span class="placeholder">Select date</span></div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Tarikh Tamat" data-en="End Date">Tarikh Tamat</label>
-                            <div id="avail-end-display" class="avail-date-display"><span class="placeholder" data-ms="Pilih tarikh" data-en="Select date">Pilih tarikh</span></div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">End Date</label>
+                            <div id="avail-end-display" class="avail-date-display"><span class="placeholder">Select date</span></div>
                         </div>
                     </div>
                     <!-- Calendar widget -->
@@ -481,12 +470,12 @@
                             <button onclick="calNextMonth()" aria-label="Next month">&#8250;</button>
                         </div>
                         <div id="avail-cal-grid" class="avail-cal-grid">
-                            <div class="avail-cal-loading" id="cal-loading"><i class="fas fa-spinner fa-spin mr-1"></i> <span data-ms="Memuatkan..." data-en="Loading...">Memuatkan...</span></div>
+                            <div class="avail-cal-loading" id="cal-loading"><i class="fas fa-spinner fa-spin mr-1"></i> <span>Loading...</span></div>
                         </div>
                         <div class="avail-cal-legend">
-                            <span><span class="dot" style="background:#fee2e2;border:1px solid #dc2626"></span> <span data-ms="Dah Ditempah" data-en="Booked">Dah Ditempah</span></span>
-                            <span><span class="dot" style="background:#dbeafe"></span> <span data-ms="Dipilih" data-en="Selected">Dipilih</span></span>
-                            <span><span class="dot" style="background:white;border:2px solid #2563eb"></span> <span data-ms="Hari Ini" data-en="Today">Hari Ini</span></span>
+                            <span><span class="dot" style="background:#fee2e2;border:1px solid #dc2626"></span> <span>Booked</span></span>
+                            <span><span class="dot" style="background:#dbeafe"></span> <span>Selected</span></span>
+                            <span><span class="dot" style="background:white;border:2px solid #2563eb"></span> <span>Today</span></span>
                         </div>
                     </div>
                 </div>
@@ -494,7 +483,7 @@
                 <!-- Placeholder when no device selected -->
                 <div id="cal-no-device" class="mb-5 rounded-xl border-2 border-dashed border-gray-200 p-6 text-center text-gray-400 text-sm">
                     <i class="fas fa-calendar-alt text-2xl mb-2 block"></i>
-                    <span data-ms="Pilih peranti di atas untuk lihat tarikh yang tersedia" data-en="Select a device above to view available dates">Pilih peranti di atas untuk lihat tarikh yang tersedia</span>
+                    <span>Select a device above to view available dates</span>
                 </div>
 
                 <!-- Hidden inputs for form submission compatibility -->
@@ -504,7 +493,7 @@
                 <!-- Check Button -->
                 <div id="avail-check-btn-wrap" class="hidden">
                     <button onclick="checkAvailSection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm transition">
-                        <i class="fas fa-search mr-1"></i> <span data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</span>
+                        <i class="fas fa-search mr-1"></i> <span>Check Availability</span>
                     </button>
                 </div>
                 <div class="mb-4"></div>
@@ -516,41 +505,41 @@
                 <div id="booking-form" class="hidden mt-6 bg-white rounded-xl p-6 border-2 border-blue-200 shadow-md">
                     <h3 class="text-lg font-bold text-blue-800 mb-1 flex items-center">
                         <i class="fas fa-calendar-check mr-2"></i>
-                        <span data-ms="Tempah Sekarang" data-en="Book Now">Tempah Sekarang</span>
+                        <span>Book Now</span>
                     </h3>
-                    <p class="text-gray-500 text-xs mb-4" data-ms="Isi maklumat anda untuk mengesahkan tempahan." data-en="Fill in your details to confirm your booking.">Isi maklumat anda untuk mengesahkan tempahan.</p>
+                    <p class="text-gray-500 text-xs mb-4">Fill in your details to confirm your booking.</p>
 
                     <div id="booking-summary" class="bg-blue-50 rounded-lg p-3 mb-4 text-sm"></div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Nama Penuh *" data-en="Full Name *">Nama Penuh *</label>
-                            <input type="text" id="book-name" placeholder="Nama penuh anda" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Name Penuh *</label>
+                            <input type="text" id="book-name" placeholder="Name penuh anda" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="No. Telefon *" data-en="Phone Number *">No. Telefon *</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number *</label>
                             <input type="tel" id="book-phone" placeholder="+60123456789" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                         <div>
-<label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="Email *" data-en="Email *">Email *</label>
+<label class="block text-xs font-semibold text-gray-600 mb-1">Email *</label>
                              <input type="email" id="book-email" required placeholder="email@contoh.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1" data-ms="No. IC / Passport (pilihan)" data-en="IC / Passport No. (optional)">No. IC / Passport (pilihan)</label>
-                            <input type="text" id="book-ic" placeholder="Nombor IC atau Passport" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">IC / Passport No. (pilihan)</label>
+                            <input type="text" id="book-ic" placeholder="IC or Passport number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
                     <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-xs text-green-800">
                         <i class="fas fa-info-circle mr-1"></i>
-                        <span data-ms="Bayar RM30 sahaja secara online untuk mengesahkan tempahan. Baki sewa + deposit RM200 dibayar semasa pickup." data-en="Pay only RM30 online to confirm your booking. Remaining rental + RM200 refundable deposit paid at pickup.">Pay only <strong>RM30</strong> online to confirm your booking. Remaining rental + RM200 refundable deposit paid at pickup.</span>
+                        <span>Pay only <strong>RM30</strong> online to confirm your booking. Remaining rental + RM200 refundable deposit paid at pickup.</span>
                     </div>
 
                     <button onclick="submitBooking()" id="book-submit-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg text-sm transition">
                         <i class="fas fa-paper-plane mr-1"></i>
-                        <span data-ms="Tempah Sekarang — RM30 Sahaja" data-en="Book Now — Only RM30">Book Now — Only RM30</span>
+                        <span>Book Now — Only RM30</span>
                     </button>
                     <div id="booking-error" class="hidden mt-3 text-red-600 text-sm text-center"></div>
                 </div>
@@ -561,30 +550,30 @@
     <!-- How It Works -->
     <section id="how-it-works" class="py-16 bg-gray-100">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12" data-ms="Cara Sewa Yang Mudah" data-en="Simple Rental Process">Cara Sewa Yang Mudah</h2>
+            <h2 class="text-3xl font-bold text-center mb-12">Simple Rental Process</h2>
             <div class="flex flex-col md:flex-row justify-between items-start gap-8">
                 <div class="flex-1 text-center">
                     <div class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
-                    <h3 class="text-lg font-bold mb-2" data-ms="Pilih Peranti" data-en="Choose Device">Pilih Peranti</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Pilih kamera atau drone yang sesuai dengan aktiviti anda." data-en="Choose the camera or drone that suits your activity.">Pilih kamera atau drone yang sesuai dengan aktiviti anda.</p>
+                    <h3 class="text-lg font-bold mb-2">Choose Device</h3>
+                    <p class="text-gray-500 text-sm">Choose the camera or drone that suits your activity.</p>
                 </div>
                 <div class="hidden md:flex items-center justify-center pt-5 text-blue-200 text-3xl"><i class="fas fa-chevron-right"></i></div>
                 <div class="flex-1 text-center">
                     <div class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
-                    <h3 class="text-lg font-bold mb-2" data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Semak tarikh kekosongan peranti secara langsung di laman web ini." data-en="Check device availability dates directly on this website.">Semak tarikh kekosongan peranti secara langsung di laman web ini.</p>
+                    <h3 class="text-lg font-bold mb-2">Check Availability</h3>
+                    <p class="text-gray-500 text-sm">Check device availability dates directly on this website.</p>
                 </div>
                 <div class="hidden md:flex items-center justify-center pt-5 text-blue-200 text-3xl"><i class="fas fa-chevron-right"></i></div>
                 <div class="flex-1 text-center">
                     <div class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
-                    <h3 class="text-lg font-bold mb-2" data-ms="Tempah & Bayar Deposit" data-en="Book & Pay Deposit">Tempah & Bayar Deposit</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Isi maklumat anda dan bayar deposit RM200 untuk sahkan tempahan." data-en="Fill in your details and pay RM200 deposit to confirm your booking.">Isi maklumat anda dan bayar deposit RM200 untuk sahkan tempahan.</p>
+                    <h3 class="text-lg font-bold mb-2">Book & Pay Deposit</h3>
+                    <p class="text-gray-500 text-sm">Fill in your details and pay RM200 deposit to confirm your booking.</p>
                 </div>
                 <div class="hidden md:flex items-center justify-center pt-5 text-blue-200 text-3xl"><i class="fas fa-chevron-right"></i></div>
                 <div class="flex-1 text-center">
                     <div class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">4</div>
-                    <h3 class="text-lg font-bold mb-2" data-ms="Pickup & Rakam!" data-en="Pickup & Shoot!">Pickup & Rakam!</h3>
-                    <p class="text-gray-500 text-sm" data-ms="Ambil peranti di outlet kami dan rakam semua kenangan indah!" data-en="Pick up the device at our outlet and capture all your beautiful memories!">Ambil peranti di outlet kami dan rakam semua kenangan indah!</p>
+                    <h3 class="text-lg font-bold mb-2">Pickup & Shoot!</h3>
+                    <p class="text-gray-500 text-sm">Capture peranti di outlet kami dan rakam semua kenangan indah!</p>
                 </div>
             </div>
         </div>
@@ -593,7 +582,7 @@
     <!-- Info Section -->
     <section id="info" class="py-16 bg-white">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-8" data-ms="Maklumat Outlet" data-en="Outlet Information">Maklumat Outlet</h2>
+            <h2 class="text-3xl font-bold text-center mb-8">Outlet Information</h2>
             <div class="max-w-4xl mx-auto mb-10 rounded-2xl overflow-hidden shadow-xl">
                 <img src="/static/kedai.jpeg" alt="Gearz Gadget Outlet - Jalan Pantai Cenang, Langkawi" class="w-full h-72 object-cover object-center">
             </div>
@@ -602,25 +591,25 @@
                     <div class="flex items-start mb-4">
                         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-4 flex-shrink-0"><i class="fas fa-map-marker-alt text-xl"></i></div>
                         <div>
-                            <h3 class="text-xl font-bold mb-2" data-ms="Lokasi Outlet" data-en="Outlet Location">Lokasi Outlet</h3>
+                            <h3 class="text-xl font-bold mb-2">Outlet Location</h3>
                             <p class="text-gray-600 leading-relaxed"><strong>Gearz Gadget</strong><br>No 6 Maliwalk,<br>Jalan Pantai Cenang,<br>07000 Langkawi, Kedah DA</p>
                         </div>
                     </div>
                     <a href="https://maps.google.com/?q=Gearz+Gadget+Cenang+Outlet,2,115,07000+Langkawi,Kedah" target="_blank" class="inline-block mt-2 text-blue-600 font-semibold hover:underline text-sm">
-                        <i class="fas fa-directions mr-1"></i> <span data-ms="Dapatkan Arah di Google Maps" data-en="Get Directions on Google Maps">Dapatkan Arah di Google Maps</span>
+                        <i class="fas fa-directions mr-1">Get Directions on Google Maps</i> <span>Dapatkan Arah di Google Maps</span>
                     </a>
                 </div>
                 <div class="bg-gray-50 rounded-xl shadow-lg p-8">
                     <div class="flex items-start mb-4">
                         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-4 flex-shrink-0"><i class="fas fa-clock text-xl"></i></div>
                         <div>
-                            <h3 class="text-xl font-bold mb-2" data-ms="Waktu Operasi" data-en="Operating Hours">Waktu Operasi</h3>
+                            <h3 class="text-xl font-bold mb-2">Operating Hours</h3>
                             <div class="text-gray-600 space-y-1">
                                 <div class="flex justify-between">
-                                    <span data-ms="Isnin — Ahad" data-en="Monday — Sunday">Isnin — Ahad</span>
+                                    <span>Monday — Sunday</span>
                                     <span class="font-bold text-gray-800">2:30 PM – 11:00 PM</span>
                                 </div>
-                                <p class="text-sm text-green-600 font-medium mt-2"><i class="fas fa-check-circle mr-1"></i> <span data-ms="Buka setiap hari" data-en="Open every day">Buka setiap hari</span></p>
+                                <p class="text-sm text-green-600 font-medium mt-2"><i class="fas fa-check-circle mr-1">Open every day</i> <span>Buka setiap hari</span></p>
                             </div>
                         </div>
                     </div>
@@ -635,35 +624,35 @@
     <!-- Testimonials Section -->
     <section id="testimonials" class="py-16 bg-gray-100">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-2" data-ms="Apa Kata Pelanggan Kami?" data-en="What Our Customers Say?">Apa Kata Pelanggan Kami?</h2>
-            <p class="text-center text-gray-500 mb-12 text-sm" data-ms="Lebih 500+ pelanggan berpuas hati menyewa bersama Gearz On The Go 🎉" data-en="Over 500+ happy customers have rented with Gearz On The Go 🎉">Lebih 500+ pelanggan berpuas hati menyewa bersama Gearz On The Go 🎉</p>
+            <h2 class="text-3xl font-bold text-center mb-2">What Our Customers Say?</h2>
+            <p class="text-center text-gray-500 mb-12 text-sm">Over 500+ happy customers have rented with Gearz On The Go</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
                 {% set testimonials = [
-                    ('customer1.jpeg','Sewa DJI Osmo 360 untuk trip ke Langkawi. Kamera dalam keadaan baik, proses sewa cepat dan mudah. Sangat puas hati!','Rented DJI Osmo 360 for my Langkawi trip. Camera was in great condition, fast and easy rental process. Very satisfied!'),
-                    ('customer2.jpeg','First time sewa action camera, staff sangat helpful explain cara guna. GoPro yang disewa dalam keadaan perfect. Recommended!','First time renting an action camera, staff was very helpful explaining how to use it. The GoPro was in perfect condition. Recommended!'),
-                    ('customer3.jpeg','Sewa GoPro untuk aktiviti snorkeling. Gambar dan video sangat jernih! Harga berpatutan, lokasi mudah dicari di Cenang.','Rented a GoPro for snorkeling. The photos and videos were crystal clear! Affordable price, easy to find in Cenang.'),
-                    ('customer4.jpeg','Sewa bersama isteri untuk honeymoon di Langkawi. Insta360 yang disewa memang terbaik untuk rakam kenangan berdua!','Rented together with my wife for our honeymoon in Langkawi. The Insta360 was perfect for capturing memories together!'),
-                    ('customer5.jpeg','Sewa GoPro untuk aktiviti jet ski. Kualiti video memang wow! Proses booking via WhatsApp sangat senang dan cepat.','Rented a GoPro for jet skiing. Video quality was amazing! Booking via WhatsApp was very easy and fast.'),
-                    ('customer6.jpeg','Sewa Insta360 X3 untuk island hopping. Video 360° memang luar biasa! Akan sewa lagi next trip ke Langkawi.','Rented Insta360 X3 for island hopping. The 360° video is absolutely incredible! Will rent again on my next trip to Langkawi.'),
-                    ('customer7.jpeg','Sewa GoPro untuk aktiviti parasailing. Sangat seronok dapat rakam dari atas! Terima kasih Gearz, memang best!','Rented a GoPro for parasailing. So fun to capture the view from above! Thank you Gearz, absolutely the best!'),
-                    ('customer8.jpeg','Sewa GoPro untuk rakam aktiviti snorkeling di Pulau Payar. Gambar bawah air sangat cantik! Service tip top, highly recommended.','Rented a GoPro to film snorkeling at Pulau Payar. Underwater photos were stunning! Top-notch service, highly recommended.')
+                    ('customer1.jpeg','Rented DJI Osmo 360 for my Langkawi trip. Camera was in great condition, fast and easy rental process. Very satisfied!'),
+                    ('customer2.jpeg','First time renting an action camera, staff was very helpful explaining how to use it. The GoPro was in perfect condition. Recommended!'),
+                    ('customer3.jpeg','Rented a GoPro for snorkeling. The photos and videos were crystal clear! Affordable price, easy to find in Cenang.'),
+                    ('customer4.jpeg','Rented together with my wife for our honeymoon in Langkawi. The Insta360 was perfect for capturing memories together!'),
+                    ('customer5.jpeg','Rented a GoPro for jet skiing. Video quality was amazing! Booking via WhatsApp was very easy and fast.'),
+                    ('customer6.jpeg','Rented Insta360 X3 for island hopping. The 360 video is absolutely incredible! Will rent again on my next trip to Langkawi.'),
+                    ('customer7.jpeg','Rented a GoPro for parasailing. So fun to capture the view from above! Thank you Gearz, absolutely the best!'),
+                    ('customer8.jpeg','Rented a GoPro to film snorkeling at Pulau Payar. Underwater photos were stunning! Top-notch service, highly recommended.')
                 ] %}
-                {% for img, quote_ms, quote_en in testimonials %}
+                {% for img, quote_en in testimonials %}
                 <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
                     <div class="h-56 overflow-hidden">
-                        <img src="/static/{{ img }}" alt="Pelanggan Gearz" class="w-full h-full object-cover object-top">
+                        <img src="/static/{{ img }}" alt="Gearz Customer" class="w-full h-full object-cover object-top">
                     </div>
                     <div class="p-5">
                         <div class="flex text-yellow-400 mb-2 text-sm">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                         </div>
-                        <p class="text-gray-600 text-sm italic mb-3 testimonial-text" data-ms="{{ quote_ms }}" data-en="{{ quote_en }}">"{{ quote_ms }}"</p>
+                        <p class="text-gray-600 text-sm italic mb-3 testimonial-text">"{{ quote_en }}"</p>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             <div class="text-center mt-12">
-                <p class="text-gray-500 text-sm mb-2" data-ms="Kongsi pengalaman anda bersama kami!" data-en="Share your experience with us!">Kongsi pengalaman anda bersama kami!</p>
+                <p class="text-gray-500 text-sm mb-2">Share your experience with us!</p>
                 <span class="inline-block bg-blue-600 text-white font-bold text-xl px-8 py-3 rounded-full tracking-wider">#GearzGadget</span>
             </div>
         </div>
@@ -672,8 +661,8 @@
     <!-- Google Maps Section -->
     <section id="location" class="py-16 bg-white">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-2" data-ms="Lokasi Kami" data-en="Our Location">Our Location</h2>
-            <p class="text-center text-gray-500 mb-8 text-sm" data-ms="Mudah dicari di kawasan Pantai Cenang, Langkawi" data-en="Easy to find in the Pantai Cenang area, Langkawi">Easy to find in the Pantai Cenang area, Langkawi</p>
+            <h2 class="text-3xl font-bold text-center mb-2">Our Location</h2>
+            <p class="text-center text-gray-500 mb-8 text-sm">Easy to find in the Pantai Cenang area, Langkawi</p>
             <div class="max-w-4xl mx-auto">
                 <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-lg">
                     <iframe
@@ -692,7 +681,7 @@
                         <a href="https://maps.app.goo.gl/RHjQg1rSfMcESExi9" target="_blank"
                            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition whitespace-nowrap">
                             <i class="fas fa-directions"></i>
-                            <span data-ms="Dapatkan Arah" data-en="Get Directions">Get Directions</span>
+                            <span>Get Directions</span>
                         </a>
                     </div>
                 </div>
@@ -703,15 +692,15 @@
     <!-- CTA Section -->
     <section id="contact" class="py-20 bg-blue-600 text-white">
         <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4" data-ms="Sedia Untuk Merakam Kenangan?" data-en="Ready to Capture Your Memories?">Sedia Untuk Merakam Kenangan?</h2>
-            <p class="text-xl mb-8 text-blue-100" data-ms="Semak kekosongan dan tempah terus secara online. Cepat, mudah dan selamat." data-en="Check availability and book directly online. Fast, easy and secure.">Semak kekosongan dan tempah terus secara online. Cepat, mudah dan selamat.</p>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Capture Your Memories?</h2>
+            <p class="text-xl mb-8 text-blue-100">Check availability and book directly online. Fast, easy and secure.</p>
             <a href="#availability" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-10 py-4 rounded-full font-bold text-xl transition shadow-xl mr-3 mb-3">
-                <i class="fas fa-calendar-check mr-2"></i> <span data-ms="Tempah Sekarang" data-en="Book Now">Tempah Sekarang</span>
+                <i class="fas fa-calendar-check mr-2"></i> <span>Book Now</span>
             </a>
             <a href="https://wa.me/60124662939?text=Halo%20Gearz%20On%20The%20Go!%20Saya%20ingin%20tanya%20tentang%20sewa%20kamera." target="_blank" class="inline-block bg-green-500 hover:bg-green-600 text-white px-10 py-4 rounded-full font-bold text-xl transition shadow-xl mb-3">
-                <i class="fab fa-whatsapp mr-2"></i> <span data-ms="WhatsApp Kami" data-en="WhatsApp Us">WhatsApp Kami</span>
+                <i class="fab fa-whatsapp mr-2"></i> <span>WhatsApp Us</span>
             </a>
-            <p class="mt-6 text-blue-200 text-sm" data-ms="Waktu Operasi: 2:30 PM – 11:00 PM (Setiap Hari)" data-en="Operating Hours: 2:30 PM – 11:00 PM (Every Day)">Waktu Operasi: 2:30 PM – 11:00 PM (Setiap Hari)</p>
+            <p class="mt-6 text-blue-200 text-sm">Operating Hours: 2:30 PM – 11:00 PM (Every Day)</p>
         </div>
     </section>
 
@@ -721,24 +710,24 @@
             <div class="flex flex-col md:flex-row justify-between items-start border-b border-gray-800 pb-8 mb-8 gap-6">
                 <div>
                     <a href="/" aria-label="Home"><img src="/static/logo.png" alt="Gearz On The Go" class="h-14 w-auto mb-3"></a>
-                    <p class="text-sm" data-ms="Servis Sewa Camera & Drone di Langkawi." data-en="Camera & Drone Rental Service in Langkawi.">Servis Sewa Camera & Drone di Langkawi.</p>
+                    <p class="text-sm">Camera & Drone Rental Service in Langkawi.</p>
                     <p class="text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i> No 6 Maliwalk, Jalan Pantai Cenang, Langkawi</p>
-                    <p class="text-sm mt-1"><i class="fas fa-clock mr-1"></i> <span data-ms="2:30 PM – 11:00 PM (Setiap Hari)" data-en="2:30 PM – 11:00 PM (Every Day)">2:30 PM – 11:00 PM (Setiap Hari)</span></p>
+                    <p class="text-sm mt-1"><i class="fas fa-clock mr-1"></i> 2:30 PM – 11:00 PM (Every Day)</p>
                     <p class="text-sm mt-1"><i class="fas fa-phone mr-1"></i> +601-24662939</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold mb-3" data-ms="Kategori" data-en="Category">Kategori</h4>
+                    <h4 class="text-white font-semibold mb-3">Category</h4>
                     <ul class="space-y-1 text-sm">
                         <li><a href="#gear" onclick="showTab('gopro')" class="hover:text-white transition">GoPro Camera</a></li>
                         <li><a href="#gear" onclick="showTab('insta360')" class="hover:text-white transition">Insta360 Camera</a></li>
                         <li><a href="#gear" onclick="showTab('dji-action')" class="hover:text-white transition">DJI Camera</a></li>
                         <li><a href="#gear" onclick="showTab('canon')" class="hover:text-white transition">Canon Camera</a></li>
                         <li><a href="#gear" onclick="showTab('drone')" class="hover:text-white transition">Drone Rental</a></li>
-                        <li><a href="/blog" class="hover:text-white transition" data-ms="Blog" data-en="Blog">Blog</a></li>
+                        <li><a href="/blog" class="hover:text-white transition">Blog</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-semibold mb-3" data-ms="Ikuti Kami" data-en="Follow Us">Ikuti Kami</h4>
+                    <h4 class="text-white font-semibold mb-3">Follow Us</h4>
                     <div class="flex space-x-4 text-2xl">
                         <a href="#" class="hover:text-white transition" title="Facebook"><i class="fab fa-facebook"></i></a>
                         <a href="https://www.tiktok.com/@foundergearz" target="_blank" class="hover:text-white transition" title="TikTok"><i class="fab fa-tiktok"></i></a>
@@ -751,7 +740,7 @@
                 </div>
             </div>
             <div class="text-center text-sm">
-                &copy; 2026 Gearz On The Go Langkawi. <span data-ms="Hak Cipta Terpelihara." data-en="All Rights Reserved.">Hak Cipta Terpelihara.</span>
+                &copy; 2026 Gearz On The Go Langkawi. <span>All Rights Reserved.</span>
             </div>
         </div>
     </footer>
@@ -760,27 +749,27 @@
     <div id="avail-modal" class="modal-overlay hidden">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800" id="modal-cam-name">Semak Kekosongan</h3>
+                <h3 class="text-lg font-bold text-gray-800" id="modal-cam-name">Check Availability</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-xl"><i class="fas fa-times"></i></button>
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Tarikh Mula" data-en="Start Date">Tarikh Mula</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Start Date</label>
                 <input type="date" id="modal-start" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1" data-ms="Tarikh Tamat" data-en="End Date">Tarikh Tamat</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">End Date</label>
                 <input type="date" id="modal-end" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <button onclick="checkModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition mb-3">
-                <i class="fas fa-search mr-1"></i> <span data-ms="Semak Kekosongan" data-en="Check Availability">Semak Kekosongan</span>
+                <i class="fas fa-search mr-1"></i> <span>Check Availability</span>
             </button>
             <div id="modal-result" class="hidden rounded-xl p-4 text-sm text-center"></div>
             <div id="modal-book-btn" class="hidden mt-3">
                 <button onclick="modalToBooking()" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-lg text-sm transition">
-                    <i class="fas fa-calendar-check mr-1"></i> <span data-ms="Tempah Sekarang" data-en="Book Now">Tempah Sekarang</span>
+                    <i class="fas fa-calendar-check mr-1"></i> <span>Book Now</span>
                 </button>
                 <a id="modal-wa-link" href="#" target="_blank" class="block w-full text-center text-green-600 hover:text-green-700 font-semibold py-2 text-xs mt-2 transition">
-                    <i class="fab fa-whatsapp mr-1"></i> <span data-ms="Atau hubungi via WhatsApp" data-en="Or contact via WhatsApp">Atau hubungi via WhatsApp</span>
+                    <i class="fab fa-whatsapp mr-1"></i> <span>Or contact via WhatsApp</span>
                 </a>
             </div>
         </div>
@@ -795,30 +784,8 @@
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        // ── Language switching ─────────────────────────────────────────────────
-        let currentLang = 'ms';
-        function setLang(lang) {
-            currentLang = lang;
-            document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
-            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-            document.querySelectorAll('[data-ms]').forEach(el => {
-                const text = el.getAttribute('data-' + lang);
-                if (text) {
-                    if (text.includes('<br>')) el.innerHTML = text;
-                    else el.textContent = text;
-                }
-            });
-            // Testimonials
-            document.querySelectorAll('.testimonial-text').forEach(el => {
-                const t = el.getAttribute('data-' + lang);
-                if (t) el.textContent = '"' + t + '"';
-            });
-            // Price labels
-            document.querySelectorAll('.price-row span[data-ms]').forEach(el => {
-                el.textContent = el.getAttribute('data-' + lang);
-            });
-
-        }
+        // Language is English only
+        let currentLang = 'en';
 
         // ── Set min dates for modal ────────────────────────────────────────────
         document.getElementById('modal-start').addEventListener('change', function() {
@@ -831,9 +798,9 @@
         let calSelectingStart = true;
         let calStartDate = null, calEndDate = null;
 
-        const MONTHS_MS = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+
         const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        const DAYS_MS = ['Isn','Sel','Rab','Kha','Jum','Sab','Ahd'];
+
         const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
         function toYMD(d) {
@@ -842,7 +809,7 @@
         function formatDisplay(ymd) {
             if (!ymd) return '';
             const [y,m,d] = ymd.split('-');
-            const months = currentLang === 'ms' ? MONTHS_MS : MONTHS_EN;
+            const months = MONTHS_EN;
             return parseInt(d) + ' ' + months[parseInt(m)-1] + ' ' + y;
         }
 
@@ -874,7 +841,7 @@
 
             // Show loading
             const grid = document.getElementById('avail-cal-grid');
-            grid.innerHTML = '<div class="avail-cal-loading" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin mr-1"></i> ' + (currentLang === 'ms' ? 'Memuatkan...' : 'Loading...') + '</div>';
+            grid.innerHTML = '<div class="avail-cal-loading" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin mr-1"></i> ' + ('Loading...') + '</div>';
 
             // Init calendar to current month
             const now = new Date();
@@ -893,7 +860,7 @@
         }
 
         function updateMonthLabel() {
-            const months = currentLang === 'ms' ? MONTHS_MS : MONTHS_EN;
+            const months = MONTHS_EN;
             document.getElementById('cal-month-label').textContent = months[calViewMonth] + ' ' + calViewYear;
         }
 
@@ -915,7 +882,7 @@
 
         function renderCalendar() {
             const grid = document.getElementById('avail-cal-grid');
-            const days = currentLang === 'ms' ? DAYS_MS : DAYS_EN;
+            const days = DAYS_EN;
             const today = toYMD(new Date());
             const firstDay = new Date(calViewYear, calViewMonth, 1);
             // Monday-first: 0=Mon..6=Sun
@@ -993,7 +960,7 @@
                     updateDateDisplays();
                     const resultDiv = document.getElementById('avail-result');
                     resultDiv.className = 'rounded-xl p-5 text-center bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm';
-                    resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>' + (currentLang === 'ms' ? 'Terdapat tarikh yang sudah ditempah dalam julat ini. Sila pilih semula.' : 'There are booked dates in this range. Please reselect.');
+                    resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>' + ('There are booked dates in this range. Please reselect.');
                     resultDiv.classList.remove('hidden');
                 } else {
                     document.getElementById('avail-start').value = calStartDate;
@@ -1009,19 +976,19 @@
         function updateDateDisplays() {
             const startDisp = document.getElementById('avail-start-display');
             const endDisp = document.getElementById('avail-end-display');
-            const placeholderMs = 'Pilih tarikh'; const placeholderEn = 'Select date';
+            const placeholderEn = 'Select date';
             if (calStartDate) {
                 startDisp.innerHTML = formatDisplay(calStartDate);
                 startDisp.classList.add('has-value');
             } else {
-                startDisp.innerHTML = `<span class="placeholder">${currentLang === 'ms' ? placeholderMs : placeholderEn}</span>`;
+                startDisp.innerHTML = `<span class="placeholder">${placeholderEn}</span>`;
                 startDisp.classList.remove('has-value');
             }
             if (calEndDate) {
                 endDisp.innerHTML = formatDisplay(calEndDate);
                 endDisp.classList.add('has-value');
             } else {
-                endDisp.innerHTML = `<span class="placeholder">${currentLang === 'ms' ? placeholderMs : placeholderEn}</span>`;
+                endDisp.innerHTML = `<span class="placeholder">${placeholderEn}</span>`;
                 endDisp.classList.remove('has-value');
             }
         }
@@ -1039,12 +1006,12 @@
             bookForm.classList.add('hidden');
             if (!cameraId || !startDate || !endDate) {
                 resultDiv.className = 'rounded-xl p-5 text-center bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm';
-                resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>' + (currentLang === 'ms' ? 'Sila pilih peranti dan tarikh terlebih dahulu.' : 'Please select a device and dates first.');
+                resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>' + ('Please select a device and dates first.');
                 resultDiv.classList.remove('hidden');
                 return;
             }
             resultDiv.className = 'rounded-xl p-5 text-center bg-gray-100 text-gray-500 text-sm';
-            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + (currentLang === 'ms' ? 'Sedang menyemak...' : 'Checking...');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + ('Checking...');
             resultDiv.classList.remove('hidden');
             try {
                 // Add 10s timeout to prevent infinite loading
@@ -1065,9 +1032,9 @@
             } catch (err) {
                 resultDiv.className = 'rounded-xl p-5 text-center bg-orange-50 border border-orange-300 text-orange-800 text-sm';
                 if (err.name === 'AbortError') {
-                    resultDiv.innerHTML = '<i class="fas fa-clock mr-2"></i><strong>' + (currentLang === 'ms' ? 'Masa tamat.' : 'Request timed out.') + '</strong><br><span class="text-xs mt-1 block">' + (currentLang === 'ms' ? 'Sambungan lambat. Sila cuba lagi.' : 'Slow connection. Please try again.') + '</span><button onclick="checkAvailSection()" class="mt-2 px-4 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600">' + (currentLang === 'ms' ? 'Cuba Lagi' : 'Retry') + '</button>';
+                    resultDiv.innerHTML = '<i class="fas fa-clock mr-2"></i><strong>' + ('Request timed out.') + '</strong><br><span class="text-xs mt-1 block">' + ('Slow connection. Please try again.') + '</span><button onclick="checkAvailSection()" class="mt-2 px-4 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600">' + ('Retry') + '</button>';
                 } else {
-                    resultDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i><strong>' + (currentLang === 'ms' ? 'Ralat sistem.' : 'System error.') + '</strong><br><span class="text-xs mt-1 block">' + (currentLang === 'ms' ? 'Sila cuba lagi atau hubungi kami.' : 'Please try again or contact us.') + '</span><button onclick="checkAvailSection()" class="mt-2 px-4 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600">' + (currentLang === 'ms' ? 'Cuba Lagi' : 'Retry') + '</button>';
+                    resultDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i><strong>' + ('System error.') + '</strong><br><span class="text-xs mt-1 block">' + ('Please try again or contact us.') + '</span><button onclick="checkAvailSection()" class="mt-2 px-4 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600">' + ('Retry') + '</button>';
                 }
             }
         }
@@ -1076,14 +1043,14 @@
             const bookForm = document.getElementById('booking-form');
             if (data.available) {
                 const days = data.days;
-                const priceText = data.price_per_day ? `RM${data.price_per_day}/${currentLang === 'ms' ? 'hari' : 'day'} × ${days} ${currentLang === 'ms' ? 'hari' : 'days'} = <strong>RM${data.total_price}</strong>` : '';
+                const priceText = data.price_per_day ? `RM${data.price_per_day}/${'day'} × ${days} ${'days'} = <strong>RM${data.total_price}</strong>` : '';
                 div.className = 'rounded-xl p-5 text-center bg-green-50 border border-green-300 text-green-800 text-sm';
-                div.innerHTML = `<div class="text-3xl mb-2">✅</div><div class="font-bold text-lg mb-1">${currentLang === 'ms' ? 'Tersedia!' : 'Available!'}</div><div class="mb-1">${data.camera_name} — ${priceText}</div><div class="text-xs text-green-600 mt-1"><i class="fas fa-arrow-down"></i> ${currentLang === 'ms' ? 'Isi maklumat di bawah untuk tempah' : 'Fill in details below to book'}</div>`;
+                div.innerHTML = `<div class="text-3xl mb-2">✅</div><div class="font-bold text-lg mb-1">${'Available!'}</div><div class="mb-1">${data.camera_name} — ${priceText}</div><div class="text-xs text-green-600 mt-1"><i class="fas fa-arrow-down"></i> ${'Fill in details below to book'}</div>`;
                 // Store booking data
                 bookingData = { cameraId, cameraName: data.camera_name, startDate, endDate, days, pricePerDay: data.price_per_day || 0, totalPrice: data.total_price || 0 };
                 // Show booking form with summary
                 const summaryDiv = document.getElementById('booking-summary');
-                summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${data.camera_name}</span><span class="text-blue-700 font-bold">RM${data.total_price}</span></div><div class="text-xs text-gray-500 mt-1">${startDate} → ${endDate} (${days} ${currentLang === 'ms' ? 'hari' : 'days'}) • RM${data.price_per_day}/${currentLang === 'ms' ? 'hari' : 'day'}</div>`;
+                summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${data.camera_name}</span><span class="text-blue-700 font-bold">RM${data.total_price}</span></div><div class="text-xs text-gray-500 mt-1">${startDate} → ${endDate} (${days} ${'days'}) • RM${data.price_per_day}/${'day'}</div>`;
                 bookForm.classList.remove('hidden');
                 // Scroll to booking form
                 setTimeout(() => bookForm.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
@@ -1091,9 +1058,9 @@
                 bookForm.classList.add('hidden');
                 div.className = 'rounded-xl p-5 text-center bg-red-50 border border-red-300 text-red-800 text-sm';
                 const conflictText = (data.conflicts && data.conflicts.length > 0)
-                    ? `<div class="mb-2">${currentLang === 'ms' ? 'Tarikh konflik:' : 'Conflicting dates:'} <strong>${data.conflicts.join(', ')}</strong></div>`
+                    ? `<div class="mb-2">${'Conflicting dates:'} <strong>${data.conflicts.join(', ')}</strong></div>`
                     : '';
-                div.innerHTML = `<div class="text-3xl mb-2">❌</div><div class="font-bold text-lg mb-1">${currentLang === 'ms' ? 'Tidak Tersedia' : 'Not Available'}</div>${conflictText}<div class="text-xs">${currentLang === 'ms' ? 'Sila pilih tarikh lain atau hubungi kami.' : 'Please choose different dates or contact us.'}</div>`;
+                div.innerHTML = `<div class="text-3xl mb-2">❌</div><div class="font-bold text-lg mb-1">${'Not Available'}</div>${conflictText}<div class="text-xs">${'Please choose different dates or contact us.'}</div>`;
             }
         }
 
@@ -1107,21 +1074,21 @@
             const btn = document.getElementById('book-submit-btn');
 
             if (!name || !phone || !email) {
-                errDiv.textContent = currentLang === 'ms' ? 'Sila isi nama, nombor telefon dan email.' : 'Please fill in name, phone number and email.';
+                errDiv.textContent = 'Please fill in name, phone number and email.';
                 errDiv.classList.remove('hidden');
                 return;
             }
             // Validate email format (stricter: TLD must be 2-6 chars, no double dots, no spaces)
             const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,6}$/;
             if (!emailRegex.test(email) || email.includes('..') || email.split('@')[1]?.split('.').pop().length > 6) {
-                errDiv.textContent = currentLang === 'ms' ? 'Sila masukkan alamat email yang sah. Contoh: nama@gmail.com' : 'Please enter a valid email address. Example: name@gmail.com';
+                errDiv.textContent = 'Please enter a valid email address. Example: name@gmail.com';
                 errDiv.classList.remove('hidden');
                 document.getElementById('book-email').focus();
                 return;
             }
             errDiv.classList.add('hidden');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> ' + (currentLang === 'ms' ? 'Memproses...' : 'Processing...');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> ' + ('Processing...');
 
             try {
                 const res = await fetch('/api/bookings', {
@@ -1142,16 +1109,16 @@
                     // Redirect to confirmation page
                     window.location.href = `/booking/${data.booking_ref}`;
                 } else {
-                    errDiv.textContent = data.error || (currentLang === 'ms' ? 'Ralat berlaku. Sila cuba lagi.' : 'An error occurred. Please try again.');
+                    errDiv.textContent = data.error || ('An error occurred. Please try again.');
                     errDiv.classList.remove('hidden');
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> ' + (currentLang === 'ms' ? 'Sahkan Tempahan' : 'Confirm Booking');
+                    btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> ' + ('Confirm Booking');
                 }
             } catch (e) {
-                errDiv.textContent = currentLang === 'ms' ? 'Ralat rangkaian. Sila cuba lagi.' : 'Network error. Please try again.';
+                errDiv.textContent = 'Network error. Please try again.';
                 errDiv.classList.remove('hidden');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> ' + (currentLang === 'ms' ? 'Sahkan Tempahan' : 'Confirm Booking');
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> ' + ('Confirm Booking');
             }
         }
 
@@ -1184,21 +1151,21 @@
             const bookBtnDiv = document.getElementById('modal-book-btn');
             if (!startDate || !endDate) {
                 resultDiv.className = 'rounded-xl p-4 text-sm text-center bg-yellow-50 border border-yellow-200 text-yellow-800';
-                resultDiv.textContent = currentLang === 'ms' ? 'Sila pilih tarikh mula dan tamat.' : 'Please select start and end dates.';
+                resultDiv.textContent = 'Please select start and end dates.';
                 resultDiv.classList.remove('hidden');
                 return;
             }
             resultDiv.className = 'rounded-xl p-4 text-sm text-center bg-gray-100 text-gray-500';
-            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> ' + (currentLang === 'ms' ? 'Menyemak...' : 'Checking...');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> ' + ('Checking...');
             resultDiv.classList.remove('hidden');
             bookBtnDiv.classList.add('hidden');
             const res = await fetch(`/api/check?camera_id=${modalCameraId}&start_date=${startDate}&end_date=${endDate}`);
             const data = await res.json();
             if (data.available) {
                 const days = data.days;
-                const price = data.price_per_day ? `RM${data.price_per_day}/${currentLang === 'ms' ? 'hari' : 'day'} × ${days} ${currentLang === 'ms' ? 'hari' : 'days'} = <strong>RM${data.total_price}</strong>` : '';
+                const price = data.price_per_day ? `RM${data.price_per_day}/${'day'} × ${days} ${'days'} = <strong>RM${data.total_price}</strong>` : '';
                 resultDiv.className = 'rounded-xl p-4 text-sm text-center bg-green-50 border border-green-300 text-green-800';
-                resultDiv.innerHTML = `✅ <strong>${currentLang === 'ms' ? 'Tersedia!' : 'Available!'}</strong> ${price}`;
+                resultDiv.innerHTML = `✅ <strong>${'Available!'}</strong> ${price}`;
                 // Store data for modal-to-booking flow
                 bookingData = { cameraId: modalCameraId, cameraName: data.camera_name, startDate, endDate, days, pricePerDay: data.price_per_day || 0, totalPrice: data.total_price || 0 };
                 const waMsg = encodeURIComponent(`Halo Gearz On The Go! Saya ingin tempah ${data.camera_name} dari ${startDate} hingga ${endDate} (${days} hari).`);
@@ -1206,8 +1173,8 @@
                 bookBtnDiv.classList.remove('hidden');
             } else {
                 resultDiv.className = 'rounded-xl p-4 text-sm text-center bg-red-50 border border-red-300 text-red-800';
-                const conflictStr = (data.conflicts && data.conflicts.length > 0) ? ` — ${currentLang === 'ms' ? 'Tarikh konflik:' : 'Conflicting dates:'} ${data.conflicts.join(', ')}` : '';
-                resultDiv.innerHTML = `❌ <strong>${currentLang === 'ms' ? 'Tidak Tersedia' : 'Not Available'}</strong>${conflictStr}`;
+                const conflictStr = (data.conflicts && data.conflicts.length > 0) ? ` — ${'Conflicting dates:'} ${data.conflicts.join(', ')}` : '';
+                resultDiv.innerHTML = `❌ <strong>${'Not Available'}</strong>${conflictStr}`;
             }
         }
 
@@ -1220,14 +1187,14 @@
             document.getElementById('avail-end').value = bookingData.endDate;
             // Show result and booking form
             const resultDiv = document.getElementById('avail-result');
-            const priceText = bookingData.pricePerDay ? `RM${bookingData.pricePerDay}/${currentLang === 'ms' ? 'hari' : 'day'} × ${bookingData.days} ${currentLang === 'ms' ? 'hari' : 'days'} = <strong>RM${bookingData.totalPrice}</strong>` : '';
+            const priceText = bookingData.pricePerDay ? `RM${bookingData.pricePerDay}/${'day'} × ${bookingData.days} ${'days'} = <strong>RM${bookingData.totalPrice}</strong>` : '';
             resultDiv.className = 'rounded-xl p-5 text-center bg-green-50 border border-green-300 text-green-800 text-sm';
-            resultDiv.innerHTML = `<div class="text-3xl mb-2">✅</div><div class="font-bold text-lg mb-1">${currentLang === 'ms' ? 'Tersedia!' : 'Available!'}</div><div class="mb-1">${bookingData.cameraName} — ${priceText}</div><div class="text-xs text-green-600 mt-1"><i class="fas fa-arrow-down"></i> ${currentLang === 'ms' ? 'Isi maklumat di bawah untuk tempah' : 'Fill in details below to book'}</div>`;
+            resultDiv.innerHTML = `<div class="text-3xl mb-2">✅</div><div class="font-bold text-lg mb-1">${'Available!'}</div><div class="mb-1">${bookingData.cameraName} — ${priceText}</div><div class="text-xs text-green-600 mt-1"><i class="fas fa-arrow-down"></i> ${'Fill in details below to book'}</div>`;
             resultDiv.classList.remove('hidden');
             // Show booking form
             const bookForm = document.getElementById('booking-form');
             const summaryDiv = document.getElementById('booking-summary');
-            summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${bookingData.cameraName}</span><span class="text-blue-700 font-bold">RM${bookingData.totalPrice}</span></div><div class="text-xs text-gray-500 mt-1">${bookingData.startDate} → ${bookingData.endDate} (${bookingData.days} ${currentLang === 'ms' ? 'hari' : 'days'}) • RM${bookingData.pricePerDay}/${currentLang === 'ms' ? 'hari' : 'day'}</div>`;
+            summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${bookingData.cameraName}</span><span class="text-blue-700 font-bold">RM${bookingData.totalPrice}</span></div><div class="text-xs text-gray-500 mt-1">${bookingData.startDate} → ${bookingData.endDate} (${bookingData.days} ${'days'}) • RM${bookingData.pricePerDay}/${'day'}</div>`;
             bookForm.classList.remove('hidden');
             // Scroll to booking form
             setTimeout(() => bookForm.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);

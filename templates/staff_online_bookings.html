@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tempahan Online | Staff Panel</title>
+    <title>Online Bookings | Staff Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -16,20 +16,20 @@
     <nav class="bg-gray-900 text-white px-4 py-3 flex justify-between items-center shadow">
         <div class="flex items-center gap-3">
             <img src="/static/logo.png" alt="Gearz" class="h-10">
-            <span class="font-bold text-lg">Tempahan Online</span>
+            <span class="font-bold text-lg">Online Bookings</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             <a href="/staff" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
                 <i class="fas fa-arrow-left mr-1"></i> Dashboard
             </a>
             <a href="/staff/agreements" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
-                <i class="fas fa-file-signature mr-1"></i> Perjanjian
+                <i class="fas fa-file-signature mr-1"></i> Agreements
             </a>
             <a href="/staff/customers" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
-                <i class="fas fa-users mr-1"></i> Pelanggan
+                <i class="fas fa-users mr-1"></i> Customers
             </a>
             <a href="/staff/logout" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">
-                <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+                <i class="fas fa-sign-out-alt mr-1"></i> Logout
             </a>
         </div>
     </nav>
@@ -45,23 +45,23 @@
             {% set returned_list = bookings|selectattr('status', 'equalto', 'returned')|list %}
             <div class="bg-white rounded-xl shadow p-4 text-center">
                 <div class="text-2xl font-bold text-gray-700">{{ total }}</div>
-                <div class="text-xs text-gray-500">Jumlah Online</div>
+                <div class="text-xs text-gray-500">Total Online</div>
             </div>
             <div class="bg-yellow-50 rounded-xl shadow p-4 text-center border border-yellow-200">
                 <div class="text-2xl font-bold text-yellow-600">{{ pending_list|length }}</div>
-                <div class="text-xs text-yellow-700">⏳ Menunggu Bayaran</div>
+                <div class="text-xs text-yellow-700">⏳ Payment Pending</div>
             </div>
             <div class="bg-green-50 rounded-xl shadow p-4 text-center border border-green-200">
                 <div class="text-2xl font-bold text-green-600">{{ confirmed_list|length }}</div>
-                <div class="text-xs text-green-700">✅ Disahkan</div>
+                <div class="text-xs text-green-700">✅ Confirmed</div>
             </div>
             <div class="bg-indigo-50 rounded-xl shadow p-4 text-center border border-indigo-200">
                 <div class="text-2xl font-bold text-indigo-600">{{ active_list|length }}</div>
-                <div class="text-xs text-indigo-700">📷 Aktif</div>
+                <div class="text-xs text-indigo-700">📷 Active</div>
             </div>
             <div class="bg-gray-50 rounded-xl shadow p-4 text-center border border-gray-200">
                 <div class="text-2xl font-bold text-gray-500">{{ returned_list|length }}</div>
-                <div class="text-xs text-gray-600">✔ Dipulangkan</div>
+                <div class="text-xs text-gray-600">✔ Returned</div>
             </div>
         </div>
 
@@ -69,9 +69,9 @@
         <div class="bg-white rounded-2xl shadow overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100">
                 <h2 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-globe text-green-600 mr-2"></i>Tempahan Online
+                    <i class="fas fa-globe text-green-600 mr-2"></i>Online Bookings
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Tempahan yang dibuat oleh pelanggan melalui laman web</p>
+                <p class="text-xs text-gray-500 mt-1">Bookings yang dibuat oleh pelanggan melalui laman web</p>
             </div>
 
             {% if bookings %}
@@ -108,7 +108,7 @@
                                 <div class="mt-1 text-xs">
                                     <span class="text-gray-500">RM{{ '%.0f'|format(bd.get('price_per_day', 0)) }}/hari</span>
                                     <span class="mx-1 text-gray-300">·</span>
-                                    <span class="font-bold text-green-600">Jumlah: RM{{ '%.0f'|format(bd['total_price']) }}</span>
+                                    <span class="font-bold text-green-600">Total: RM{{ '%.0f'|format(bd['total_price']) }}</span>
                                     <span class="mx-1 text-gray-300">·</span>
                                     <span class="text-amber-600 font-semibold">Deposit: RM{{ '%.0f'|format(bd.get('deposit_amount', 200)) }}</span>
                                 </div>
@@ -118,15 +118,15 @@
                         <div class="flex flex-col items-end gap-2 flex-shrink-0">
                             <!-- Status -->
                             {% if bstatus == 'pending' %}
-                            <span class="status-badge bg-yellow-100 text-yellow-700">⏳ Menunggu Bayaran</span>
+                            <span class="status-badge bg-yellow-100 text-yellow-700">⏳ Payment Pending</span>
                             {% elif bstatus == 'confirmed' %}
-                            <span class="status-badge bg-green-100 text-green-700">✅ Disahkan</span>
+                            <span class="status-badge bg-green-100 text-green-700">✅ Confirmed</span>
                             {% elif bstatus == 'active' %}
-                            <span class="status-badge bg-indigo-100 text-indigo-700">📷 Aktif</span>
+                            <span class="status-badge bg-indigo-100 text-indigo-700">📷 Active</span>
                             {% elif bstatus == 'returned' %}
-                            <span class="status-badge bg-gray-100 text-gray-600">✔ Dipulangkan</span>
+                            <span class="status-badge bg-gray-100 text-gray-600">✔ Returned</span>
                             {% elif bstatus == 'cancelled' %}
-                            <span class="status-badge bg-red-100 text-red-700">✖ Dibatalkan</span>
+                            <span class="status-badge bg-red-100 text-red-700">✖ Cancelled</span>
                             {% endif %}
 
                             <!-- Deposit status -->
@@ -135,7 +135,7 @@
                             {% elif bd.get('deposit_status') == 'pending' %}
                             <span class="text-xs text-amber-600 font-semibold"><i class="fas fa-clock mr-1"></i>Deposit Pending</span>
                             {% else %}
-                            <span class="text-xs text-red-500 font-semibold"><i class="fas fa-times-circle mr-1"></i>Belum Bayar</span>
+                            <span class="text-xs text-red-500 font-semibold"><i class="fas fa-times-circle mr-1"></i>Unpaid</span>
                             {% endif %}
 
                             <!-- Action buttons -->
@@ -143,7 +143,7 @@
                                 {% if bstatus == 'pending' %}
                                 <form method="POST" action="/staff/booking/{{ bd['id'] }}/confirm" class="inline">
                                     <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        <i class="fas fa-check mr-1"></i> Sahkan Bayaran
+                                        <i class="fas fa-check mr-1"></i> Confirm Payment
                                     </button>
                                 </form>
                                 {% endif %}
@@ -157,7 +157,7 @@
                                 {% if bstatus == 'active' %}
                                 <form method="POST" action="/staff/booking/{{ bd['id'] }}/returned" class="inline">
                                     <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        <i class="fas fa-undo mr-1"></i> Pulang
+                                        <i class="fas fa-undo mr-1"></i> Return
                                     </button>
                                 </form>
                                 {% endif %}
@@ -174,22 +174,22 @@
                                 {% set cam_name = cam.get('name', bd['camera_id']) %}
                                 {% if bstatus == 'pending' %}
                                 <a href="{{ wa.admin_remind_payment(bd, cam_name) }}" target="_blank"
-                                    class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Ingatkan bayar deposit">
-                                    <i class="fab fa-whatsapp mr-1"></i> Ingatkan
+                                    class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Remind deposit payment">
+                                    <i class="fab fa-whatsapp mr-1"></i> Remind
                                 </a>
                                 {% elif bstatus == 'confirmed' %}
                                 <a href="{{ wa.admin_confirm_booking(bd, cam_name) }}" target="_blank"
                                     class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Hantar pengesahan">
-                                    <i class="fab fa-whatsapp mr-1"></i> Sahkan
+                                    <i class="fab fa-whatsapp mr-1"></i> Confirm
                                 </a>
                                 {% elif bstatus == 'active' %}
                                 <a href="{{ wa.admin_return_reminder(bd, cam_name) }}" target="_blank"
-                                    class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Peringatan pulang">
-                                    <i class="fab fa-whatsapp mr-1"></i> Pulang
+                                    class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Return reminder">
+                                    <i class="fab fa-whatsapp mr-1"></i> Return
                                 </a>
                                 {% elif bstatus == 'returned' %}
                                 <a href="{{ wa.admin_thank_you(bd, cam_name) }}" target="_blank"
-                                    class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Terima kasih">
+                                    class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Thank you">
                                     <i class="fab fa-whatsapp mr-1"></i> TQ
                                 </a>
                                 {% endif %}
@@ -197,7 +197,7 @@
                                 <!-- View confirmation page -->
                                 {% if bd.get('booking_ref') %}
                                 <a href="/booking/{{ bd['booking_ref'] }}" target="_blank"
-                                   class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="Lihat halaman pengesahan">
+                                   class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="View halaman pengesahan">
                                     <i class="fas fa-external-link-alt"></i>
                                 </a>
                                 {% endif %}
@@ -210,8 +210,8 @@
             {% else %}
             <div class="text-center py-16 text-gray-400">
                 <i class="fas fa-globe text-5xl mb-4"></i>
-                <p class="text-sm">Tiada tempahan online lagi.</p>
-                <p class="text-xs mt-2">Tempahan online akan muncul di sini apabila pelanggan membuat tempahan melalui laman web.</p>
+                <p class="text-sm">No online bookings yet.</p>
+                <p class="text-xs mt-2">Bookings online akan muncul di sini apabila pelanggan membuat tempahan melalui laman web.</p>
             </div>
             {% endif %}
         </div>
@@ -229,11 +229,11 @@
                     <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
                         <tr>
                             <th class="px-4 py-3 text-left">Ref</th>
-                            <th class="px-4 py-3 text-left">Jumlah</th>
+                            <th class="px-4 py-3 text-left">Total</th>
                             <th class="px-4 py-3 text-left">Kaedah</th>
                             <th class="px-4 py-3 text-left">Status</th>
                             <th class="px-4 py-3 text-left">Rujukan</th>
-                            <th class="px-4 py-3 text-left">Tarikh</th>
+                            <th class="px-4 py-3 text-left">Date</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -244,7 +244,7 @@
                             <td class="px-4 py-3 text-xs">{{ p['method'] or '—' }}</td>
                             <td class="px-4 py-3">
                                 {% if p['status'] == 'verified' %}
-                                <span class="status-badge bg-green-100 text-green-700">✅ Disahkan</span>
+                                <span class="status-badge bg-green-100 text-green-700">✅ Confirmed</span>
                                 {% elif p['status'] == 'pending' %}
                                 <span class="status-badge bg-yellow-100 text-yellow-700">⏳ Pending</span>
                                 {% else %}
