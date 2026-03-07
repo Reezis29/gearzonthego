@@ -513,28 +513,22 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name *</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
                             <input type="text" id="book-name" placeholder="Your full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number *</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
                             <input type="tel" id="book-phone" placeholder="+60123456789" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email * <span class="text-gray-400 font-normal">(for booking confirmation)</span></label>
-                            <input type="email" id="book-email" required placeholder="email@example.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="validateEmailMatch()">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email <span class="text-red-500">*</span> <span class="text-gray-400 font-normal">(for booking confirmation)</span></label>
+                            <input type="email" id="book-email" required placeholder="email@example.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="validateEmailDomain()" onblur="validateEmailDomain()">
+                            <p id="email-domain-msg" class="hidden text-xs mt-1"></p>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Confirm Email *</label>
-                            <input type="email" id="book-email-confirm" required placeholder="Re-enter your email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="validateEmailMatch()">
-                            <p id="email-match-msg" class="hidden text-xs mt-1"></p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-1 gap-3 mb-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">IC / Passport No. (optional)</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">IC / Passport No. <span class="text-gray-400 font-normal">(optional)</span></label>
                             <input type="text" id="book-ic" placeholder="IC or Passport number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
@@ -1071,23 +1065,88 @@
             }
         }
 
-        // ── Email match validation ──────────────────────────────────────────────
-        function validateEmailMatch() {
+        // ── Email domain validation ──────────────────────────────────────────────
+        // Common valid email domains — catches typos like gmmmail.com, gmial.com, etc.
+        const KNOWN_DOMAINS = new Set([
+            'gmail.com','yahoo.com','yahoo.co.uk','yahoo.com.my','hotmail.com','hotmail.co.uk',
+            'outlook.com','outlook.my','live.com','icloud.com','me.com','mac.com',
+            'protonmail.com','proton.me','aol.com','msn.com','ymail.com',
+            'googlemail.com','mail.com','zoho.com','tutanota.com','fastmail.com',
+            // Malaysian providers
+            'streamyx.com','tm.com.my','celcom.com.my','maxis.com.my','digi.com.my',
+            'unifi.com.my','time.com.my','astro.com.my','bernama.com.my',
+            // Business / edu
+            'gearzonthego.com','gearetconline.com',
+        ]);
+
+        // Common TLDs that are always valid
+        const VALID_TLDS = new Set([
+            'com','net','org','edu','gov','mil','int','io','co','my','sg','uk','au','us',
+            'ca','de','fr','jp','cn','in','id','ph','th','vn','hk','nz','za','br','mx',
+            'info','biz','mobi','name','pro','tel','travel','museum','coop','aero',
+            'app','dev','ai','tech','online','store','shop','blog','media','email',
+        ]);
+
+        let _emailDomainValid = true; // track domain validity globally
+
+        function validateEmailDomain() {
             const email = document.getElementById('book-email').value.trim();
-            const confirm = document.getElementById('book-email-confirm').value.trim();
-            const msg = document.getElementById('email-match-msg');
-            const confirmInput = document.getElementById('book-email-confirm');
-            if (!confirm) { msg.classList.add('hidden'); return; }
-            if (email === confirm) {
-                msg.textContent = '✓ Emails match';
-                msg.className = 'text-xs mt-1 text-green-600';
-                confirmInput.classList.remove('border-red-400');
-                confirmInput.classList.add('border-green-400');
-            } else {
-                msg.textContent = '✗ Emails do not match';
+            const msg = document.getElementById('email-domain-msg');
+            const input = document.getElementById('book-email');
+
+            if (!email) { msg.classList.add('hidden'); _emailDomainValid = false; return; }
+
+            // Basic format check
+            const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email) || email.includes('..')) {
+                msg.textContent = '✗ Invalid email format. Example: name@gmail.com';
                 msg.className = 'text-xs mt-1 text-red-600';
-                confirmInput.classList.remove('border-green-400');
-                confirmInput.classList.add('border-red-400');
+                msg.classList.remove('hidden');
+                input.classList.add('border-red-400');
+                input.classList.remove('border-green-400');
+                _emailDomainValid = false;
+                return;
+            }
+
+            const parts = email.split('@');
+            const domain = parts[1].toLowerCase();
+            const tld = domain.split('.').pop();
+
+            // Check if domain is in known list OR TLD is valid
+            const isKnownDomain = KNOWN_DOMAINS.has(domain);
+            const isValidTLD = VALID_TLDS.has(tld);
+
+            // Suspicious domain patterns: very short domain, common typos
+            const domainParts = domain.split('.');
+            const domainName = domainParts.slice(0, -1).join('.');
+            const suspiciousPatterns = [
+                /^g[^o]?mail/i,   // gmmmail, gmial, gmaill, etc. (not gmail)
+                /^yaho[^o]/i,     // yahoooo, yahop, etc.
+                /^hotmai[^l]/i,   // hotmaill, hotmaik, etc.
+                /^outloo[^k]/i,   // outlool, etc.
+            ];
+            const looksLikeTypo = suspiciousPatterns.some(p => p.test(domainName)) &&
+                                  !KNOWN_DOMAINS.has(domain);
+
+            if (looksLikeTypo || (!isKnownDomain && !isValidTLD)) {
+                msg.textContent = `✗ "${domain}" does not look like a valid email domain. Did you make a typo?`;
+                msg.className = 'text-xs mt-1 text-red-600';
+                msg.classList.remove('hidden');
+                input.classList.add('border-red-400');
+                input.classList.remove('border-green-400');
+                _emailDomainValid = false;
+            } else if (isKnownDomain) {
+                msg.textContent = '✓ Email looks good';
+                msg.className = 'text-xs mt-1 text-green-600';
+                msg.classList.remove('hidden');
+                input.classList.remove('border-red-400');
+                input.classList.add('border-green-400');
+                _emailDomainValid = true;
+            } else {
+                // Valid TLD but unknown domain — accept but no green tick
+                msg.classList.add('hidden');
+                input.classList.remove('border-red-400', 'border-green-400');
+                _emailDomainValid = true;
             }
         }
 
@@ -1096,29 +1155,29 @@
             const name = document.getElementById('book-name').value.trim();
             const phone = document.getElementById('book-phone').value.trim();
             const email = document.getElementById('book-email').value.trim();
-            const emailConfirm = document.getElementById('book-email-confirm').value.trim();
             const ic = document.getElementById('book-ic').value.trim();
             const errDiv = document.getElementById('booking-error');
             const btn = document.getElementById('book-submit-btn');
 
-            if (!name || !phone || !email || !emailConfirm) {
-                errDiv.textContent = 'Please fill in all required fields including email confirmation.';
+            if (!name || !phone || !email) {
+                errDiv.textContent = 'Please fill in your name, phone number and email.';
                 errDiv.classList.remove('hidden');
                 return;
             }
-            // Validate email format (stricter: TLD must be 2-6 chars, no double dots, no spaces)
-            const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,6}$/;
-            if (!emailRegex.test(email) || email.includes('..') || email.split('@')[1]?.split('.').pop().length > 6) {
+            // Validate email format
+            const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email) || email.includes('..')) {
                 errDiv.textContent = 'Please enter a valid email address. Example: name@gmail.com';
                 errDiv.classList.remove('hidden');
                 document.getElementById('book-email').focus();
                 return;
             }
-            // Validate email confirmation matches
-            if (email !== emailConfirm) {
-                errDiv.textContent = 'Emails do not match. Please re-enter your email carefully.';
+            // Block if domain validation flagged an error
+            if (!_emailDomainValid) {
+                validateEmailDomain(); // re-run to show message
+                errDiv.textContent = 'Please correct your email address before proceeding.';
                 errDiv.classList.remove('hidden');
-                document.getElementById('book-email-confirm').focus();
+                document.getElementById('book-email').focus();
                 return;
             }
             errDiv.classList.add('hidden');
