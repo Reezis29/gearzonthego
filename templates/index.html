@@ -478,11 +478,7 @@
 
             {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone'])] %}
             <div id="tab-content-{{ tab_id }}" class="tab-content {% if tab_id == 'gopro' %}active{% endif %}">
-                {% if tab_id == 'drone' %}
-                <div class="mb-4 text-center">
-                    <p class="text-sm text-gray-500 bg-blue-50 inline-block px-4 py-2 rounded-full"><i class="fas fa-info-circle mr-1 text-blue-500">All drones come with 2 batteries, 64GB memory & bag.</i> <span>All drone disertakan dengan 2 bateri, memori 64GB & beg.</span></p>
-                </div>
-                {% endif %}
+
                 <div class="grid grid-cols-1 md:grid-cols-{% if cams|length == 2 %}2{% else %}3{% endif %} gap-6 max-w-{% if cams|length == 2 %}3xl{% else %}5xl{% endif %} mx-auto">
                     {% for cam in cams %}
                     {% set avail_units = availability_map.get(cam.id, {}).get('available_units', 3) if availability_map else 3 %}
