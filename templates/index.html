@@ -13,21 +13,63 @@
 
         /* ===== NEW HERO SECTION STYLES ===== */
         .hero-new {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1a4a7a 100%);
             min-height: 90vh;
             display: flex;
             align-items: center;
             position: relative;
             overflow: hidden;
         }
-        .hero-new::before {
-            content: '';
+        /* Background slider */
+        .hero-bg-slider {
             position: absolute;
             inset: 0;
-            background: radial-gradient(ellipse at 70% 50%, rgba(37,99,235,0.15) 0%, transparent 70%);
+            z-index: 0;
+        }
+        .hero-bg-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        .hero-bg-slide.active {
+            opacity: 1;
+        }
+        /* Dark overlay on top of background images */
+        .hero-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(10,20,40,0.72) 0%, rgba(15,30,60,0.60) 50%, rgba(10,25,50,0.55) 100%);
+            z-index: 1;
             pointer-events: none;
         }
+        /* Slide indicator dots */
+        .hero-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .hero-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .hero-dot.active {
+            background: #ffffff;
+            transform: scale(1.3);
+        }
         .hero-inner {
+            position: relative;
+            z-index: 2;
             max-width: 1200px;
             margin: 0 auto;
             padding: 60px 24px;
@@ -219,29 +261,44 @@
 
     <!-- ===== NEW HERO SECTION ===== -->
     <section id="home" class="hero-new">
-        <div class="hero-inner">
-            <!-- Left: Text Content -->
-            <div class="hero-text">
-                <div class="hero-badge">
+        <!-- Background Image Slider -->
+        <div class="hero-bg-slider" aria-hidden="true">
+            <div class="hero-bg-slide active" style="background-image: url('/static/images/hero1.jpg');"></div>
+            <div class="hero-bg-slide" style="background-image: url('/static/images/hero2.jpg');"></div>
+            <div class="hero-bg-slide" style="background-image: url('/static/images/hero3.jpg');"></div>
+            <div class="hero-bg-slide" style="background-image: url('/static/images/hero4.jpg');"></div>
+            <div class="hero-bg-slide" style="background-image: url('/static/images/hero5.jpg');"></div>
+            <div class="hero-bg-slide" style="background-image: url('/static/images/hero6.jpg');"></div>
+        </div>
+        <!-- Dark overlay -->
+        <div class="hero-bg-overlay"></div>
+
+        <!-- Content (on top of slider) -->
+        <div class="hero-inner" style="grid-template-columns: 1fr; max-width: 760px;">
+            <!-- Text Content -->
+            <div class="hero-text" style="text-align: center;">
+                <div class="hero-badge" style="margin-left: auto; margin-right: auto;">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>Pantai Cenang, Langkawi</span>
                 </div>
-                <h1 class="hero-headline">
+                <h1 class="hero-headline" style="text-align: center;">
                     Rent Action Camera in Langkawi &mdash; <span class="text-blue-400">Ready for Pickup Today</span>
                 </h1>
-                <p class="hero-sub">
+                <p class="hero-sub" style="margin-left: auto; margin-right: auto; text-align: center;">
                     Book online in 60 seconds. Secure your GoPro, Insta360 or DJI before your trip.
                 </p>
-                <a href="#availability" class="hero-cta-primary">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Check Availability</span>
-                </a>
-                <p style="color:#94a3b8;font-size:0.78rem;margin-top:10px;text-align:left;" >Reserve your camera for only RM30</p>
+                <div style="display: flex; justify-content: center;">
+                    <a href="#availability" class="hero-cta-primary">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Check Availability</span>
+                    </a>
+                </div>
+                <p style="color:#94a3b8;font-size:0.78rem;margin-top:10px;text-align:center;">Reserve your camera for only RM30</p>
 
                 <!-- Trust social proof -->
                 <div style="margin-top:20px;padding:14px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;">
                     <div style="color:#93c5fd;font-size:0.8rem;font-weight:700;margin-bottom:10px;">⭐ Trusted by 500+ travelers in Langkawi</div>
-                    <div class="hero-trust">
+                    <div class="hero-trust" style="justify-content: center;">
                         <div class="hero-trust-item">
                             <i class="fas fa-check-circle"></i>
                             <span>Verified camera equipment</span>
@@ -257,10 +314,16 @@
                     </div>
                 </div>
             </div>
-            <!-- Right: Hero Image -->
-            <div class="hero-image-wrap">
-                <img src="/static/hero-image.jpg" alt="Action cameras for rent in Langkawi — GoPro, Insta360, DJI" loading="eager" width="680" height="420">
-            </div>
+        </div>
+
+        <!-- Slide indicator dots -->
+        <div class="hero-dots" id="heroDots">
+            <div class="hero-dot active" onclick="goToSlide(0)"></div>
+            <div class="hero-dot" onclick="goToSlide(1)"></div>
+            <div class="hero-dot" onclick="goToSlide(2)"></div>
+            <div class="hero-dot" onclick="goToSlide(3)"></div>
+            <div class="hero-dot" onclick="goToSlide(4)"></div>
+            <div class="hero-dot" onclick="goToSlide(5)"></div>
         </div>
     </section>
     <!-- ===== END NEW HERO SECTION ===== -->
@@ -1293,6 +1356,39 @@
             // Scroll to booking form
             setTimeout(() => bookForm.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
         }
+
+        // ── Hero Background Image Slider ──────────────────────────────────────────
+        (function() {
+            const slides = document.querySelectorAll('.hero-bg-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            let current = 0;
+            let timer = null;
+
+            function goToSlide(index) {
+                slides[current].classList.remove('active');
+                dots[current].classList.remove('active');
+                current = (index + slides.length) % slides.length;
+                slides[current].classList.add('active');
+                dots[current].classList.add('active');
+            }
+
+            // Expose globally for onclick handlers
+            window.goToSlide = function(index) {
+                goToSlide(index);
+                // Reset timer on manual navigation
+                clearInterval(timer);
+                timer = setInterval(() => goToSlide(current + 1), 6000);
+            };
+
+            // Preload all images
+            slides.forEach(slide => {
+                const url = slide.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g, '');
+                if (url) { const img = new Image(); img.src = url; }
+            });
+
+            // Start auto-slide after 6 seconds
+            timer = setInterval(() => goToSlide(current + 1), 6000);
+        })();
     </script>
 </body>
 </html>
