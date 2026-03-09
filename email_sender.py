@@ -229,6 +229,8 @@ def send_return_reminder_email(booking_data: dict) -> bool:
         camera = booking_data.get('camera_name', 'Camera')
         end    = booking_data.get('end_date', '')
         return_time = booking_data.get('return_time', '11:00 PM')
+        # Use the full formatted return deadline if available
+        return_date_display = booking_data.get('return_date_display', f'{end} at {return_time}')
 
         html_content = f"""
 <!DOCTYPE html>
@@ -287,12 +289,8 @@ def send_return_reminder_email(booking_data: dict) -> bool:
         <div class="value">{camera}</div>
       </div>
       <div class="info-item">
-        <div class="label">Return Date</div>
-        <div class="value">{end}</div>
-      </div>
-      <div class="info-item">
-        <div class="label">Return By</div>
-        <div class="value">{return_time}</div>
+        <div class="label">Return Deadline</div>
+        <div class="value" style="color:#d97706;">{return_date_display}</div>
       </div>
     </div>
 

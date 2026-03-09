@@ -145,7 +145,7 @@ def init_db():
     )''')
 
     # Safe migration: add unit_id to bookings if not present
-    for col_def in ['unit_id INTEGER', 'return_reminder_sent INTEGER DEFAULT 0']:
+    for col_def in ['unit_id INTEGER', 'return_reminder_sent INTEGER DEFAULT 0', 'actual_pickup_datetime TEXT']:
         try:
             c.execute(f"ALTER TABLE bookings ADD COLUMN {col_def}")
         except:
@@ -1400,9 +1400,13 @@ def staff_cancel_booking(booking_id):
 @app.route('/staff/booking/<int:booking_id>/active', methods=['POST'])
 @login_required
 def staff_mark_active(booking_id):
-    """Staff marks booking as active (equipment picked up)"""
+    """Staff marks booking as active (equipment picked up) — records actual pickup datetime"""
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     conn = get_db()
-    conn.execute("UPDATE bookings SET status = 'active' WHERE id = ?", (booking_id,))
+    conn.execute(
+        "UPDATE bookings SET status = 'active', actual_pickup_datetime = ? WHERE id = ?",
+        (now_str, booking_id)
+    )
     conn.commit()
     conn.close()
     return redirect(url_for('staff_dashboard') + '?active=1')
@@ -1850,40 +1854,70 @@ def _parse_return_datetime(end_date_str, return_time_str):
 
 
 def _return_reminder_scheduler():
-    """Background thread: checks every 5 minutes for bookings due in ~3 hours
-    and sends a return reminder email if not already sent."""
+    """Background thread: checks every 5 minutes for active bookings.
+    Calculates return deadline as: actual_pickup_datetime + rental_days.
+    Sends reminder email ~3 hours before return deadline."""
     _time.sleep(30)  # Wait 30s after startup before first check
     while True:
         try:
             with app.app_context():
                 from email_sender import send_return_reminder_email
                 now = datetime.now()
-                # Check bookings due today or tomorrow (to catch early morning returns)
-                today_str = now.strftime('%Y-%m-%d')
-                tomorrow_str = (now + timedelta(days=1)).strftime('%Y-%m-%d')
                 conn = get_db()
                 active_bookings = conn.execute(
                     """SELECT * FROM bookings
                        WHERE status = 'active'
-                         AND end_date IN (?, ?)
                          AND customer_email IS NOT NULL
                          AND customer_email != ''
-                         AND (return_reminder_sent IS NULL OR return_reminder_sent = 0)""",
-                    (today_str, tomorrow_str)
+                         AND (return_reminder_sent IS NULL OR return_reminder_sent = 0)"""
                 ).fetchall()
                 conn.close()
 
                 for row in active_bookings:
                     bd = dict(row)
-                    return_time_str = bd.get('return_time', '') or '23:00'
-                    rt = _parse_return_datetime(bd['end_date'], return_time_str)
 
-                    minutes_until_return = (rt - now).total_seconds() / 60
+                    # Calculate return deadline from actual pickup time + rental days
+                    actual_pickup_str = bd.get('actual_pickup_datetime', '') or ''
+                    start_date_str = bd.get('start_date', '')
+                    end_date_str = bd.get('end_date', '')
+
+                    try:
+                        # Number of rental days
+                        start_dt = datetime.strptime(start_date_str, '%Y-%m-%d')
+                        end_dt = datetime.strptime(end_date_str, '%Y-%m-%d')
+                        num_days = max((end_dt - start_dt).days, 1)
+                    except Exception:
+                        num_days = 1
+
+                    if actual_pickup_str:
+                        # Use actual recorded pickup time
+                        try:
+                            pickup_dt = datetime.strptime(actual_pickup_str, '%Y-%m-%d %H:%M:%S')
+                        except Exception:
+                            try:
+                                pickup_dt = datetime.strptime(actual_pickup_str, '%Y-%m-%d %H:%M')
+                            except Exception:
+                                pickup_dt = None
+                    else:
+                        pickup_dt = None
+
+                    if pickup_dt:
+                        # Return deadline = pickup time + rental days
+                        return_deadline = pickup_dt + timedelta(days=num_days)
+                    else:
+                        # Fallback: use end_date at 11:00 PM if no pickup time recorded
+                        return_time_str = bd.get('return_time', '') or '23:00'
+                        return_deadline = _parse_return_datetime(end_date_str, return_time_str)
+
+                    minutes_until_return = (return_deadline - now).total_seconds() / 60
+
                     # Send reminder if 2h45m (165 min) to 3h15m (195 min) before return
                     if 165 <= minutes_until_return <= 195:
                         camera = CAMERA_MAP.get(bd['camera_id'], {})
                         bd['camera_name'] = camera.get('name', bd['camera_id'])
-                        bd['return_time'] = return_time_str
+                        # Format return time nicely for email
+                        bd['return_time'] = return_deadline.strftime('%I:%M %p')
+                        bd['return_date_display'] = return_deadline.strftime('%d %b %Y, %I:%M %p')
                         ok = send_return_reminder_email(bd)
                         if ok:
                             conn2 = get_db()
@@ -1893,7 +1927,10 @@ def _return_reminder_scheduler():
                             )
                             conn2.commit()
                             conn2.close()
-                            app.logger.info(f"Return reminder sent for booking {bd.get('booking_ref')}")
+                            app.logger.info(
+                                f"Return reminder sent for booking {bd.get('booking_ref')} "
+                                f"(return deadline: {return_deadline})"
+                            )
         except Exception as e:
             try:
                 app.logger.error(f"Return reminder scheduler error: {e}")
