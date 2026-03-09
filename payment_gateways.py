@@ -1,12 +1,12 @@
 """
 Payment Gateways for Gearz On The Go
 =====================================
-Two options in sandbox/dev mode:
-  Option 1: Stripe  — Visa / Mastercard / Amex
-  Option 2: Billplz — FPX / DuitNow (Malaysian banks)
+Three options:
+  Option 1: ToyyibPay — FPX / Online Banking (Malaysian banks)
+  Option 2: Stripe    — Visa / Mastercard / Amex
+  Option 3: Billplz   — FPX / DuitNow (Malaysian banks)
 
-Configuration is via environment variables. Both gateways operate in
-sandbox/test mode by default until real keys are provided.
+Configuration is via environment variables.
 """
 
 import os
@@ -23,6 +23,11 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_PLACEHOLDER')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', 'pk_test_PLACEHOLDER')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_PLACEHOLDER')
 
+# ToyyibPay config (live)
+TOYYIBPAY_SECRET_KEY = os.environ.get('TOYYIBPAY_SECRET_KEY', '3v0bo8n2-p1km-ds7o-sz2x-8wi0lkkekjhs')
+TOYYIBPAY_CATEGORY_CODE = os.environ.get('TOYYIBPAY_CATEGORY_CODE', '1q1z5uee')
+TOYYIBPAY_BASE_URL = 'https://toyyibpay.com'  # Live
+
 # Billplz config (sandbox by default)
 BILLPLZ_API_KEY = os.environ.get('BILLPLZ_API_KEY', 'sandbox_PLACEHOLDER')
 BILLPLZ_COLLECTION_ID = os.environ.get('BILLPLZ_COLLECTION_ID', 'sandbox_collection')
@@ -33,7 +38,7 @@ BILLPLZ_SANDBOX = os.environ.get('BILLPLZ_SANDBOX', 'true').lower() == 'true'
 BILLPLZ_BASE_URL = 'https://www.billplz-sandbox.com/api' if BILLPLZ_SANDBOX else 'https://www.billplz.com/api'
 
 # Dev mode: when True, simulates payment without calling real APIs
-DEV_MODE = os.environ.get('PAYMENT_DEV_MODE', 'true').lower() == 'true'
+DEV_MODE = os.environ.get('PAYMENT_DEV_MODE', 'false').lower() == 'true'
 
 
 def is_configured(gateway):
@@ -42,6 +47,8 @@ def is_configured(gateway):
         return 'PLACEHOLDER' not in STRIPE_SECRET_KEY
     elif gateway == 'billplz':
         return 'PLACEHOLDER' not in BILLPLZ_API_KEY
+    elif gateway == 'toyyibpay':
+        return TOYYIBPAY_SECRET_KEY and 'PLACEHOLDER' not in TOYYIBPAY_SECRET_KEY
     return False
 
 
@@ -374,11 +381,154 @@ def billplz_get_bill(bill_id):
         return {'success': False, 'error': str(e)}
 
 
+# ─── ToyyibPay Integration ─────────────────────────────────────────────────
+
+def toyyibpay_create_bill(booking, base_url):
+    """
+    Create a ToyyibPay Bill for RM30 booking fee via FPX.
+
+    Args:
+        booking: dict with booking_ref, customer_name, customer_email,
+                 customer_phone, camera_name, start_date, end_date
+        base_url: the app's public base URL
+
+    Returns:
+        dict with 'bill_url' on success, or 'error' on failure
+    """
+    booking_fee = 30  # RM30 booking fee
+    booking_ref = booking['booking_ref']
+
+    try:
+        # Prepare phone number
+        phone = booking.get('customer_phone', '')
+        if phone:
+            phone = phone.replace(' ', '').replace('-', '')
+            if phone.startswith('+'):
+                phone = phone[1:]  # Remove +
+            if phone.startswith('0'):
+                phone = '6' + phone  # 0123 -> 60123
+            if not phone.startswith('6'):
+                phone = '60' + phone
+
+        data = {
+            'userSecretKey': TOYYIBPAY_SECRET_KEY,
+            'categoryCode': TOYYIBPAY_CATEGORY_CODE,
+            'billName': f'Booking {booking_ref}',
+            'billDescription': f'Camera rental booking fee - {booking.get("camera_name", "Camera")} ({booking.get("start_date", "")} to {booking.get("end_date", "")})',
+            'billPriceSetting': 1,  # Fixed price
+            'billPayorInfo': 1,  # Include payor info
+            'billAmount': booking_fee * 100,  # In cents: 3000 = RM30
+            'billReturnUrl': f'{base_url}/payment/toyyibpay/return',
+            'billCallbackUrl': f'{base_url}/payment/toyyibpay/callback',
+            'billExternalReferenceNo': booking_ref,
+            'billTo': booking.get('customer_name', 'Customer'),
+            'billEmail': booking.get('customer_email', ''),
+            'billPhone': phone,
+            'billPaymentChannel': 0,  # 0=FPX only, 1=CC only, 2=both
+            'billChargeToCustomer': 2,  # 2=charge FPX fee to customer (optional)
+            'billExpiryDays': 3,  # Bill expires in 3 days
+            'billContentEmail': f'Thank you for booking with Gearz On The Go. Your booking reference is {booking_ref}.',
+        }
+
+        response = requests.post(
+            f'{TOYYIBPAY_BASE_URL}/index.php/api/createBill',
+            data=data,
+            timeout=15
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                bill_code = result[0].get('BillCode', '')
+                if bill_code:
+                    return {
+                        'success': True,
+                        'bill_url': f'{TOYYIBPAY_BASE_URL}/{bill_code}',
+                        'bill_code': bill_code,
+                        'mode': 'live'
+                    }
+            return {
+                'success': False,
+                'error': f'ToyyibPay returned unexpected response: {response.text}'
+            }
+        else:
+            return {
+                'success': False,
+                'error': f'ToyyibPay API error {response.status_code}: {response.text}'
+            }
+
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
+def toyyibpay_verify_callback(form_data):
+    """
+    Verify ToyyibPay callback POST data.
+
+    Callback params: refno, status, reason, billcode, order_id, amount, transaction_time
+    Status: 1=success, 2=pending, 3=fail
+
+    Returns:
+        dict with payment details
+    """
+    return {
+        'refno': form_data.get('refno', ''),
+        'status': form_data.get('status', ''),
+        'reason': form_data.get('reason', ''),
+        'billcode': form_data.get('billcode', ''),
+        'order_id': form_data.get('order_id', ''),
+        'amount': form_data.get('amount', ''),
+        'transaction_time': form_data.get('transaction_time', ''),
+        'paid': form_data.get('status') == '1',
+    }
+
+
+def toyyibpay_get_bill_status(bill_code):
+    """
+    Get bill payment status from ToyyibPay.
+
+    Returns:
+        dict with bill status info
+    """
+    try:
+        response = requests.post(
+            f'{TOYYIBPAY_BASE_URL}/index.php/api/getBillTransactions',
+            data={
+                'billCode': bill_code,
+                'billpaymentStatus': '1',  # 1=successful transactions
+            },
+            timeout=15
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                return {
+                    'success': True,
+                    'paid': True,
+                    'transaction': result[0],
+                }
+            return {
+                'success': True,
+                'paid': False,
+                'transaction': None,
+            }
+        else:
+            return {'success': False, 'error': f'API error: {response.status_code}'}
+
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
 # ─── Gateway Status ──────────────────────────────────────────────────────────
 
 def get_gateway_status():
-    """Return the configuration status of both gateways."""
+    """Return the configuration status of all gateways."""
     return {
+        'toyyibpay': {
+            'configured': is_configured('toyyibpay'),
+            'mode': 'live',
+        },
         'stripe': {
             'configured': is_configured('stripe'),
             'mode': 'dev' if DEV_MODE else ('live' if 'live' in STRIPE_SECRET_KEY else 'test'),

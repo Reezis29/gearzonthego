@@ -247,30 +247,18 @@
             <h3>💳 Pay RM30 Booking Fee</h3>
             <p style="font-size:0.82rem;color:#64748b;margin-bottom:16px;">Choose your payment method to confirm your booking.</p>
 
-            <!-- Option 1: FPX / DuitNow (Billplz) -->
-            <div class="payment-option" id="opt-billplz" onclick="selectPayment('billplz')">
+            <!-- Option 1: FPX Online Banking (ToyyibPay) -->
+            <div class="payment-option" id="opt-toyyibpay" onclick="selectPayment('toyyibpay')">
                 <div class="radio"></div>
                 <div class="icon">🏦</div>
                 <div class="details">
-                    <div class="name">Online Banking (FPX / DuitNow)</div>
-                    <div class="desc">Maybank, CIMB, RHB, Public Bank, DuitNow QR & more</div>
+                    <div class="name">Online Banking (FPX)</div>
+                    <div class="desc">Maybank, CIMB, RHB, Public Bank, Bank Islam & more</div>
                 </div>
                 <span class="badge">Popular</span>
-                {% if gateway_status and gateway_status.dev_mode %}<span class="dev-tag">Dev Mode</span>{% endif %}
             </div>
 
-            <!-- Option 2: Card (Stripe) -->
-            <div class="payment-option" id="opt-stripe" onclick="selectPayment('stripe')">
-                <div class="radio"></div>
-                <div class="icon">💳</div>
-                <div class="details">
-                    <div class="name">Credit / Debit Card</div>
-                    <div class="desc">Visa, Mastercard, American Express</div>
-                </div>
-                {% if gateway_status and gateway_status.dev_mode %}<span class="dev-tag">Dev Mode</span>{% endif %}
-            </div>
-
-            <!-- Option 3: Manual Bank Transfer -->
+            <!-- Option 2: Manual Bank Transfer -->
             <div class="payment-option" id="opt-bank" onclick="selectPayment('bank')">
                 <div class="radio"></div>
                 <div class="icon">📱</div>
@@ -281,7 +269,7 @@
             </div>
 
             <!-- Pay button -->
-            <button class="pay-btn pay-btn-billplz" id="payBtn" onclick="processPayment()" disabled>
+            <button class="pay-btn pay-btn-billplz" id="payBtn" onclick="processPayment()" disabled style="background:linear-gradient(135deg,#00a651,#059669);">
                 Select payment method
             </button>
             <div class="pay-loading" id="payLoading">
@@ -446,16 +434,12 @@
         btn.disabled = false;
         const bankBox = document.getElementById('bankTransferBox');
 
-        if (method === 'stripe') {
-            btn.className = 'pay-btn pay-btn-stripe';
-            btn.textContent = '💳 Pay RM30 Booking Fee with Card';
-            bankBox.classList.remove('active');
-        } else if (method === 'billplz') {
-            btn.className = 'pay-btn pay-btn-billplz';
-            btn.textContent = '🏦 Pay RM30 Booking Fee with FPX / DuitNow';
+        if (method === 'toyyibpay') {
+            btn.style.background = 'linear-gradient(135deg,#00a651,#059669)';
+            btn.textContent = '🏦 Pay RM30 Booking Fee with FPX';
             bankBox.classList.remove('active');
         } else if (method === 'bank') {
-            btn.className = 'pay-btn pay-btn-bank';
+            btn.style.background = 'linear-gradient(135deg,#1e3a5f,#2563eb)';
             btn.textContent = '📱 View Bank Transfer Details';
             bankBox.classList.remove('active');
         }
@@ -480,9 +464,7 @@
         loading.classList.add('active');
 
         try {
-            const endpoint = selectedPayment === 'stripe'
-                ? '/api/payment/stripe/create'
-                : '/api/payment/billplz/create';
+            const endpoint = '/api/payment/toyyibpay/create';
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -493,7 +475,7 @@
             const data = await response.json();
 
             if (data.success) {
-                const redirectUrl = data.checkout_url || data.bill_url;
+                const redirectUrl = data.bill_url;
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                     return;
@@ -502,9 +484,7 @@
 
             alert('Error: ' + (data.error || 'Unable to process payment. Please try again.'));
             btn.disabled = false;
-            btn.textContent = selectedPayment === 'stripe'
-                ? '💳 Pay RM30 Booking Fee with Card'
-                : '🏦 Pay RM30 Booking Fee with FPX / DuitNow';
+            btn.textContent = '🏦 Pay RM30 Booking Fee with FPX';
 
         } catch (err) {
             alert('Network error. Please check your internet connection and try again.');

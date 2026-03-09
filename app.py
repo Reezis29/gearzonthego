@@ -1548,6 +1548,74 @@ def api_gateway_status():
     """GET /api/payment/gateway-status — check which gateways are available."""
     return jsonify(pg.get_gateway_status())
 
+# --- ToyyibPay routes ---
+
+@app.route('/api/payment/toyyibpay/create', methods=['POST'])
+def api_toyyibpay_create():
+    """POST /api/payment/toyyibpay/create — create ToyyibPay Bill for FPX payment.
+    Body JSON: { booking_ref }
+    """
+    data = request.get_json(force=True)
+    booking_ref = data.get('booking_ref')
+    if not booking_ref:
+        return jsonify({'success': False, 'error': 'booking_ref required'}), 400
+
+    bd = _get_booking_for_payment(booking_ref)
+    if not bd:
+        return jsonify({'success': False, 'error': 'Booking not found'}), 404
+    if bd.get('status') != 'pending':
+        return jsonify({'success': False, 'error': 'Booking is not pending payment'}), 400
+
+    result = pg.toyyibpay_create_bill(bd, _get_base_url())
+    return jsonify(result)
+
+
+@app.route('/payment/toyyibpay/return')
+def toyyibpay_return():
+    """ToyyibPay redirect after payment (return URL).
+    GET params: status_id (1=success, 2=pending, 3=fail), billcode, order_id, transaction_id
+    """
+    status_id = request.args.get('status_id', '')
+    billcode = request.args.get('billcode', '')
+    order_id = request.args.get('order_id', '')
+    transaction_id = request.args.get('transaction_id', '')
+
+    app.logger.info(f'ToyyibPay return: status={status_id}, billcode={billcode}, order_id={order_id}')
+
+    if status_id == '1' and order_id:
+        # Payment successful — order_id is our booking_ref (billExternalReferenceNo)
+        _mark_booking_paid(order_id, 'toyyibpay_fpx', transaction_id or billcode)
+        return redirect(f'/booking/{order_id}?payment=success')
+    elif status_id == '2':
+        # Pending
+        if order_id:
+            return redirect(f'/booking/{order_id}?payment=pending')
+        return redirect('/?payment=pending')
+    else:
+        # Failed or cancelled
+        if order_id:
+            return redirect(f'/booking/{order_id}?payment=cancelled')
+        return redirect('/?payment=error')
+
+
+@app.route('/payment/toyyibpay/callback', methods=['POST'])
+def toyyibpay_callback():
+    """ToyyibPay server-side callback (backend-to-backend).
+    POST params: refno, status, reason, billcode, order_id, amount, transaction_time
+    Status: 1=success, 2=pending, 3=fail
+    """
+    result = pg.toyyibpay_verify_callback(request.form.to_dict())
+    app.logger.info(f'ToyyibPay callback: {result}')
+
+    if result.get('paid'):
+        booking_ref = result.get('order_id', '')
+        if booking_ref:
+            _mark_booking_paid(booking_ref, 'toyyibpay_fpx', result.get('refno', result.get('billcode', '')))
+            app.logger.info(f'ToyyibPay payment confirmed for {booking_ref}')
+
+    return 'OK', 200
+
+
 # --- Stripe routes ---
 
 @app.route('/api/payment/stripe/create', methods=['POST'])
