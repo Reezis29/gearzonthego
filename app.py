@@ -1176,7 +1176,7 @@ def api_create_booking():
             pickup_time, return_time, booking_mode, unit_id)
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (camera_id, start_date, end_date, cust_name, cust_phone,
-         notes, customer_id, booking_ref, 'pending', 30, 'unpaid',
+         notes, customer_id, booking_ref, 'pending', 200, 'unpaid',
          total, ppd, 'online', cust_email, cust_ic,
          pickup_time, return_time, 'online', assigned_unit_id)
     )
