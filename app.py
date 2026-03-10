@@ -27,6 +27,7 @@ CAMERAS = [
     {"id": "insta360x3",     "name": "Insta360 X3",                    "category": "insta360", "image": "insta360x3.jpg",       "prices": {"1": 85,  "2": 75,  "3": 65,  "5": 55}},
     {"id": "insta360x5",     "name": "Insta360 X5",                    "category": "insta360", "image": "insta360x5.jpg",       "prices": {"1": 100, "2": 90,  "3": 80,  "5": 70}},
     {"id": "insta360ace2",   "name": "Insta360 Ace Pro 2",             "category": "insta360", "image": "insta360acepro2.jpg",  "prices": {"1": 90,  "2": 80,  "3": 70,  "5": 60}},
+    {"id": "insta360x4air",  "name": "Insta360 X4 Air",                "category": "insta360", "image": "insta360-x4-air.jpg",  "prices": {"1": 90,  "2": 80,  "3": 70,  "5": 60}},
     {"id": "dji_action5pro", "name": "DJI Osmo Action 5 Pro",          "category": "dji",      "image": "dji_action5pro.jpg",   "prices": {"1": 85,  "2": 75,  "3": 65,  "5": 55}},
     {"id": "dji_nano",       "name": "DJI Osmo Nano",                  "category": "dji",      "image": "dji_osmo_nano.jpg",    "prices": {"1": 80,  "2": 70,  "3": 60,  "5": 50}},
     {"id": "dji_360",        "name": "DJI Osmo 360",                   "category": "dji",      "image": "dji_osmo360.jpg",      "prices": {"1": 100, "2": 90,  "3": 80,  "5": 70}},
