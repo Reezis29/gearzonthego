@@ -254,6 +254,7 @@
             <div class="hidden md:flex space-x-6 font-medium text-gray-600 text-sm">
                 <a href="#home" class="hover:text-blue-600 transition">Home</a>
                 <a href="#gear" class="hover:text-blue-600 transition">Catalogue</a>
+                <a href="/accessories" class="hover:text-purple-600 transition"><i class="fas fa-puzzle-piece mr-1 text-purple-500"></i>Accessories</a>
                 <a href="#availability" class="hover:text-blue-600 transition">Check Dates</a>
                 <a href="#how-it-works" class="hover:text-blue-600 transition">How to Rent</a>
                 <a href="#info" class="hover:text-blue-600 transition">Info</a>
@@ -597,6 +598,30 @@
                 <!-- Result -->
                 <div id="avail-result" class="hidden rounded-xl p-5 text-center"></div>
 
+                <!-- ═══ Recommended Add-Ons Section ═══ -->
+                <div id="addons-section" class="hidden mt-6">
+                    <div class="bg-white rounded-xl p-5 border-2 border-purple-200 shadow-md">
+                        <h3 class="text-lg font-bold text-purple-800 mb-1 flex items-center">
+                            <i class="fas fa-puzzle-piece mr-2"></i>
+                            <span>Recommended Add-Ons</span>
+                        </h3>
+                        <p class="text-gray-500 text-xs mb-4">Enhance your rental with useful accessories for snorkeling, motorbike rides and travel content.</p>
+                        <div id="addons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                        <div id="addons-show-more" class="hidden text-center mt-3">
+                            <button onclick="toggleShowMoreAddons()" id="addons-show-more-btn" class="text-purple-600 hover:text-purple-800 text-xs font-semibold transition">
+                                <i class="fas fa-chevron-down mr-1"></i> Show More
+                            </button>
+                        </div>
+                        <div id="addons-summary" class="hidden mt-4 bg-purple-50 rounded-lg p-3 text-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-purple-800"><i class="fas fa-puzzle-piece mr-1"></i> Add-Ons Total</span>
+                                <span class="font-bold text-purple-700" id="addons-total-display">RM0</span>
+                            </div>
+                            <div id="addons-items-list" class="text-xs text-purple-600 mt-1"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Booking Form (appears after available) -->
                 <div id="booking-form" class="hidden mt-6 bg-white rounded-xl p-6 border-2 border-blue-200 shadow-md">
                     <h3 class="text-lg font-bold text-blue-800 mb-1 flex items-center">
@@ -763,6 +788,7 @@
                         <li><a href="#gear" onclick="showTab('dji-action')" class="hover:text-white transition">DJI Camera</a></li>
                         <li><a href="#gear" onclick="showTab('canon')" class="hover:text-white transition">Canon Camera</a></li>
                         <li><a href="#gear" onclick="showTab('drone')" class="hover:text-white transition">Drone Rental</a></li>
+                        <li><a href="/accessories" class="hover:text-white transition">Accessories</a></li>
                         <li><a href="/blog" class="hover:text-white transition">Blog</a></li>
                     </ul>
                 </div>
@@ -1092,10 +1118,20 @@
                 const summaryDiv = document.getElementById('booking-summary');
                 summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${data.camera_name}</span><span class="text-blue-700 font-bold">RM${data.total_price}</span></div><div class="text-xs text-gray-500 mt-1">${startDate} → ${endDate} (${days} ${'days'}) • RM${data.price_per_day}/${'day'}</div>`;
                 bookForm.classList.remove('hidden');
-                // Scroll to booking form
-                setTimeout(() => bookForm.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+                // Load add-ons for this camera
+                loadAddons(cameraId, days, startDate, endDate);
+                // Scroll to add-ons section (or booking form if no add-ons)
+                setTimeout(() => {
+                    const addonsSection = document.getElementById('addons-section');
+                    if (!addonsSection.classList.contains('hidden')) {
+                        addonsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        bookForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 500);
             } else {
                 bookForm.classList.add('hidden');
+                document.getElementById('addons-section').classList.add('hidden');
                 div.className = 'rounded-xl p-5 text-center bg-red-50 border border-red-300 text-red-800 text-sm';
                 const conflictText = (data.conflicts && data.conflicts.length > 0)
                     ? `<div class="mb-2">${'Conflicting dates:'} <strong>${data.conflicts.join(', ')}</strong></div>`
@@ -1234,7 +1270,8 @@
                         customer_name: name,
                         customer_phone: phone,
                         customer_email: email,
-                        customer_ic: ic
+                        customer_ic: ic,
+                        accessories: getSelectedAddonsList()
                     })
                 });
                 const data = await res.json();
@@ -1331,6 +1368,183 @@
             bookForm.classList.remove('hidden');
             // Scroll to booking form
             setTimeout(() => bookForm.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+        }
+
+        // ── Add-Ons System ────────────────────────────────────────────────────────
+        let selectedAddons = {}; // { accId: { id, name, price_per_day, total, prices } }
+        let addonsData = [];     // full list from API
+        let addonsShowAll = false;
+        const MAX_VISIBLE_ADDONS = 4;
+
+        async function loadAddons(cameraId, days, startDate, endDate) {
+            const section = document.getElementById('addons-section');
+            const grid = document.getElementById('addons-grid');
+            selectedAddons = {};
+            addonsShowAll = false;
+            section.classList.add('hidden');
+            document.getElementById('addons-summary').classList.add('hidden');
+            document.getElementById('addons-show-more').classList.add('hidden');
+
+            try {
+                const res = await fetch(`/api/accessories/${cameraId}?days=${days}&start_date=${startDate}&end_date=${endDate}`);
+                const data = await res.json();
+                addonsData = data.accessories || [];
+                if (addonsData.length === 0) return;
+
+                section.classList.remove('hidden');
+                renderAddonCards();
+            } catch(e) {
+                console.error('Failed to load add-ons:', e);
+            }
+        }
+
+        function renderAddonCards() {
+            const grid = document.getElementById('addons-grid');
+            const showMoreWrap = document.getElementById('addons-show-more');
+            const visibleCount = addonsShowAll ? addonsData.length : Math.min(MAX_VISIBLE_ADDONS, addonsData.length);
+
+            let html = '';
+            for (let i = 0; i < addonsData.length; i++) {
+                const a = addonsData[i];
+                const isSelected = !!selectedAddons[a.id];
+                const isHidden = i >= visibleCount;
+                const soldOut = a.available_units <= 0;
+                const lowStock = a.available_units === 1;
+                const badgeColors = {
+                    'Best for snorkeling': 'bg-blue-100 text-blue-700',
+                    'Best for motorbike rides': 'bg-orange-100 text-orange-700',
+                    'Most popular': 'bg-green-100 text-green-700',
+                    'POV videos': 'bg-red-100 text-red-700',
+                    'Best for creative angles': 'bg-purple-100 text-purple-700',
+                };
+                const badgeCls = badgeColors[a.badge] || 'bg-gray-100 text-gray-700';
+                const tierLabels = ['1 day', '2 days', '3\u20134 days', '5+ days'];
+
+                html += `<div class="addon-card rounded-xl border-2 ${
+                    soldOut ? 'border-gray-200 opacity-60' :
+                    isSelected ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-purple-300'
+                } p-3 transition cursor-pointer ${isHidden ? 'hidden' : ''}" 
+                data-addon-index="${i}"
+                ${!soldOut ? `onclick="toggleAddon('${a.id}')"` : ''}>
+                    <div class="flex items-start gap-3">
+                        <img src="/static/${a.image}" alt="${a.name}" class="w-14 h-14 object-contain rounded-lg bg-gray-50 p-1 flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-bold text-gray-800 text-sm">${a.name}</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${badgeCls}">${a.badge}</span>
+                            </div>
+                            <p class="text-gray-500 text-[11px] mt-0.5 leading-tight">${a.desc}</p>
+                            <div class="mt-1.5 flex items-center justify-between">
+                                <div>
+                                    <span class="text-purple-700 font-bold text-sm">RM${a.price_per_day}/day</span>
+                                    <span class="text-gray-400 text-[10px] ml-1">(RM${a.total} total)</span>
+                                </div>
+                                ${soldOut ? '<span class="text-[10px] text-red-600 font-semibold">Sold Out</span>' :
+                                  lowStock ? '<span class="text-[10px] text-amber-600 font-semibold">Only 1 left</span>' : ''}
+                            </div>
+                            <!-- Tier pricing expandable -->
+                            <details class="mt-1" onclick="event.stopPropagation()">
+                                <summary class="text-[10px] text-purple-500 cursor-pointer hover:text-purple-700">View all tier prices</summary>
+                                <div class="text-[10px] text-gray-500 mt-1 grid grid-cols-2 gap-x-3">
+                                    ${a.prices.map((p, idx) => `<span>${tierLabels[idx]} = RM${p}/day</span>`).join('')}
+                                </div>
+                            </details>
+                        </div>
+                        <div class="flex-shrink-0 mt-1">
+                            ${soldOut ? '' : `<div class="w-5 h-5 rounded border-2 flex items-center justify-center ${
+                                isSelected ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                            }">
+                                ${isSelected ? '<i class="fas fa-check text-white text-[10px]"></i>' : ''}
+                            </div>`}
+                        </div>
+                    </div>
+                </div>`;
+            }
+            grid.innerHTML = html;
+
+            // Show/hide "Show More" button
+            if (addonsData.length > MAX_VISIBLE_ADDONS) {
+                showMoreWrap.classList.remove('hidden');
+                const btn = document.getElementById('addons-show-more-btn');
+                btn.innerHTML = addonsShowAll ?
+                    '<i class="fas fa-chevron-up mr-1"></i> Show Less' :
+                    `<i class="fas fa-chevron-down mr-1"></i> Show More (${addonsData.length - MAX_VISIBLE_ADDONS} more)`;
+            } else {
+                showMoreWrap.classList.add('hidden');
+            }
+        }
+
+        function toggleShowMoreAddons() {
+            addonsShowAll = !addonsShowAll;
+            renderAddonCards();
+        }
+
+        function toggleAddon(accId) {
+            if (selectedAddons[accId]) {
+                delete selectedAddons[accId];
+            } else {
+                const acc = addonsData.find(a => a.id === accId);
+                if (acc) {
+                    selectedAddons[accId] = {
+                        id: acc.id,
+                        name: acc.name,
+                        price_per_day: acc.price_per_day,
+                        total: acc.total,
+                        prices: acc.prices
+                    };
+                }
+            }
+            renderAddonCards();
+            updateAddonsSummary();
+            updateBookingSummaryWithAddons();
+        }
+
+        function updateAddonsSummary() {
+            const summaryDiv = document.getElementById('addons-summary');
+            const totalDisp = document.getElementById('addons-total-display');
+            const itemsList = document.getElementById('addons-items-list');
+            const keys = Object.keys(selectedAddons);
+
+            if (keys.length === 0) {
+                summaryDiv.classList.add('hidden');
+                return;
+            }
+            summaryDiv.classList.remove('hidden');
+            let total = 0;
+            let itemsHtml = '';
+            keys.forEach(k => {
+                const a = selectedAddons[k];
+                total += a.total;
+                itemsHtml += `<div class="flex justify-between"><span>${a.name} (RM${a.price_per_day} \u00d7 ${bookingData.days})</span><span>RM${a.total}</span></div>`;
+            });
+            totalDisp.textContent = `RM${total}`;
+            itemsList.innerHTML = itemsHtml;
+        }
+
+        function getSelectedAddonsTotal() {
+            return Object.values(selectedAddons).reduce((sum, a) => sum + a.total, 0);
+        }
+
+        function getSelectedAddonsList() {
+            return Object.values(selectedAddons).map(a => ({ id: a.id }));
+        }
+
+        function updateBookingSummaryWithAddons() {
+            const summaryDiv = document.getElementById('booking-summary');
+            if (!bookingData.cameraId) return;
+            const addonsTotal = getSelectedAddonsTotal();
+            const grandTotal = bookingData.totalPrice + addonsTotal;
+            let addonsHtml = '';
+            if (addonsTotal > 0) {
+                addonsHtml = '<div class="border-t border-blue-200 mt-2 pt-2">';
+                addonsHtml += '<div class="text-xs text-purple-600 font-semibold mb-1"><i class="fas fa-puzzle-piece mr-1"></i>Add-Ons:</div>';
+                Object.values(selectedAddons).forEach(a => {
+                    addonsHtml += `<div class="flex justify-between text-xs text-gray-600"><span>${a.name} (RM${a.price_per_day} \u00d7 ${bookingData.days})</span><span>RM${a.total}</span></div>`;
+                });
+                addonsHtml += `<div class="flex justify-between text-xs font-bold text-purple-700 mt-1"><span>Add-Ons Subtotal</span><span>RM${addonsTotal}</span></div>`;
+                addonsHtml += '</div>';
+            }
+            summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${bookingData.cameraName}</span><span class="text-blue-700 font-bold">RM${grandTotal}</span></div><div class="text-xs text-gray-500 mt-1">${bookingData.startDate} \u2192 ${bookingData.endDate} (${bookingData.days} days) \u2022 RM${bookingData.pricePerDay}/day</div>${addonsHtml}`;
         }
 
         // ── Hero Background Image Slider ──────────────────────────────────────────

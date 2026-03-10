@@ -117,6 +117,18 @@
                                     <span class="text-amber-600 font-semibold">Deposit: RM{{ '%.0f'|format(bd.get('deposit_amount', 200)) }}</span>
                                 </div>
                                 {% endif %}
+                                {% set accs = parse_accessories(bd) %}
+                                {% if accs %}
+                                <div class="mt-2 bg-purple-50 rounded-lg p-2">
+                                    <div class="text-[11px] font-semibold text-purple-700 mb-1"><i class="fas fa-puzzle-piece mr-1"></i>Add-Ons:</div>
+                                    {% for acc in accs %}
+                                    <div class="flex justify-between text-[11px] text-purple-600">
+                                        <span>{{ acc.name }} (RM{{ acc.price_per_day }}/day × {{ acc.days }})</span>
+                                        <span class="font-semibold">RM{{ acc.total }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="flex flex-col items-end gap-2 flex-shrink-0">
@@ -219,6 +231,79 @@
             </div>
             {% endif %}
         </div>
+
+        <!-- Standalone Accessory Bookings -->
+        {% if acc_bookings %}
+        <div class="bg-white rounded-2xl shadow overflow-hidden mt-6">
+            <div class="px-5 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-puzzle-piece text-purple-600 mr-2"></i>Accessory-Only Bookings
+                </h2>
+                <p class="text-xs text-gray-500 mt-1">Standalone accessory rentals (no camera)</p>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for ab in acc_bookings %}
+                {% set abd = dict(ab) %}
+                {% set abstatus = abd.get('status', 'pending') %}
+                <div class="p-5 hover:bg-gray-50 transition">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-purple-800 text-sm"><i class="fas fa-puzzle-piece mr-1"></i>Accessories Rental</span>
+                                <span class="font-mono text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ abd['booking_ref'] }}</span>
+                            </div>
+                            <div class="text-xs text-blue-600 font-semibold mt-1">
+                                <i class="fas fa-calendar mr-1"></i>{{ abd['start_date'] }} → {{ abd['end_date'] }}
+                            </div>
+                            <div class="mt-2 flex items-center gap-3 text-xs text-gray-600">
+                                <span><i class="fas fa-user text-gray-400 mr-1"></i>{{ abd['customer_name'] or '—' }}</span>
+                                <span><i class="fas fa-phone text-gray-400 mr-1"></i>{{ abd['customer_phone'] or '—' }}</span>
+                                {% if abd.get('customer_email') %}
+                                <span><i class="fas fa-envelope text-gray-400 mr-1"></i>{{ abd['customer_email'] }}</span>
+                                {% endif %}
+                            </div>
+                            {% set accs = parse_accessories(abd) %}
+                            {% if accs %}
+                            <div class="mt-2 bg-purple-50 rounded-lg p-2">
+                                {% for acc in accs %}
+                                <div class="flex justify-between text-[11px] text-purple-600">
+                                    <span>{{ acc.name }} (RM{{ acc.price_per_day }}/day × {{ acc.days }})</span>
+                                    <span class="font-semibold">RM{{ acc.total }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if abd.get('total_price') %}
+                            <div class="mt-1 text-xs">
+                                <span class="font-bold text-green-600">Total: RM{{ '%.0f'|format(abd['total_price']) }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                            {% if abstatus == 'pending' %}
+                            <span class="status-badge bg-yellow-100 text-yellow-700">⏳ Payment Pending</span>
+                            {% elif abstatus == 'confirmed' %}
+                            <span class="status-badge bg-green-100 text-green-700">✅ Confirmed</span>
+                            {% elif abstatus == 'active' %}
+                            <span class="status-badge bg-indigo-100 text-indigo-700">📷 Active</span>
+                            {% elif abstatus == 'returned' %}
+                            <span class="status-badge bg-gray-100 text-gray-600">✔ Returned</span>
+                            {% elif abstatus == 'cancelled' %}
+                            <span class="status-badge bg-red-100 text-red-700">✖ Cancelled</span>
+                            {% endif %}
+                            {% if abd.get('booking_ref') %}
+                            <a href="/booking/{{ abd['booking_ref'] }}" target="_blank"
+                               class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="View confirmation page">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Recent Payments -->
         {% if payments %}

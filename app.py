@@ -42,6 +42,41 @@ CAMERAS = [
 ]
 CAMERA_MAP = {c["id"]: c for c in CAMERAS}
 
+# ─── Accessories catalogue ─────────────────────────────────────────────────
+# Prices are per-day rates for tiers: 1 day / 2 days / 3-4 days / 5+ days
+ACCESSORIES = [
+    {"id": "x5_dive_case",      "name": "Dive Case Pro",                  "desc": "Perfect for snorkeling and underwater filming.",       "badge": "Best for snorkeling",       "image": "accessories/dive_case_360.png",  "prices": [25, 22, 19, 15], "inventory": 2, "camera_ids": ["insta360x5"],                                  "group": "Insta360"},
+    {"id": "x5_moto_mount",     "name": "Motorcycle Mount",                "desc": "Secure 360° mount for motorbike handlebars.",         "badge": "Best for motorbike rides",  "image": "accessories/motorcycle_mount.jpg", "prices": [20, 18, 16, 14], "inventory": 2, "camera_ids": ["insta360x5", "insta360ace2", "dji_action5pro"], "group": "Insta360"},
+    {"id": "x5_stick_1m",       "name": "1M Invisible Stick",              "desc": "Compact invisible selfie stick for 360° shots.",      "badge": "Most popular",              "image": "accessories/selfie_stick_1m.jpg",  "prices": [7, 6, 5, 4],     "inventory": 2, "camera_ids": ["insta360x5"],                                  "group": "Insta360"},
+    {"id": "x5_stick_3m",       "name": "3M Long Invisible Selfie Stick",  "desc": "Extended reach for creative drone-like angles.",      "badge": "Best for creative angles",  "image": "accessories/selfie_stick_3m.jpg",  "prices": [10, 9, 7, 6],    "inventory": 2, "camera_ids": ["insta360x5"],                                  "group": "Insta360"},
+    {"id": "x5_battery",        "name": "Extra Battery",                   "desc": "Spare battery for extended shooting sessions.",       "badge": "Most popular",              "image": "accessories/extra_battery.jpg",    "prices": [8, 7, 6, 5],     "inventory": 2, "camera_ids": ["insta360x5", "insta360ace2", "gopro13", "dji_action5pro"], "group": "Universal"},
+    {"id": "ace2_dive_case",    "name": "Dive Case + Floaty",              "desc": "Waterproof housing with floaty for water sports.",    "badge": "Best for snorkeling",       "image": "accessories/dive_case_ace.jpg",    "prices": [15, 13, 11, 9],  "inventory": 2, "camera_ids": ["insta360ace2"],                                 "group": "Insta360"},
+    {"id": "ace2_stick",        "name": "Selfie Stick",                    "desc": "Lightweight selfie stick for action cameras.",        "badge": "Most popular",              "image": "accessories/selfie_stick_1m.jpg",  "prices": [5, 4, 3, 2],     "inventory": 2, "camera_ids": ["insta360ace2", "gopro13", "dji_action5pro"],    "group": "Universal"},
+    {"id": "gopro_dive_case",   "name": "Dive Case + Floaty",              "desc": "Waterproof housing with floaty for water sports.",    "badge": "Best for snorkeling",       "image": "accessories/dive_case_gopro.jpg",  "prices": [15, 13, 11, 9],  "inventory": 2, "camera_ids": ["gopro13"],                                     "group": "GoPro"},
+    {"id": "gopro_chest",       "name": "Chest Mount",                     "desc": "Hands-free POV chest harness for action footage.",    "badge": "POV videos",                "image": "accessories/chest_mount.jpg",      "prices": [5, 4, 3, 2],     "inventory": 2, "camera_ids": ["gopro13"],                                     "group": "GoPro"},
+    {"id": "dji_dive_case",     "name": "Dive Case + Floaty",              "desc": "Waterproof housing with floaty for water sports.",    "badge": "Best for snorkeling",       "image": "accessories/dive_case_ace.jpg",    "prices": [15, 13, 11, 9],  "inventory": 2, "camera_ids": ["dji_action5pro"],                               "group": "DJI"},
+]
+ACCESSORY_MAP = {a["id"]: a for a in ACCESSORIES}
+
+def get_accessories_for_camera(camera_id):
+    """Return list of accessories compatible with a given camera."""
+    return [a for a in ACCESSORIES if camera_id in a.get('camera_ids', [])]
+
+def get_accessory_price(accessory_id, days):
+    """Return per-day price for an accessory based on rental duration tier."""
+    acc = ACCESSORY_MAP.get(accessory_id)
+    if not acc:
+        return None
+    prices = acc['prices']  # [tier1, tier2, tier3-4, tier5+]
+    if days >= 5:
+        return prices[3]
+    elif days >= 3:
+        return prices[2]
+    elif days == 2:
+        return prices[1]
+    else:
+        return prices[0]
+
 # ─── DB init ──────────────────────────────────────────────────────────────────
 def init_db():
     conn = sqlite3.connect(DB_PATH)
@@ -145,8 +180,37 @@ def init_db():
         created_at      TEXT DEFAULT CURRENT_TIMESTAMP
     )''')
 
+    # Accessory bookings table (standalone accessory-only rentals)
+    c.execute('''CREATE TABLE IF NOT EXISTS accessory_bookings (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        booking_ref     TEXT NOT NULL,
+        start_date      TEXT NOT NULL,
+        end_date        TEXT NOT NULL,
+        customer_name   TEXT,
+        customer_phone  TEXT,
+        customer_email  TEXT,
+        customer_ic     TEXT,
+        accessories_json TEXT,
+        total_price     REAL,
+        status          TEXT DEFAULT 'pending',
+        deposit_amount  REAL DEFAULT 200,
+        deposit_status  TEXT DEFAULT 'unpaid',
+        created_at      TEXT DEFAULT CURRENT_TIMESTAMP,
+        source          TEXT DEFAULT 'online',
+        customer_id     INTEGER
+    )''')
+
+    # Accessory inventory units table
+    c.execute('''CREATE TABLE IF NOT EXISTS accessory_units (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        accessory_id    TEXT NOT NULL,
+        label           TEXT NOT NULL,
+        status          TEXT DEFAULT 'available',
+        created_at      TEXT DEFAULT CURRENT_TIMESTAMP
+    )''')
+
     # Safe migration: add unit_id to bookings if not present
-    for col_def in ['unit_id INTEGER', 'return_reminder_sent INTEGER DEFAULT 0', 'actual_pickup_datetime TEXT']:
+    for col_def in ['unit_id INTEGER', 'return_reminder_sent INTEGER DEFAULT 0', 'actual_pickup_datetime TEXT', 'accessories_json TEXT']:
         try:
             c.execute(f"ALTER TABLE bookings ADD COLUMN {col_def}")
         except:
@@ -174,6 +238,16 @@ def init_db():
                 "INSERT INTO units (product_id, label, condition, status) VALUES (?, ?, 'good', 'available')",
                 (cam['id'], 'Unit A')
             )
+
+    # Seed 2 units per accessory if accessory_units table is empty
+    existing_acc_units = c.execute("SELECT COUNT(*) FROM accessory_units").fetchone()[0]
+    if existing_acc_units == 0:
+        for acc in ACCESSORIES:
+            for i in range(acc.get('inventory', 2)):
+                c.execute(
+                    "INSERT INTO accessory_units (accessory_id, label, status) VALUES (?, ?, 'available')",
+                    (acc['id'], f'Unit {chr(65+i)}')
+                )
 
     conn.commit()
     conn.close()
@@ -306,6 +380,62 @@ def generate_booking_ref():
     """Generate unique booking reference like GZ-A1B2C3"""
     return f"GZ-{uuid.uuid4().hex[:6].upper()}"
 
+def get_accessory_booked_count(accessory_id, start_date, end_date):
+    """Return how many units of an accessory are booked for the given date range.
+    Checks both camera bookings (add-ons) and standalone accessory bookings."""
+    import json
+    conn = get_db()
+    requested = set(_date_range(start_date, end_date))
+    count = 0
+
+    # Check camera bookings with accessories_json
+    rows = conn.execute(
+        """SELECT accessories_json, start_date, end_date FROM bookings
+           WHERE accessories_json IS NOT NULL AND accessories_json != ''
+           AND (status IS NULL OR status NOT IN ('cancelled','returned'))"""
+    ).fetchall()
+    for row in rows:
+        try:
+            accs = json.loads(row['accessories_json'])
+        except:
+            continue
+        for acc in accs:
+            if acc.get('id') == accessory_id:
+                booked_dates = set(_date_range(row['start_date'], row['end_date']))
+                if requested & booked_dates:
+                    count += 1
+                break
+
+    # Check standalone accessory bookings
+    acc_rows = conn.execute(
+        """SELECT accessories_json, start_date, end_date FROM accessory_bookings
+           WHERE (status IS NULL OR status NOT IN ('cancelled','returned'))"""
+    ).fetchall()
+    for row in acc_rows:
+        try:
+            accs = json.loads(row['accessories_json'])
+        except:
+            continue
+        for acc in accs:
+            if acc.get('id') == accessory_id:
+                booked_dates = set(_date_range(row['start_date'], row['end_date']))
+                if requested & booked_dates:
+                    count += 1
+                break
+
+    conn.close()
+    return count
+
+def get_accessory_availability(accessory_id, start_date, end_date):
+    """Return dict with available_units and total_units for an accessory."""
+    acc = ACCESSORY_MAP.get(accessory_id)
+    if not acc:
+        return {'available_units': 0, 'total_units': 0}
+    total = acc.get('inventory', 2)
+    booked = get_accessory_booked_count(accessory_id, start_date, end_date)
+    available = max(0, total - booked)
+    return {'available_units': available, 'total_units': total}
+
 def calculate_price(camera_id, days):
     """Calculate price per day and total based on tier pricing"""
     camera = CAMERA_MAP.get(camera_id, {})
@@ -348,6 +478,171 @@ def api_availability(camera_id):
     if camera_id not in CAMERA_MAP:
         return jsonify({'error': 'Camera not found'}), 404
     return jsonify({'camera_id': camera_id, 'booked_dates': get_booked_dates(camera_id)})
+
+@app.route('/api/accessories/<camera_id>')
+def api_accessories_for_camera(camera_id):
+    """Return accessories available for a camera model with pricing for given days."""
+    days = request.args.get('days', 1, type=int)
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    accs = get_accessories_for_camera(camera_id)
+    result = []
+    for a in accs:
+        ppd = get_accessory_price(a['id'], days)
+        avail = {'available_units': a.get('inventory', 2), 'total_units': a.get('inventory', 2)}
+        if start_date and end_date:
+            avail = get_accessory_availability(a['id'], start_date, end_date)
+        result.append({
+            'id': a['id'],
+            'name': a['name'],
+            'desc': a['desc'],
+            'badge': a['badge'],
+            'image': a['image'],
+            'prices': a['prices'],
+            'price_per_day': ppd,
+            'total': ppd * days if ppd else 0,
+            'available_units': avail['available_units'],
+            'total_units': avail['total_units'],
+        })
+    return jsonify({'accessories': result, 'days': days, 'camera_id': camera_id})
+
+@app.route('/api/accessories/all')
+def api_all_accessories():
+    """Return all accessories grouped by compatibility."""
+    days = request.args.get('days', 1, type=int)
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    result = []
+    for a in ACCESSORIES:
+        ppd = get_accessory_price(a['id'], days)
+        avail = {'available_units': a.get('inventory', 2), 'total_units': a.get('inventory', 2)}
+        if start_date and end_date:
+            avail = get_accessory_availability(a['id'], start_date, end_date)
+        result.append({
+            'id': a['id'],
+            'name': a['name'],
+            'desc': a['desc'],
+            'badge': a['badge'],
+            'image': a['image'],
+            'prices': a['prices'],
+            'price_per_day': ppd,
+            'total': ppd * days if ppd else 0,
+            'group': a.get('group', ''),
+            'camera_ids': a.get('camera_ids', []),
+            'available_units': avail['available_units'],
+            'total_units': avail['total_units'],
+        })
+    return jsonify({'accessories': result, 'days': days})
+
+@app.route('/accessories')
+def accessories_page():
+    """Standalone accessories rental page."""
+    return render_template('accessories.html', accessories=ACCESSORIES, accessory_map=ACCESSORY_MAP)
+
+@app.route('/api/accessory-bookings', methods=['POST'])
+def api_create_accessory_booking():
+    """Create a standalone accessory-only booking."""
+    import json as _json
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
+
+    start_date = data.get('start_date', '').strip()
+    end_date   = data.get('end_date', '').strip()
+    cust_name  = data.get('customer_name', '').strip()
+    cust_phone = data.get('customer_phone', '').strip()
+    cust_email = data.get('customer_email', '').strip()
+    cust_ic    = data.get('customer_ic', '').strip()
+    accessories_list = data.get('accessories', [])
+
+    if not all([start_date, end_date, cust_name, cust_phone]):
+        return jsonify({'error': 'Required: start_date, end_date, customer_name, customer_phone'}), 400
+    if not cust_email:
+        return jsonify({'error': 'Email address is required.'}), 400
+    if not accessories_list:
+        return jsonify({'error': 'At least one accessory must be selected.'}), 400
+
+    try:
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end   = datetime.strptime(end_date,   '%Y-%m-%d')
+    except ValueError:
+        return jsonify({'error': 'Invalid date format.'}), 400
+    if end < start:
+        return jsonify({'error': 'End date must be after start date'}), 400
+
+    days = (end - start).days
+    if days < 1:
+        days = 1
+
+    # Validate and price accessories
+    validated_accs = []
+    total = 0
+    for acc_item in accessories_list:
+        acc_id = acc_item.get('id', '')
+        acc_data = ACCESSORY_MAP.get(acc_id)
+        if acc_data:
+            ppd_acc = get_accessory_price(acc_id, days)
+            if ppd_acc is not None:
+                avail = get_accessory_availability(acc_id, start_date, end_date)
+                if avail['available_units'] <= 0:
+                    return jsonify({'error': f'{acc_data["name"]} is not available for selected dates.'}), 409
+                acc_total = ppd_acc * days
+                validated_accs.append({
+                    'id': acc_id,
+                    'name': acc_data['name'],
+                    'price_per_day': ppd_acc,
+                    'days': days,
+                    'total': acc_total
+                })
+                total += acc_total
+
+    if not validated_accs:
+        return jsonify({'error': 'No valid accessories selected.'}), 400
+
+    booking_ref = generate_booking_ref()
+    accessories_json = _json.dumps(validated_accs)
+
+    conn = get_db()
+
+    # Auto-create customer record
+    customer_id = None
+    if cust_name and cust_phone:
+        existing = conn.execute(
+            "SELECT id FROM customers WHERE phone = ? AND LOWER(full_name) = LOWER(?)",
+            (cust_phone, cust_name)
+        ).fetchone()
+        if existing:
+            customer_id = existing['id']
+        else:
+            cur = conn.execute(
+                "INSERT INTO customers (full_name, phone, email, created_at) VALUES (?, ?, ?, ?)",
+                (cust_name, cust_phone, cust_email, datetime.now().strftime('%Y-%m-%d %H:%M'))
+            )
+            customer_id = cur.lastrowid
+        conn.commit()
+
+    conn.execute(
+        """INSERT INTO accessory_bookings
+           (booking_ref, start_date, end_date, customer_name, customer_phone,
+            customer_email, customer_ic, accessories_json, total_price,
+            status, deposit_amount, deposit_status, source, customer_id)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (booking_ref, start_date, end_date, cust_name, cust_phone,
+         cust_email, cust_ic, accessories_json, total,
+         'pending', 200, 'unpaid', 'online', customer_id)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        'success': True,
+        'booking_ref': booking_ref,
+        'total_price': total,
+        'accessories': validated_accs,
+        'days': days,
+        'booking_fee': 30,
+        'message': f'Accessory booking {booking_ref} created. Pay RM30 to confirm.'
+    }), 201
 
 @app.route('/api/check')
 def api_check():
@@ -1141,6 +1436,35 @@ def api_create_booking():
     return_time = data.get('return_time', '').strip()
     notes       = data.get('notes', '').strip()
 
+    # Process accessories add-ons
+    import json as _json
+    accessories_list = data.get('accessories', [])
+    accessories_json = None
+    accessories_total = 0
+    if accessories_list and isinstance(accessories_list, list):
+        validated_accs = []
+        for acc_item in accessories_list:
+            acc_id = acc_item.get('id', '')
+            acc_data = ACCESSORY_MAP.get(acc_id)
+            if acc_data:
+                ppd_acc = get_accessory_price(acc_id, days)
+                if ppd_acc is not None:
+                    # Check availability
+                    avail = get_accessory_availability(acc_id, start_date, end_date)
+                    if avail['available_units'] > 0:
+                        acc_total = ppd_acc * days
+                        validated_accs.append({
+                            'id': acc_id,
+                            'name': acc_data['name'],
+                            'price_per_day': ppd_acc,
+                            'days': days,
+                            'total': acc_total
+                        })
+                        accessories_total += acc_total
+        if validated_accs:
+            accessories_json = _json.dumps(validated_accs)
+            total += accessories_total  # Add accessories to total price
+
     conn = get_db()
 
     # Auto-create customer record
@@ -1174,12 +1498,12 @@ def api_create_booking():
            (camera_id, start_date, end_date, customer_name, customer_phone,
             notes, customer_id, booking_ref, status, deposit_amount, deposit_status,
             total_price, price_per_day, source, customer_email, customer_ic,
-            pickup_time, return_time, booking_mode, unit_id)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            pickup_time, return_time, booking_mode, unit_id, accessories_json)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (camera_id, start_date, end_date, cust_name, cust_phone,
          notes, customer_id, booking_ref, 'pending', 200, 'unpaid',
          total, ppd, 'online', cust_email, cust_ic,
-         pickup_time, return_time, 'online', assigned_unit_id)
+         pickup_time, return_time, 'online', assigned_unit_id, accessories_json)
     )
     booking_id = cur2.lastrowid
     conn.commit()
@@ -1212,6 +1536,7 @@ def api_create_booking():
         'days': days,
         'price_per_day': ppd,
         'total_price': total,
+        'accessories_total': accessories_total,
         'booking_fee': 30,
         'deposit': 200,
         'admin_wa_link': admin_wa_link,
@@ -1456,6 +1781,7 @@ def staff_blocked_dates_list():
 @login_required
 def staff_online_bookings():
     """View all online bookings with status management"""
+    import json as _json
     conn = get_db()
     bookings = conn.execute(
         """SELECT b.*, c.full_name as cust_name,
@@ -1466,12 +1792,28 @@ def staff_online_bookings():
            WHERE b.source = 'online'
            ORDER BY b.created_at DESC"""
     ).fetchall()
+    # Also fetch standalone accessory bookings
+    acc_bookings = conn.execute(
+        "SELECT * FROM accessory_bookings ORDER BY created_at DESC"
+    ).fetchall()
     payments = conn.execute(
         "SELECT * FROM payments ORDER BY created_at DESC"
     ).fetchall()
     conn.close()
+
+    # Parse accessories_json for display
+    def parse_accessories(booking_dict):
+        if booking_dict.get('accessories_json'):
+            try:
+                return _json.loads(booking_dict['accessories_json'])
+            except:
+                pass
+        return []
+
     return render_template('staff_online_bookings.html', bookings=bookings,
-                           payments=payments, camera_map=CAMERA_MAP, wa=wa)
+                           acc_bookings=acc_bookings, payments=payments,
+                           camera_map=CAMERA_MAP, wa=wa,
+                           parse_accessories=parse_accessories)
 
 # ─── Payment Gateway Routes ──────────────────────────────────────────────────
 
@@ -1793,16 +2135,36 @@ def dev_simulate_payment():
 @app.route('/booking/<booking_ref>')
 def booking_confirmation(booking_ref):
     """Public page: booking confirmation / status check"""
+    import json as _json
     conn = get_db()
     b = conn.execute("SELECT * FROM bookings WHERE booking_ref = ?", (booking_ref,)).fetchone()
+    is_accessory_booking = False
+    if not b:
+        # Check accessory_bookings table
+        b = conn.execute("SELECT * FROM accessory_bookings WHERE booking_ref = ?", (booking_ref,)).fetchone()
+        is_accessory_booking = True if b else False
     conn.close()
     if not b:
         abort(404)
     bd = dict(b)
-    camera = CAMERA_MAP.get(bd['camera_id'], {})
-    bd['camera_name'] = camera.get('name', bd['camera_id'])
-    bd['camera_image'] = camera.get('image', '')
-    bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
+
+    if is_accessory_booking:
+        bd['camera_name'] = 'Accessories Rental'
+        bd['camera_image'] = 'accessories/selfie_stick_1m.jpg'
+        bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
+    else:
+        camera = CAMERA_MAP.get(bd['camera_id'], {})
+        bd['camera_name'] = camera.get('name', bd['camera_id'])
+        bd['camera_image'] = camera.get('image', '')
+        bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
+
+    # Parse accessories
+    bd['accessories'] = []
+    if bd.get('accessories_json'):
+        try:
+            bd['accessories'] = _json.loads(bd['accessories_json'])
+        except:
+            pass
 
     # Generate WhatsApp links
     wa_links = {
@@ -1818,7 +2180,8 @@ def booking_confirmation(booking_ref):
     gateway_status = pg.get_gateway_status()
 
     return render_template('booking_confirmation.html', booking=bd, wa_links=wa_links,
-                           payment_status=payment_status, gateway_status=gateway_status)
+                           payment_status=payment_status, gateway_status=gateway_status,
+                           is_accessory_booking=is_accessory_booking)
 
 # ─── SEO Landing Pages ───────────────────────────────────────────────────────
 @app.route('/gopro-rental-langkawi')

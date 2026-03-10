@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessories Rental | Gearz On The Go</title>
+    <meta name="description" content="Rent camera accessories in Langkawi — dive cases, selfie sticks, motorcycle mounts, extra batteries and more. Add-ons for GoPro, Insta360 and DJI cameras.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        html { scroll-behavior: smooth; }
+        .acc-card { transition: all 0.2s ease; }
+        .acc-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .acc-card.selected { border-color: #7c3aed !important; background: #f5f3ff; }
+        .acc-card.sold-out { opacity: 0.5; pointer-events: none; }
+        .tier-badge { font-size: 10px; padding: 2px 6px; border-radius: 9999px; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-3 py-2 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="/" aria-label="Home">
+                    <img src="/static/logo-navbar.png?v=2" alt="Gearz On The Go" class="h-10 md:h-14 w-auto">
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6 font-medium text-gray-600 text-sm">
+                <a href="/" class="hover:text-blue-600 transition">Home</a>
+                <a href="/#gear" class="hover:text-blue-600 transition">Catalogue</a>
+                <a href="/accessories" class="text-purple-600 font-bold"><i class="fas fa-puzzle-piece mr-1"></i>Accessories</a>
+                <a href="/#availability" class="hover:text-blue-600 transition">Check Dates</a>
+            </div>
+            <a href="/" class="md:hidden text-sm text-blue-600 font-semibold"><i class="fas fa-arrow-left mr-1"></i>Back</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 text-white py-12 md:py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="inline-flex items-center bg-white/20 rounded-full px-4 py-1.5 text-sm mb-4">
+                <i class="fas fa-puzzle-piece mr-2"></i>
+                <span>Accessories Rental</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-3">Rent Accessories for Your Adventure</h1>
+            <p class="text-purple-100 text-sm md:text-base max-w-2xl mx-auto mb-6">
+                Dive cases, selfie sticks, motorcycle mounts, extra batteries and more.
+                Rent standalone or add to your camera booking.
+            </p>
+            <div class="flex justify-center gap-3">
+                <a href="#accessories-catalogue" class="bg-white text-purple-700 hover:bg-purple-50 font-bold px-6 py-2.5 rounded-full text-sm transition shadow-lg">
+                    <i class="fas fa-shopping-bag mr-1"></i> Browse Accessories
+                </a>
+                <a href="/#availability" class="bg-purple-500/30 hover:bg-purple-500/50 text-white font-bold px-6 py-2.5 rounded-full text-sm transition border border-white/30">
+                    <i class="fas fa-camera mr-1"></i> Rent Camera + Accessories
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Accessories Catalogue -->
+    <section id="accessories-catalogue" class="py-10 md:py-14">
+        <div class="container mx-auto px-4 max-w-5xl">
+            <h2 class="text-2xl font-bold text-center mb-2">Accessories Catalogue</h2>
+            <p class="text-center text-gray-500 text-sm mb-8">Select your rental dates, choose accessories, and book online.</p>
+
+            <!-- Date Selection -->
+            <div class="bg-white rounded-xl p-5 shadow-md border border-gray-200 mb-8">
+                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 text-purple-600"></i>
+                    Select Rental Dates
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pickup Date</label>
+                        <input type="date" id="acc-start-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" onchange="onAccDateChange()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Return Date</label>
+                        <input type="date" id="acc-end-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" onchange="onAccDateChange()">
+                    </div>
+                </div>
+                <div id="acc-date-info" class="hidden mt-3 text-sm text-purple-700 bg-purple-50 rounded-lg p-2 text-center">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <span id="acc-date-info-text"></span>
+                </div>
+            </div>
+
+            <!-- Accessories Grid -->
+            <div id="acc-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {% for acc in accessories %}
+                <div class="acc-card bg-white rounded-xl border-2 border-gray-200 p-4 cursor-pointer relative" 
+                     data-acc-id="{{ acc.id }}" onclick="toggleAccSelection('{{ acc.id }}')">
+                    <!-- Badge -->
+                    <div class="absolute top-3 right-3">
+                        {% if acc.badge == 'Best for snorkeling' %}
+                        <span class="tier-badge bg-blue-100 text-blue-700 font-semibold">{{ acc.badge }}</span>
+                        {% elif acc.badge == 'Most popular' %}
+                        <span class="tier-badge bg-green-100 text-green-700 font-semibold">{{ acc.badge }}</span>
+                        {% elif acc.badge == 'Best for motorbike rides' %}
+                        <span class="tier-badge bg-orange-100 text-orange-700 font-semibold">{{ acc.badge }}</span>
+                        {% elif acc.badge == 'Best for creative angles' %}
+                        <span class="tier-badge bg-purple-100 text-purple-700 font-semibold">{{ acc.badge }}</span>
+                        {% elif acc.badge == 'POV videos' %}
+                        <span class="tier-badge bg-red-100 text-red-700 font-semibold">{{ acc.badge }}</span>
+                        {% else %}
+                        <span class="tier-badge bg-gray-100 text-gray-700 font-semibold">{{ acc.badge }}</span>
+                        {% endif %}
+                    </div>
+                    <!-- Image -->
+                    <div class="flex items-center gap-3 mb-3">
+                        <img src="/static/{{ acc.image }}" alt="{{ acc.name }}" class="w-16 h-16 object-contain rounded-lg bg-gray-50 p-1">
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm">{{ acc.name }}</h4>
+                            <p class="text-gray-500 text-[11px] leading-tight">{{ acc.desc }}</p>
+                        </div>
+                    </div>
+                    <!-- Pricing -->
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <span class="text-purple-700 font-bold text-lg" id="acc-ppd-{{ acc.id }}">RM{{ acc.prices[0] }}</span>
+                            <span class="text-gray-400 text-xs">/day</span>
+                        </div>
+                        <span class="text-gray-500 text-xs" id="acc-total-{{ acc.id }}"></span>
+                    </div>
+                    <!-- Tier prices -->
+                    <div class="grid grid-cols-4 gap-1 text-[10px] text-gray-500 mb-2">
+                        <span class="text-center"><span class="block font-semibold text-gray-700">1 day</span>RM{{ acc.prices[0] }}</span>
+                        <span class="text-center"><span class="block font-semibold text-gray-700">2 days</span>RM{{ acc.prices[1] }}</span>
+                        <span class="text-center"><span class="block font-semibold text-gray-700">3-4</span>RM{{ acc.prices[2] }}</span>
+                        <span class="text-center"><span class="block font-semibold text-gray-700">5+</span>RM{{ acc.prices[3] }}</span>
+                    </div>
+                    <!-- Compatible cameras -->
+                    <div class="text-[10px] text-gray-400">
+                        <i class="fas fa-link mr-1"></i>
+                        {% for cid in acc.camera_ids %}
+                            <span class="inline-block bg-gray-100 rounded px-1.5 py-0.5 mr-0.5">{{ cid }}</span>
+                        {% endfor %}
+                    </div>
+                    <!-- Selection indicator -->
+                    <div class="absolute bottom-3 right-3 acc-check hidden">
+                        <div class="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <!-- Availability indicator -->
+                    <div class="acc-avail-badge hidden absolute top-3 left-3 text-[10px] font-semibold"></div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Booking Summary & Form -->
+            <div id="acc-booking-panel" class="hidden bg-white rounded-xl border-2 border-purple-300 shadow-lg p-5 mb-8">
+                <h3 class="font-bold text-purple-800 text-lg mb-3 flex items-center">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Your Selection
+                </h3>
+                <div id="acc-selection-list" class="space-y-2 mb-4"></div>
+                <div class="flex justify-between items-center bg-purple-50 rounded-lg p-3 mb-4">
+                    <span class="font-bold text-purple-800">Total</span>
+                    <span class="font-bold text-purple-700 text-xl" id="acc-grand-total">RM0</span>
+                </div>
+
+                <!-- Customer Form -->
+                <div class="border-t border-gray-200 pt-4">
+                    <h4 class="font-semibold text-gray-800 mb-3"><i class="fas fa-user mr-1"></i> Your Details</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="acc-name" placeholder="Your full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
+                            <input type="tel" id="acc-phone" placeholder="+60123456789" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email <span class="text-red-500">*</span></label>
+                            <input type="email" id="acc-email" placeholder="email@example.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">IC / Passport <span class="text-gray-400 font-normal">(optional)</span></label>
+                            <input type="text" id="acc-ic" placeholder="IC or Passport number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-xs text-green-800">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Pay only <strong>RM30</strong> online to confirm your booking. Remaining rental + RM200 refundable deposit paid at pickup.
+                    </div>
+
+                    <button onclick="submitAccBooking()" id="acc-submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-sm transition">
+                        <i class="fas fa-paper-plane mr-1"></i>
+                        Book Accessories — Only RM30
+                    </button>
+                    <div id="acc-error" class="hidden mt-3 text-red-600 text-sm text-center"></div>
+                </div>
+            </div>
+
+            <!-- Info Banner -->
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200 text-center">
+                <h3 class="font-bold text-purple-800 text-lg mb-2">
+                    <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
+                    Tip: Save More with Camera + Accessories Bundle
+                </h3>
+                <p class="text-gray-600 text-sm mb-4">
+                    Add accessories directly when booking a camera and enjoy the same rental period automatically.
+                    No need to book separately!
+                </p>
+                <a href="/#availability" class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-full text-sm transition">
+                    <i class="fas fa-camera mr-1"></i> Book Camera + Accessories
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2025 Gearz On The Go. All rights reserved.</p>
+            <p class="mt-1">Camera & Accessories Rental in Langkawi, Malaysia.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ── Accessories Page State ──────────────────────────────────────────────
+        const allAccessories = {{ accessories | tojson }};
+        const accMap = {};
+        allAccessories.forEach(a => accMap[a.id] = a);
+
+        let accSelectedIds = new Set();
+        let accDays = 0;
+        let accStartDate = '';
+        let accEndDate = '';
+
+        // Set min date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('acc-start-date').min = today;
+        document.getElementById('acc-end-date').min = today;
+
+        function onAccDateChange() {
+            accStartDate = document.getElementById('acc-start-date').value;
+            accEndDate = document.getElementById('acc-end-date').value;
+            const infoDiv = document.getElementById('acc-date-info');
+            const infoText = document.getElementById('acc-date-info-text');
+
+            if (!accStartDate || !accEndDate) {
+                infoDiv.classList.add('hidden');
+                accDays = 0;
+                updateAccPrices();
+                return;
+            }
+
+            const start = new Date(accStartDate);
+            const end = new Date(accEndDate);
+            if (end < start) {
+                infoText.textContent = 'Return date must be after pickup date.';
+                infoDiv.classList.remove('hidden');
+                infoDiv.className = 'mt-3 text-sm text-red-700 bg-red-50 rounded-lg p-2 text-center';
+                accDays = 0;
+                updateAccPrices();
+                return;
+            }
+
+            accDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+            infoText.textContent = `${accDays} day${accDays > 1 ? 's' : ''} rental (${accStartDate} \u2192 ${accEndDate})`;
+            infoDiv.classList.remove('hidden');
+            infoDiv.className = 'mt-3 text-sm text-purple-700 bg-purple-50 rounded-lg p-2 text-center';
+
+            updateAccPrices();
+            loadAccAvailability();
+        }
+
+        function getAccTierPrice(prices, days) {
+            if (days >= 5) return prices[3];
+            if (days >= 3) return prices[2];
+            if (days === 2) return prices[1];
+            return prices[0];
+        }
+
+        function updateAccPrices() {
+            allAccessories.forEach(acc => {
+                const ppdEl = document.getElementById(`acc-ppd-${acc.id}`);
+                const totalEl = document.getElementById(`acc-total-${acc.id}`);
+                if (accDays > 0) {
+                    const ppd = getAccTierPrice(acc.prices, accDays);
+                    ppdEl.textContent = `RM${ppd}`;
+                    totalEl.textContent = `RM${ppd * accDays} total`;
+                } else {
+                    ppdEl.textContent = `RM${acc.prices[0]}`;
+                    totalEl.textContent = '';
+                }
+            });
+            updateAccBookingPanel();
+        }
+
+        async function loadAccAvailability() {
+            if (!accStartDate || !accEndDate || accDays <= 0) return;
+            try {
+                const res = await fetch(`/api/accessories/all?days=${accDays}&start_date=${accStartDate}&end_date=${accEndDate}`);
+                const data = await res.json();
+                data.accessories.forEach(a => {
+                    const card = document.querySelector(`[data-acc-id="${a.id}"]`);
+                    if (!card) return;
+                    const badge = card.querySelector('.acc-avail-badge');
+                    if (a.available_units <= 0) {
+                        card.classList.add('sold-out');
+                        badge.textContent = 'Sold Out';
+                        badge.className = 'acc-avail-badge text-[10px] font-semibold absolute top-3 left-3 bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full';
+                        // Deselect if was selected
+                        accSelectedIds.delete(a.id);
+                    } else if (a.available_units === 1) {
+                        card.classList.remove('sold-out');
+                        badge.textContent = 'Only 1 left';
+                        badge.className = 'acc-avail-badge text-[10px] font-semibold absolute top-3 left-3 bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full';
+                    } else {
+                        card.classList.remove('sold-out');
+                        badge.classList.add('hidden');
+                    }
+                });
+                updateAccBookingPanel();
+            } catch(e) {
+                console.error('Failed to load availability:', e);
+            }
+        }
+
+        function toggleAccSelection(accId) {
+            if (accDays <= 0) {
+                // Prompt to select dates first
+                document.getElementById('acc-start-date').focus();
+                const infoDiv = document.getElementById('acc-date-info');
+                const infoText = document.getElementById('acc-date-info-text');
+                infoText.textContent = 'Please select rental dates first.';
+                infoDiv.classList.remove('hidden');
+                infoDiv.className = 'mt-3 text-sm text-amber-700 bg-amber-50 rounded-lg p-2 text-center';
+                return;
+            }
+
+            const card = document.querySelector(`[data-acc-id="${accId}"]`);
+            if (card && card.classList.contains('sold-out')) return;
+
+            if (accSelectedIds.has(accId)) {
+                accSelectedIds.delete(accId);
+                card.classList.remove('selected');
+                card.querySelector('.acc-check').classList.add('hidden');
+            } else {
+                accSelectedIds.add(accId);
+                card.classList.add('selected');
+                card.querySelector('.acc-check').classList.remove('hidden');
+            }
+            updateAccBookingPanel();
+        }
+
+        function updateAccBookingPanel() {
+            const panel = document.getElementById('acc-booking-panel');
+            const list = document.getElementById('acc-selection-list');
+            const totalEl = document.getElementById('acc-grand-total');
+
+            if (accSelectedIds.size === 0 || accDays <= 0) {
+                panel.classList.add('hidden');
+                return;
+            }
+
+            panel.classList.remove('hidden');
+            let html = '';
+            let total = 0;
+
+            accSelectedIds.forEach(id => {
+                const acc = accMap[id];
+                if (!acc) return;
+                const ppd = getAccTierPrice(acc.prices, accDays);
+                const subtotal = ppd * accDays;
+                total += subtotal;
+                html += `<div class="flex items-center justify-between bg-purple-50 rounded-lg p-2.5">
+                    <div class="flex items-center gap-2">
+                        <img src="/static/${acc.image}" class="w-10 h-10 object-contain rounded bg-white p-0.5">
+                        <div>
+                            <span class="font-semibold text-sm text-gray-800">${acc.name}</span>
+                            <span class="text-xs text-gray-500 block">RM${ppd}/day \u00d7 ${accDays} days</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-purple-700">RM${subtotal}</span>
+                        <button onclick="event.stopPropagation(); toggleAccSelection('${id}')" class="text-red-400 hover:text-red-600 text-xs">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>`;
+            });
+
+            list.innerHTML = html;
+            totalEl.textContent = `RM${total}`;
+
+            // Scroll to panel
+            setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
+        }
+
+        async function submitAccBooking() {
+            const name = document.getElementById('acc-name').value.trim();
+            const phone = document.getElementById('acc-phone').value.trim();
+            const email = document.getElementById('acc-email').value.trim();
+            const ic = document.getElementById('acc-ic').value.trim();
+            const errDiv = document.getElementById('acc-error');
+            const btn = document.getElementById('acc-submit-btn');
+
+            if (!name || !phone || !email) {
+                errDiv.textContent = 'Please fill in your name, phone number and email.';
+                errDiv.classList.remove('hidden');
+                return;
+            }
+            if (!accStartDate || !accEndDate || accDays <= 0) {
+                errDiv.textContent = 'Please select rental dates.';
+                errDiv.classList.remove('hidden');
+                return;
+            }
+            if (accSelectedIds.size === 0) {
+                errDiv.textContent = 'Please select at least one accessory.';
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            errDiv.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Processing...';
+
+            const accessories = Array.from(accSelectedIds).map(id => ({ id }));
+
+            try {
+                const res = await fetch('/api/accessory-bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        start_date: accStartDate,
+                        end_date: accEndDate,
+                        customer_name: name,
+                        customer_phone: phone,
+                        customer_email: email,
+                        customer_ic: ic,
+                        accessories: accessories
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = `/booking/${data.booking_ref}`;
+                } else {
+                    errDiv.textContent = data.error || 'An error occurred. Please try again.';
+                    errDiv.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Book Accessories — Only RM30';
+                }
+            } catch(e) {
+                errDiv.textContent = 'Network error. Please try again.';
+                errDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Book Accessories — Only RM30';
+            }
+        }
+    </script>
+</body>
+</html>

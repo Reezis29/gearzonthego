@@ -189,6 +189,23 @@
                 </div>
             </div>
 
+            {% if booking.accessories %}
+            <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+                <div style="font-size:0.75rem;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🧩 Add-Ons</div>
+                {% for acc in booking.accessories %}
+                <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.85rem;border-bottom:1px solid #ede9fe;">
+                    <span style="color:#475569;">{{ acc.name }} <span style="color:#a78bfa;font-size:0.75rem;">(RM{{ acc.price_per_day }}/day × {{ acc.days }})</span></span>
+                    <span style="font-weight:600;color:#6d28d9;">RM{{ acc.total }}</span>
+                </div>
+                {% endfor %}
+                {% set acc_total = booking.accessories | sum(attribute='total') %}
+                <div style="display:flex;justify-content:space-between;padding:6px 0 0;font-size:0.85rem;font-weight:700;color:#6d28d9;">
+                    <span>Add-Ons Total</span>
+                    <span>RM{{ acc_total }}</span>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Pickup Date</div>
