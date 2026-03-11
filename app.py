@@ -1914,10 +1914,9 @@ def api_create_walkin_booking():
         return jsonify({'error': 'No units available for selected dates'}), 409
 
     assigned_unit_id = avail_units[0]['id']
-    ppd = calculate_price(camera_id, days)
+    ppd, total = calculate_price(camera_id, days)
     if ppd is None:
         return jsonify({'error': f'No pricing available for {days} days'}), 400
-    total = ppd * days
 
     # Process accessories
     accessories_list = data.get('accessories', [])
