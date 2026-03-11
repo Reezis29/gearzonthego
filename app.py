@@ -222,9 +222,6 @@ def init_db():
         'return_processed_at TEXT',
         'checklist_json TEXT',
         'return_reminder_24h_sent INTEGER DEFAULT 0',
-        'pickup_id_photo TEXT',
-        'pickup_equipment_photo TEXT',
-        'pickup_signature TEXT',
     ]:
         try:
             c.execute(f"ALTER TABLE bookings ADD COLUMN {col_def}")
@@ -2195,23 +2192,13 @@ def _generate_checklist(camera_id, accessories):
 @app.route('/api/booking/<int:booking_id>/confirm-pickup', methods=['POST'])
 @login_required
 def api_confirm_pickup(booking_id):
-    """Staff confirms equipment pickup via Smart Pickup wizard. Updates rental_status to Picked Up.
-    Body JSON: {
-        checklist: [{item, checked}, ...],
-        notes (optional),
-        id_photo (optional, base64 data URL),
-        equipment_photo (optional, base64 data URL),
-        signature (optional, base64 data URL)
-    }
+    """Staff confirms equipment pickup. Updates rental_status to Picked Up.
+    Body JSON: { checklist: [{item, checked}, ...], notes (optional) }
     """
     import json as _json
-    import base64, uuid
     data = request.get_json() or {}
-    checklist   = data.get('checklist', [])
-    notes       = data.get('notes', '').strip()
-    id_photo    = data.get('id_photo', '')      # base64 data URL
-    equip_photo = data.get('equipment_photo', '')  # base64 data URL
-    signature   = data.get('signature', '')    # base64 data URL
+    checklist = data.get('checklist', [])
+    notes = data.get('notes', '').strip()
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db()
@@ -2223,38 +2210,6 @@ def api_confirm_pickup(booking_id):
     checklist_json = _json.dumps(checklist) if checklist else None
     update_notes = notes if notes else dict(b).get('notes', '')
 
-    # Save base64 images as files if provided
-    def save_b64_image(data_url, prefix):
-        """Save a base64 data URL to uploads folder, return filename."""
-        if not data_url or not data_url.startswith('data:'):
-            return None
-        try:
-            header, b64data = data_url.split(',', 1)
-            ext = 'jpg'
-            if 'png' in header:
-                ext = 'png'
-            elif 'webp' in header:
-                ext = 'webp'
-            filename = f"{prefix}_{uuid.uuid4().hex[:8]}.{ext}"
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            with open(filepath, 'wb') as f:
-                f.write(base64.b64decode(b64data))
-            return filename
-        except Exception:
-            return None
-
-    id_photo_file    = save_b64_image(id_photo, 'id')
-    equip_photo_file = save_b64_image(equip_photo, 'equip')
-    sig_file         = save_b64_image(signature, 'sig')
-
-    # Also update customer id_photo if we have one and customer exists
-    bd = dict(b)
-    if id_photo_file and bd.get('customer_id'):
-        conn.execute(
-            "UPDATE customers SET id_photo=? WHERE id=? AND (id_photo IS NULL OR id_photo='')",
-            (id_photo_file, bd['customer_id'])
-        )
-
     conn.execute(
         """UPDATE bookings SET
            rental_status = 'Picked Up',
@@ -2262,13 +2217,9 @@ def api_confirm_pickup(booking_id):
            actual_pickup_datetime = ?,
            pickup_confirmed_at = ?,
            checklist_json = ?,
-           notes = ?,
-           pickup_id_photo = COALESCE(NULLIF(?, ''), pickup_id_photo),
-           pickup_equipment_photo = COALESCE(NULLIF(?, ''), pickup_equipment_photo),
-           pickup_signature = COALESCE(NULLIF(?, ''), pickup_signature)
+           notes = ?
            WHERE id = ?""",
-        (now_str, now_str, checklist_json, update_notes,
-         id_photo_file, equip_photo_file, sig_file, booking_id)
+        (now_str, now_str, checklist_json, update_notes, booking_id)
     )
     conn.commit()
     conn.close()
