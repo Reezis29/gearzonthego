@@ -200,39 +200,243 @@
         </div>
     </div>
 
-    <!-- Pickup Confirmation (show if Pending Pickup or confirmed) -->
+    <!-- Smart Pickup Button (show if Pending Pickup and confirmed/active) -->
     {% if rs in ['Pending Pickup'] and booking.status in ['confirmed', 'active'] %}
-    <div class="section-card border-2 border-blue-200 bg-blue-50">
-        <h3 class="font-bold text-blue-800 text-sm mb-3 flex items-center gap-2">
-            <i class="fas fa-hand-holding text-blue-600"></i> Confirm Pickup
-        </h3>
-        <p class="text-sm text-blue-700 mb-4">Tick all checklist items above, then confirm pickup when customer collects the equipment.</p>
-        <div class="mb-3">
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Pickup Notes (optional)</label>
-            <textarea id="pickup-notes" rows="2" placeholder="Any notes about condition, accessories given, etc."
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+    <div class="section-card border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-rocket text-white text-lg"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-indigo-900 text-base">Smart Pickup</h3>
+                <p class="text-xs text-indigo-600">Complete rental handover in under 30 seconds</p>
+            </div>
         </div>
-        <!-- Payment at Counter -->
+        <div class="flex gap-2 text-xs text-indigo-700 mb-4 flex-wrap">
+            <span class="bg-indigo-100 px-2 py-1 rounded-full"><i class="fas fa-id-card mr-1"></i>Capture ID</span>
+            <span class="text-indigo-400">→</span>
+            <span class="bg-indigo-100 px-2 py-1 rounded-full"><i class="fas fa-signature mr-1"></i>Sign Agreement</span>
+            <span class="text-indigo-400">→</span>
+            <span class="bg-indigo-100 px-2 py-1 rounded-full"><i class="fas fa-clipboard-check mr-1"></i>Checklist</span>
+            <span class="text-indigo-400">→</span>
+            <span class="bg-indigo-100 px-2 py-1 rounded-full"><i class="fas fa-box-open mr-1"></i>Confirm</span>
+        </div>
         {% if booking.payment_status == 'Pay at Counter' %}
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 text-sm">
-            <div class="font-semibold text-yellow-800 mb-1"><i class="fas fa-cash-register mr-1"></i>Payment to Collect at Counter</div>
-            <div class="text-yellow-700">
-                Rental: <strong>RM{{ booking.total_price }}</strong> &bull;
-                Deposit: <strong>RM{{ booking.deposit_amount or 200 }}</strong> (refundable)
-            </div>
-            <div class="mt-2 flex gap-2 flex-wrap">
-                <button onclick="markPaidAtCounter()" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                    <i class="fas fa-check mr-1"></i>Mark Rental Paid
-                </button>
-            </div>
+            <div class="font-semibold text-yellow-800 mb-1"><i class="fas fa-cash-register mr-1"></i>Collect Payment at Counter</div>
+            <div class="text-yellow-700">Rental: <strong>RM{{ booking.total_price }}</strong> &bull; Deposit: <strong>RM{{ booking.deposit_amount or 200 }}</strong> (refundable)</div>
+            <button onclick="markPaidAtCounter()" class="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                <i class="fas fa-check mr-1"></i>Mark Rental Paid
+            </button>
         </div>
         {% endif %}
-        <button onclick="confirmPickup()" id="pickup-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
-            <i class="fas fa-camera"></i> Confirm Pickup — Equipment Handed Over
+        <button onclick="openSmartPickup()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-base shadow-md">
+            <i class="fas fa-rocket"></i> Start Smart Pickup
         </button>
-        <p id="pickup-msg" class="hidden text-center text-sm mt-2"></p>
     </div>
     {% endif %}
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SMART PICKUP WIZARD MODAL
+         ════════════════════════════════════════════════════════════════════ -->
+    <div id="smart-pickup-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-3 overflow-y-auto">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto my-4 overflow-hidden">
+
+        <!-- Modal Header -->
+        <div class="bg-indigo-600 px-5 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-rocket text-white text-xl"></i>
+            <div>
+              <div class="text-white font-bold text-base">Smart Pickup</div>
+              <div class="text-indigo-200 text-xs">{{ booking.booking_ref }} &bull; {{ booking.camera_name }}</div>
+            </div>
+          </div>
+          <button onclick="closeSmartPickup()" class="text-indigo-200 hover:text-white text-xl"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Step Progress Bar -->
+        <div class="bg-indigo-50 px-5 py-3">
+          <div class="flex items-center gap-1">
+            {% for step_num, step_label in [(1,'ID'), (2,'Sign'), (3,'Checklist'), (4,'Confirm')] %}
+            <div class="flex-1 flex flex-col items-center">
+              <div id="sp-dot-{{ step_num }}" class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all
+                   {% if step_num == 1 %}bg-indigo-600 text-white{% else %}bg-gray-200 text-gray-500{% endif %}">
+                {{ step_num }}
+              </div>
+              <div class="text-xs mt-1 text-gray-500">{{ step_label }}</div>
+            </div>
+            {% if not loop.last %}
+            <div id="sp-line-{{ step_num }}" class="flex-none w-6 h-0.5 mb-4 bg-gray-200 transition-all"></div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- ── STEP 1: Customer Verification (ID Capture) ── -->
+        <div id="sp-step-1" class="px-5 py-5">
+          <h2 class="font-bold text-gray-800 text-base mb-1"><i class="fas fa-id-card text-indigo-500 mr-2"></i>Step 1 — Customer Verification</h2>
+          <p class="text-xs text-gray-500 mb-4">Capture a photo of the customer's IC or Passport. Equipment photo is optional.</p>
+
+          <!-- ID Photo Capture -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-600 mb-2">IC / Passport Photo <span class="text-red-500">*</span></label>
+            <div id="sp-id-preview" class="hidden mb-2">
+              <img id="sp-id-img" src="" alt="ID Photo" class="w-full max-h-48 object-contain rounded-lg border border-gray-200">
+              <button onclick="clearIdPhoto()" class="mt-1 text-xs text-red-500 hover:underline"><i class="fas fa-trash mr-1"></i>Remove</button>
+            </div>
+            <div id="sp-id-capture" class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+              <i class="fas fa-id-card text-gray-300 text-3xl mb-2"></i>
+              <p class="text-xs text-gray-500 mb-3">Take photo or upload from gallery</p>
+              <div class="flex gap-2 justify-center flex-wrap">
+                <button onclick="captureIdPhoto('camera')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                  <i class="fas fa-camera mr-1"></i>Camera
+                </button>
+                <button onclick="captureIdPhoto('file')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg transition">
+                  <i class="fas fa-upload mr-1"></i>Upload
+                </button>
+              </div>
+              <input type="file" id="sp-id-file" accept="image/*" class="hidden" onchange="handleIdFile(event)">
+              <input type="file" id="sp-id-camera" accept="image/*" capture="environment" class="hidden" onchange="handleIdFile(event)">
+            </div>
+          </div>
+
+          <!-- Equipment Photo (Optional) -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-600 mb-2">Customer Holding Equipment <span class="text-gray-400">(optional)</span></label>
+            <div id="sp-equip-preview" class="hidden mb-2">
+              <img id="sp-equip-img" src="" alt="Equipment Photo" class="w-full max-h-40 object-contain rounded-lg border border-gray-200">
+              <button onclick="clearEquipPhoto()" class="mt-1 text-xs text-red-500 hover:underline"><i class="fas fa-trash mr-1"></i>Remove</button>
+            </div>
+            <div id="sp-equip-capture" class="border-2 border-dashed border-gray-200 rounded-xl p-3 text-center">
+              <div class="flex gap-2 justify-center">
+                <button onclick="captureEquipPhoto('camera')" class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold px-3 py-2 rounded-lg transition">
+                  <i class="fas fa-camera mr-1"></i>Camera
+                </button>
+                <button onclick="captureEquipPhoto('file')" class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold px-3 py-2 rounded-lg transition">
+                  <i class="fas fa-upload mr-1"></i>Upload
+                </button>
+              </div>
+              <input type="file" id="sp-equip-file" accept="image/*" class="hidden" onchange="handleEquipFile(event)">
+              <input type="file" id="sp-equip-camera" accept="image/*" capture="environment" class="hidden" onchange="handleEquipFile(event)">
+            </div>
+          </div>
+
+          <button onclick="spNext(1)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition">
+            Next <i class="fas fa-arrow-right ml-1"></i>
+          </button>
+          <p id="sp-err-1" class="hidden text-center text-xs text-red-500 mt-2"></p>
+        </div>
+
+        <!-- ── STEP 2: Digital Rental Agreement ── -->
+        <div id="sp-step-2" class="hidden px-5 py-5">
+          <h2 class="font-bold text-gray-800 text-base mb-1"><i class="fas fa-file-signature text-indigo-500 mr-2"></i>Step 2 — Digital Rental Agreement</h2>
+          <p class="text-xs text-gray-500 mb-3">Customer signs below to agree to the rental terms.</p>
+
+          <!-- Agreement Summary -->
+          <div class="bg-gray-50 rounded-xl p-3 mb-4 text-xs text-gray-600 border border-gray-200 max-h-32 overflow-y-auto">
+            <div class="font-semibold text-gray-700 mb-1">Rental Agreement Summary</div>
+            <p>I, the customer, agree to rent <strong>{{ booking.camera_name }}</strong> from Gearz On The Go for the period <strong>{{ booking.start_date }}</strong> to <strong>{{ booking.end_date }}</strong> at a total rental fee of <strong>RM{{ booking.total_price }}</strong>.</p>
+            <p class="mt-1">I agree to: (1) return the equipment in the same condition; (2) pay for any damage or loss; (3) return by the agreed date; (4) pay a refundable security deposit of RM{{ booking.deposit_amount or 200 }}.</p>
+            <p class="mt-1">Booking Reference: <strong>{{ booking.booking_ref }}</strong></p>
+          </div>
+
+          <!-- Signature Pad -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-600 mb-2">Customer Signature <span class="text-red-500">*</span></label>
+            <div class="relative border-2 border-gray-300 rounded-xl overflow-hidden bg-white" style="touch-action:none">
+              <canvas id="sp-sig-canvas" width="460" height="160"
+                class="w-full block cursor-crosshair" style="touch-action:none"></canvas>
+              <div id="sp-sig-placeholder" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span class="text-gray-300 text-sm">Sign here with finger or stylus</span>
+              </div>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button onclick="clearSignature()" class="text-xs text-gray-500 hover:text-red-500 transition"><i class="fas fa-eraser mr-1"></i>Clear</button>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="spBack(2)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+              <i class="fas fa-arrow-left mr-1"></i> Back
+            </button>
+            <button onclick="spNext(2)" class="flex-2 flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition">
+              Next <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+          <p id="sp-err-2" class="hidden text-center text-xs text-red-500 mt-2"></p>
+        </div>
+
+        <!-- ── STEP 3: Equipment Checklist ── -->
+        <div id="sp-step-3" class="hidden px-5 py-5">
+          <h2 class="font-bold text-gray-800 text-base mb-1"><i class="fas fa-clipboard-check text-indigo-500 mr-2"></i>Step 3 — Equipment Checklist</h2>
+          <p class="text-xs text-gray-500 mb-3">Verify all items before handing over to customer.</p>
+
+          <div id="sp-checklist" class="space-y-1 mb-4 max-h-64 overflow-y-auto pr-1">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="flex gap-2 mb-4">
+            <input type="text" id="sp-new-item" placeholder="Add custom item..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <button onclick="spAddItem()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs transition"><i class="fas fa-plus"></i></button>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="spBack(3)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+              <i class="fas fa-arrow-left mr-1"></i> Back
+            </button>
+            <button onclick="spNext(3)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition">
+              Confirm Equipment <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+          <p id="sp-err-3" class="hidden text-center text-xs text-red-500 mt-2"></p>
+        </div>
+
+        <!-- ── STEP 4: Confirm Pickup ── -->
+        <div id="sp-step-4" class="hidden px-5 py-5">
+          <h2 class="font-bold text-gray-800 text-base mb-3"><i class="fas fa-box-open text-indigo-500 mr-2"></i>Step 4 — Confirm Pickup</h2>
+
+          <!-- Summary -->
+          <div class="bg-indigo-50 rounded-xl p-4 mb-4 border border-indigo-100">
+            <div class="font-bold text-indigo-800 text-sm mb-2">Rental Summary</div>
+            <div class="text-sm text-gray-700 space-y-1">
+              <div class="flex justify-between"><span>Camera</span><span class="font-semibold">{{ booking.camera_name }}</span></div>
+              <div class="flex justify-between"><span>Period</span><span class="font-semibold">{{ booking.start_date }} → {{ booking.end_date }}</span></div>
+              <div class="flex justify-between"><span>Total</span><span class="font-bold text-indigo-700">RM{{ booking.total_price }}</span></div>
+            </div>
+          </div>
+
+          <!-- Verification summary -->
+          <div class="space-y-2 mb-4">
+            <div id="sp-summary-id" class="flex items-center gap-2 text-sm">
+              <i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700">ID captured</span>
+            </div>
+            <div id="sp-summary-sig" class="flex items-center gap-2 text-sm">
+              <i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700">Agreement signed</span>
+            </div>
+            <div id="sp-summary-checklist" class="flex items-center gap-2 text-sm">
+              <i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700">Equipment verified</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Pickup Notes (optional)</label>
+            <textarea id="sp-pickup-notes" rows="2" placeholder="Any notes about condition, accessories given, etc."
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="spBack(4)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+              <i class="fas fa-arrow-left mr-1"></i> Back
+            </button>
+            <button onclick="spConfirmPickup()" id="sp-confirm-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+              <i class="fas fa-box-open"></i> Confirm Pickup
+            </button>
+          </div>
+          <p id="sp-err-4" class="hidden text-center text-xs text-red-500 mt-2"></p>
+        </div>
+
+      </div>
+    </div>
 
     <!-- Return Processing (show if Picked Up or Overdue) -->
     {% if rs in ['Picked Up', 'Overdue'] %}
@@ -417,6 +621,344 @@
             }
         } catch(e) {
             alert('Error updating payment status.');
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  SMART PICKUP WIZARD
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // State
+    let spIdPhotoData    = null;  // base64 data URL
+    let spEquipPhotoData = null;  // base64 data URL
+    let spSigData        = null;  // base64 data URL
+    let spCurrentStep    = 1;
+    let spSigCanvas, spSigCtx, spSigDrawing = false;
+
+    // Auto-generated checklist from booking data
+    const spDefaultItems = ['Charger / Cable', 'Memory Card 64GB', 'Bag'];
+    const spBookingItems = [
+        '{{ booking.camera_name }}',
+        {% if booking.accessories %}
+        {% for acc in booking.accessories %}'{{ acc.name }}',{% endfor %}
+        {% endif %}
+    ];
+
+    function openSmartPickup() {
+        spCurrentStep = 1;
+        spIdPhotoData = null;
+        spEquipPhotoData = null;
+        spSigData = null;
+        // Reset UI
+        clearIdPhoto();
+        clearEquipPhoto();
+        document.getElementById('sp-step-1').classList.remove('hidden');
+        document.getElementById('sp-step-2').classList.add('hidden');
+        document.getElementById('sp-step-3').classList.add('hidden');
+        document.getElementById('sp-step-4').classList.add('hidden');
+        ['sp-err-1','sp-err-2','sp-err-3','sp-err-4'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        updateSpProgress(1);
+        // Build checklist
+        buildSpChecklist();
+        document.getElementById('smart-pickup-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSmartPickup() {
+        document.getElementById('smart-pickup-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function updateSpProgress(step) {
+        for (let i = 1; i <= 4; i++) {
+            const dot = document.getElementById(`sp-dot-${i}`);
+            if (!dot) continue;
+            if (i < step) {
+                dot.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-green-500 text-white';
+                dot.innerHTML = '<i class="fas fa-check text-xs"></i>';
+            } else if (i === step) {
+                dot.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-indigo-600 text-white';
+                dot.innerHTML = i;
+            } else {
+                dot.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all bg-gray-200 text-gray-500';
+                dot.innerHTML = i;
+            }
+        }
+        for (let i = 1; i <= 3; i++) {
+            const line = document.getElementById(`sp-line-${i}`);
+            if (line) {
+                line.className = `flex-none w-6 h-0.5 mb-4 transition-all ${i < step ? 'bg-green-400' : 'bg-gray-200'}`;
+            }
+        }
+    }
+
+    function spShowStep(step) {
+        for (let i = 1; i <= 4; i++) {
+            const el = document.getElementById(`sp-step-${i}`);
+            if (el) el.classList.toggle('hidden', i !== step);
+        }
+        updateSpProgress(step);
+        spCurrentStep = step;
+        // Init signature canvas when step 2 is shown
+        if (step === 2) initSigCanvas();
+        // Scroll modal content to top
+        const modal = document.querySelector('#smart-pickup-modal > div');
+        if (modal) modal.scrollTop = 0;
+    }
+
+    function spNext(fromStep) {
+        const errEl = document.getElementById(`sp-err-${fromStep}`);
+        if (errEl) errEl.classList.add('hidden');
+
+        if (fromStep === 1) {
+            if (!spIdPhotoData) {
+                if (errEl) { errEl.textContent = 'Please capture or upload the customer IC/Passport photo.'; errEl.classList.remove('hidden'); }
+                return;
+            }
+            spShowStep(2);
+        } else if (fromStep === 2) {
+            if (!spSigData || isCanvasBlank()) {
+                if (errEl) { errEl.textContent = 'Please ask the customer to sign the agreement.'; errEl.classList.remove('hidden'); }
+                return;
+            }
+            spSigData = spSigCanvas.toDataURL('image/png');
+            spShowStep(3);
+        } else if (fromStep === 3) {
+            spShowStep(4);
+        }
+    }
+
+    function spBack(fromStep) {
+        spShowStep(fromStep - 1);
+    }
+
+    // ── ID Photo ──────────────────────────────────────────────────────────────
+    function captureIdPhoto(mode) {
+        document.getElementById(mode === 'camera' ? 'sp-id-camera' : 'sp-id-file').click();
+    }
+    function handleIdFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            spIdPhotoData = ev.target.result;
+            document.getElementById('sp-id-img').src = spIdPhotoData;
+            document.getElementById('sp-id-preview').classList.remove('hidden');
+            document.getElementById('sp-id-capture').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    }
+    function clearIdPhoto() {
+        spIdPhotoData = null;
+        const img = document.getElementById('sp-id-img');
+        if (img) img.src = '';
+        const prev = document.getElementById('sp-id-preview');
+        if (prev) prev.classList.add('hidden');
+        const cap = document.getElementById('sp-id-capture');
+        if (cap) cap.classList.remove('hidden');
+    }
+
+    // ── Equipment Photo ───────────────────────────────────────────────────────
+    function captureEquipPhoto(mode) {
+        document.getElementById(mode === 'camera' ? 'sp-equip-camera' : 'sp-equip-file').click();
+    }
+    function handleEquipFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            spEquipPhotoData = ev.target.result;
+            document.getElementById('sp-equip-img').src = spEquipPhotoData;
+            document.getElementById('sp-equip-preview').classList.remove('hidden');
+            document.getElementById('sp-equip-capture').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    }
+    function clearEquipPhoto() {
+        spEquipPhotoData = null;
+        const img = document.getElementById('sp-equip-img');
+        if (img) img.src = '';
+        const prev = document.getElementById('sp-equip-preview');
+        if (prev) prev.classList.add('hidden');
+        const cap = document.getElementById('sp-equip-capture');
+        if (cap) cap.classList.remove('hidden');
+    }
+
+    // ── Signature Pad ─────────────────────────────────────────────────────────
+    function initSigCanvas() {
+        spSigCanvas = document.getElementById('sp-sig-canvas');
+        if (!spSigCanvas) return;
+        spSigCtx = spSigCanvas.getContext('2d');
+        spSigCtx.strokeStyle = '#1e293b';
+        spSigCtx.lineWidth = 2.5;
+        spSigCtx.lineCap = 'round';
+        spSigCtx.lineJoin = 'round';
+        spSigDrawing = false;
+
+        // Resize canvas to match display size
+        const rect = spSigCanvas.getBoundingClientRect();
+        spSigCanvas.width = rect.width || 460;
+        spSigCanvas.height = 160;
+
+        function getPos(e) {
+            const r = spSigCanvas.getBoundingClientRect();
+            const scaleX = spSigCanvas.width / r.width;
+            const scaleY = spSigCanvas.height / r.height;
+            if (e.touches) {
+                return { x: (e.touches[0].clientX - r.left) * scaleX, y: (e.touches[0].clientY - r.top) * scaleY };
+            }
+            return { x: (e.clientX - r.left) * scaleX, y: (e.clientY - r.top) * scaleY };
+        }
+
+        spSigCanvas.onmousedown = spSigCanvas.ontouchstart = function(e) {
+            e.preventDefault();
+            spSigDrawing = true;
+            const p = getPos(e);
+            spSigCtx.beginPath();
+            spSigCtx.moveTo(p.x, p.y);
+            hideSigPlaceholder();
+        };
+        spSigCanvas.onmousemove = spSigCanvas.ontouchmove = function(e) {
+            e.preventDefault();
+            if (!spSigDrawing) return;
+            const p = getPos(e);
+            spSigCtx.lineTo(p.x, p.y);
+            spSigCtx.stroke();
+            spSigData = 'drawn';
+        };
+        spSigCanvas.onmouseup = spSigCanvas.ontouchend = function(e) {
+            e.preventDefault();
+            spSigDrawing = false;
+        };
+    }
+
+    function hideSigPlaceholder() {
+        const ph = document.getElementById('sp-sig-placeholder');
+        if (ph) ph.style.display = 'none';
+    }
+
+    function clearSignature() {
+        if (!spSigCtx) return;
+        spSigCtx.clearRect(0, 0, spSigCanvas.width, spSigCanvas.height);
+        spSigData = null;
+        const ph = document.getElementById('sp-sig-placeholder');
+        if (ph) ph.style.display = '';
+    }
+
+    function isCanvasBlank() {
+        if (!spSigCanvas) return true;
+        const data = spSigCtx.getImageData(0, 0, spSigCanvas.width, spSigCanvas.height).data;
+        for (let i = 3; i < data.length; i += 4) { if (data[i] > 0) return false; }
+        return true;
+    }
+
+    // ── Checklist Builder ─────────────────────────────────────────────────────
+    function buildSpChecklist() {
+        const container = document.getElementById('sp-checklist');
+        if (!container) return;
+        container.innerHTML = '';
+        // Combine booking items + default items (deduplicate)
+        const allItems = [...new Set([...spBookingItems.filter(Boolean), ...spDefaultItems])];
+        allItems.forEach(item => {
+            const label = document.createElement('label');
+            label.className = 'flex items-center gap-3 py-2 border-b border-gray-50 cursor-pointer hover:bg-gray-50 rounded px-2 transition';
+            label.innerHTML = `<input type="checkbox" class="sp-cb w-4 h-4 rounded accent-indigo-600" data-item="${item}">
+                <span class="text-sm text-gray-700">${item}</span>`;
+            container.appendChild(label);
+        });
+        // Strike-through on check
+        container.addEventListener('change', function(e) {
+            if (e.target.classList.contains('sp-cb')) {
+                const span = e.target.nextElementSibling;
+                if (span) {
+                    span.classList.toggle('line-through', e.target.checked);
+                    span.classList.toggle('text-gray-400', e.target.checked);
+                }
+            }
+        });
+    }
+
+    function spAddItem() {
+        const input = document.getElementById('sp-new-item');
+        const val = input.value.trim();
+        if (!val) return;
+        const container = document.getElementById('sp-checklist');
+        const label = document.createElement('label');
+        label.className = 'flex items-center gap-3 py-2 border-b border-gray-50 cursor-pointer hover:bg-gray-50 rounded px-2 transition';
+        label.innerHTML = `<input type="checkbox" class="sp-cb w-4 h-4 rounded accent-indigo-600" data-item="${val}">
+            <span class="text-sm text-gray-700">${val}</span>`;
+        container.appendChild(label);
+        input.value = '';
+    }
+
+    function getSpChecklist() {
+        const items = [];
+        document.querySelectorAll('.sp-cb').forEach(cb => {
+            items.push({ item: cb.dataset.item, checked: cb.checked });
+        });
+        return items;
+    }
+
+    // ── Final Confirm Pickup ──────────────────────────────────────────────────
+    async function spConfirmPickup() {
+        const btn = document.getElementById('sp-confirm-btn');
+        const errEl = document.getElementById('sp-err-4');
+        if (errEl) errEl.classList.add('hidden');
+
+        const notes = document.getElementById('sp-pickup-notes')?.value || '';
+        const checklist = getSpChecklist();
+        const sigDataUrl = spSigCanvas ? spSigCanvas.toDataURL('image/png') : null;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+
+        try {
+            const res = await fetch(`/api/booking/${bookingId}/confirm-pickup`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    checklist,
+                    notes,
+                    id_photo: spIdPhotoData || '',
+                    equipment_photo: spEquipPhotoData || '',
+                    signature: sigDataUrl || ''
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Show success in modal
+                const modalContent = document.querySelector('#smart-pickup-modal > div');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <div class="bg-indigo-600 px-5 py-4">
+                            <div class="text-white font-bold text-base"><i class="fas fa-rocket mr-2"></i>Smart Pickup</div>
+                        </div>
+                        <div class="px-5 py-10 text-center">
+                            <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check-circle text-green-500 text-4xl"></i>
+                            </div>
+                            <h2 class="font-bold text-gray-800 text-xl mb-2">Pickup Confirmed!</h2>
+                            <p class="text-gray-500 text-sm mb-6">Equipment has been handed over. Rental is now active.</p>
+                            <button onclick="location.reload()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-xl transition">
+                                <i class="fas fa-sync mr-2"></i>Refresh Page
+                            </button>
+                        </div>`;
+                }
+                setTimeout(() => location.reload(), 2500);
+            } else {
+                if (errEl) { errEl.textContent = data.error || 'Error confirming pickup.'; errEl.classList.remove('hidden'); }
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-box-open mr-2"></i>Confirm Pickup';
+            }
+        } catch(e) {
+            if (errEl) { errEl.textContent = 'Connection error. Please try again.'; errEl.classList.remove('hidden'); }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-box-open mr-2"></i>Confirm Pickup';
         }
     }
 

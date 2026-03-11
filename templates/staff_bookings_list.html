@@ -108,7 +108,8 @@
         }.get(rental_status, 'badge-pending') %}
         {% set type_cls = 'badge-walkin' if booking_type == 'WALK-IN' else 'badge-online' %}
 
-        <a href="/staff/bookings/{{ b.id }}" class="block bg-white rounded-xl shadow hover:shadow-md transition border border-transparent hover:border-blue-200">
+        <div class="bg-white rounded-xl shadow hover:shadow-md transition border border-transparent hover:border-blue-200">
+            <a href="/staff/bookings/{{ b.id }}" class="block">
             <div class="p-4 flex items-start gap-4">
                 <!-- Camera Image -->
                 <div class="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-gray-100">
@@ -155,7 +156,25 @@
                     <div class="text-gray-400 mt-2"><i class="fas fa-chevron-right text-xs"></i></div>
                 </div>
             </div>
-        </a>
+            </a>
+
+            <!-- Action Buttons for Confirmed / Pending Pickup -->
+            {% if rental_status == 'Pending Pickup' and b.status in ['confirmed', 'active'] %}
+            <div class="px-4 pb-3 flex gap-2 flex-wrap border-t border-gray-50 pt-3">
+                <a href="/staff/bookings/{{ b.id }}" onclick="event.stopPropagation()"
+                   class="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">
+                    <i class="fas fa-rocket"></i> Smart Pickup
+                </a>
+                {% set phone_clean = (b.customer_phone or b.cust_phone2 or '').replace('+','').replace(' ','').replace('-','') %}
+                {% if phone_clean %}
+                <a href="https://wa.me/{{ phone_clean }}" target="_blank" onclick="event.stopPropagation()"
+                   class="inline-flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
     {% else %}
