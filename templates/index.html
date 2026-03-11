@@ -722,6 +722,11 @@
                         <i class="fas fa-paper-plane mr-1"></i>
                         <span>Book Now — Only RM30</span>
                     </button>
+                    <!-- Walk-in Booking Button (Staff Only) -->
+                    <button onclick="showWalkinPinModal()" class="w-full mt-2 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2.5 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                        <i class="fas fa-store"></i>
+                        <span>Walk-in Booking (Staff)</span>
+                    </button>
                     <div id="booking-error" class="hidden mt-3 text-red-600 text-sm text-center"></div>
                 </div>
             </div>
@@ -1652,6 +1657,137 @@
             summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${bookingData.cameraName}</span><span class="text-blue-700 font-bold">RM${bookingData.totalPrice}</span></div><div class="text-xs text-gray-500 mt-1">${bookingData.startDate} \u2192 ${bookingData.endDate} (${bookingData.days} days) \u2022 RM${bookingData.pricePerDay}/day</div>${addonsHtml}${grandTotalHtml}`;
         }
 
+        // ── Walk-in Booking PIN Modal ─────────────────────────────────────────────
+        let walkinPinVerified = false;
+
+        function showWalkinPinModal() {
+            // Check that availability has been confirmed first
+            if (!bookingData || !bookingData.cameraId) {
+                alert('Please check availability first before creating a walk-in booking.');
+                return;
+            }
+            document.getElementById('walkin-pin-modal').classList.remove('hidden');
+            document.getElementById('walkin-pin-input').value = '';
+            document.getElementById('walkin-pin-error').classList.add('hidden');
+            document.getElementById('walkin-pin-input').focus();
+        }
+
+        function closeWalkinPinModal() {
+            document.getElementById('walkin-pin-modal').classList.add('hidden');
+        }
+
+        async function verifyWalkinPin() {
+            const pin = document.getElementById('walkin-pin-input').value.trim();
+            if (!pin) return;
+            const errEl = document.getElementById('walkin-pin-error');
+            try {
+                const res = await fetch('/api/verify-walkin-pin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({pin})
+                });
+                const data = await res.json();
+                if (data.success) {
+                    walkinPinVerified = true;
+                    // Save PIN for walk-in booking submission
+                    document.getElementById('walkin-pin-hidden').value = pin;
+                    closeWalkinPinModal();
+                    showWalkinBookingForm();
+                } else {
+                    errEl.textContent = 'PIN salah. Cuba lagi.';
+                    errEl.classList.remove('hidden');
+                    document.getElementById('walkin-pin-input').value = '';
+                    document.getElementById('walkin-pin-input').focus();
+                }
+            } catch(e) {
+                errEl.textContent = 'Ralat sambungan. Cuba lagi.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function showWalkinBookingForm() {
+            // Pre-fill from availability data
+            const form = document.getElementById('walkin-form');
+            document.getElementById('walkin-camera-name').textContent = bookingData.cameraName || '';
+            document.getElementById('walkin-dates').textContent = `${bookingData.startDate} → ${bookingData.endDate} (${bookingData.days} days)`;
+            document.getElementById('walkin-price').textContent = `RM${bookingData.totalPrice}`;
+            form.classList.remove('hidden');
+            form.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+
+        async function submitWalkinBooking() {
+            const btn = document.getElementById('walkin-submit-btn');
+            const errEl = document.getElementById('walkin-error');
+            errEl.classList.add('hidden');
+
+            const name = document.getElementById('walkin-name').value.trim();
+            const phone = document.getElementById('walkin-phone').value.trim();
+            const email = document.getElementById('walkin-email').value.trim();
+            const ic = document.getElementById('walkin-ic').value.trim();
+            const notes = document.getElementById('walkin-notes').value.trim();
+
+            if (!name || !phone) {
+                errEl.textContent = 'Nama dan nombor telefon diperlukan.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            // Collect selected add-ons
+            const accessories = [];
+            document.querySelectorAll('.addon-card.selected').forEach(card => {
+                accessories.push({id: card.dataset.addonId});
+            });
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Mencipta tempahan...';
+
+            // Get PIN from session
+            const pinInput = document.getElementById('walkin-pin-hidden').value;
+
+            try {
+                const res = await fetch('/api/walkin-booking', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        pin: pinInput,
+                        camera_id: bookingData.cameraId,
+                        start_date: bookingData.startDate,
+                        end_date: bookingData.endDate,
+                        customer_name: name,
+                        customer_phone: phone,
+                        customer_email: email,
+                        customer_ic: ic,
+                        notes: notes,
+                        accessories: accessories
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = `/booking/${data.booking_ref}`;
+                } else {
+                    errEl.textContent = data.error || 'Ralat semasa mencipta tempahan.';
+                    errEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-store mr-1"></i> Confirm Walk-in Booking';
+                }
+            } catch(e) {
+                errEl.textContent = 'Ralat sambungan. Cuba lagi.';
+                errEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-store mr-1"></i> Confirm Walk-in Booking';
+            }
+        }
+
+        // Allow Enter key in PIN input
+        document.addEventListener('DOMContentLoaded', function() {
+            const pinInput = document.getElementById('walkin-pin-input');
+            if (pinInput) {
+                pinInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') verifyWalkinPin();
+                });
+            }
+        });
+
         // ── Hero Background Image Slider ──────────────────────────────────────────
         (function() {
             const slides = document.querySelectorAll('.hero-bg-slide');
@@ -1685,5 +1821,71 @@
             timer = setInterval(() => goToSlide(current + 1), 6000);
         })();
     </script>
+
+    <!-- Walk-in PIN Modal -->
+    <div id="walkin-pin-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-lock mr-2 text-gray-600"></i>Staff PIN Required</h3>
+                <button onclick="closeWalkinPinModal()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Enter your staff PIN to create a walk-in booking.</p>
+            <input type="password" id="walkin-pin-input" placeholder="Enter PIN" maxlength="10"
+                class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-center text-xl font-bold tracking-widest focus:outline-none focus:border-blue-500 mb-3">
+            <p id="walkin-pin-error" class="hidden text-red-600 text-sm text-center mb-3"></p>
+            <button onclick="verifyWalkinPin()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg transition">
+                <i class="fas fa-check mr-1"></i> Verify PIN
+            </button>
+        </div>
+    </div>
+
+    <!-- Walk-in Booking Form (shown after PIN verified) -->
+    <div id="walkin-form" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl my-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-store mr-2 text-gray-700"></i>Walk-in Booking</h3>
+                <button onclick="document.getElementById('walkin-form').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+            <!-- Booking Summary -->
+            <div class="bg-gray-50 rounded-xl p-4 mb-4 text-sm">
+                <div class="font-bold text-gray-800 mb-1" id="walkin-camera-name"></div>
+                <div class="text-gray-500" id="walkin-dates"></div>
+                <div class="text-blue-700 font-bold mt-1" id="walkin-price"></div>
+                <div class="mt-1 text-xs text-green-700 font-semibold"><i class="fas fa-cash-register mr-1"></i>Payment: Pay at Counter</div>
+            </div>
+            <!-- Hidden PIN field -->
+            <input type="hidden" id="walkin-pin-hidden">
+            <!-- Customer Details -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="walkin-name" placeholder="Customer name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
+                    <input type="tel" id="walkin-phone" placeholder="+60123456789" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Email <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="email" id="walkin-email" placeholder="email@example.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">IC / Passport No. <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="text" id="walkin-ic" placeholder="IC or Passport number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Notes <span class="text-gray-400 font-normal">(optional)</span></label>
+                <textarea id="walkin-notes" rows="2" placeholder="Special requests, notes..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <p id="walkin-error" class="hidden text-red-600 text-sm text-center mb-3"></p>
+            <button onclick="submitWalkinBooking()" id="walkin-submit-btn" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg transition">
+                <i class="fas fa-store mr-1"></i> Confirm Walk-in Booking
+            </button>
+        </div>
+    </div>
+
 </body>
 </html>

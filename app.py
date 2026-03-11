@@ -210,7 +210,19 @@ def init_db():
     )''')
 
     # Safe migration: add unit_id to bookings if not present
-    for col_def in ['unit_id INTEGER', 'return_reminder_sent INTEGER DEFAULT 0', 'actual_pickup_datetime TEXT', 'accessories_json TEXT']:
+    for col_def in [
+        'unit_id INTEGER',
+        'return_reminder_sent INTEGER DEFAULT 0',
+        'actual_pickup_datetime TEXT',
+        'accessories_json TEXT',
+        'booking_type TEXT DEFAULT "ONLINE"',
+        'payment_status TEXT DEFAULT "Paid Online"',
+        'rental_status TEXT DEFAULT "Pending Pickup"',
+        'pickup_confirmed_at TEXT',
+        'return_processed_at TEXT',
+        'checklist_json TEXT',
+        'return_reminder_24h_sent INTEGER DEFAULT 0',
+    ]:
         try:
             c.execute(f"ALTER TABLE bookings ADD COLUMN {col_def}")
         except:
@@ -264,6 +276,7 @@ def allowed_file(filename):
 
 # ─── Auth ─────────────────────────────────────────────────────────────────────
 STAFF_PASSWORD = "gearz2026"
+STAFF_WALKIN_PIN = os.environ.get('STAFF_WALKIN_PIN', '1234')  # Walk-in booking authorization PIN
 
 def login_required(f):
     @wraps(f)
@@ -723,6 +736,7 @@ def staff_logout():
 @app.route('/staff')
 @login_required
 def staff_dashboard():
+    import json as _json
     conn = get_db()
     bookings = conn.execute(
         """SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2,
@@ -733,9 +747,33 @@ def staff_dashboard():
            ORDER BY b.start_date ASC"""
     ).fetchall()
     customers = conn.execute("SELECT id, full_name, phone FROM customers ORDER BY full_name ASC").fetchall()
+
+    # Due today: bookings where end_date is today and rental_status is Picked Up
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    due_today = conn.execute(
+        """SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2
+           FROM bookings b
+           LEFT JOIN customers c ON b.customer_id = c.id
+           WHERE b.end_date = ? AND b.rental_status = 'Picked Up'
+           ORDER BY b.start_date ASC""",
+        (today_str,)
+    ).fetchall()
+
+    # Overdue: rental_status = Overdue OR (status=active and end_date < today)
+    overdue = conn.execute(
+        """SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2
+           FROM bookings b
+           LEFT JOIN customers c ON b.customer_id = c.id
+           WHERE b.rental_status = 'Overdue'
+              OR (b.status = 'active' AND b.end_date < ? AND b.rental_status NOT IN ('Returned','Cancelled'))
+           ORDER BY b.end_date ASC""",
+        (today_str,)
+    ).fetchall()
+
     conn.close()
     return render_template('staff_dashboard.html', bookings=bookings, cameras=CAMERAS,
-                           camera_map=CAMERA_MAP, customers=customers, wa=wa)
+                           camera_map=CAMERA_MAP, customers=customers, wa=wa,
+                           due_today=due_today, overdue_bookings=overdue)
 
 @app.route('/staff/add', methods=['POST'])
 @login_required
@@ -1815,6 +1853,474 @@ def staff_online_bookings():
                            camera_map=CAMERA_MAP, wa=wa,
                            parse_accessories=parse_accessories)
 
+# ─── Walk-in Booking API ─────────────────────────────────────────────────────
+
+@app.route('/api/verify-walkin-pin', methods=['POST'])
+def api_verify_walkin_pin():
+    """Verify staff PIN for walk-in booking authorization"""
+    data = request.get_json() or {}
+    pin = data.get('pin', '').strip()
+    if pin == STAFF_WALKIN_PIN:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Invalid PIN'}), 401
+
+
+@app.route('/api/walkin-booking', methods=['POST'])
+def api_create_walkin_booking():
+    """Create a walk-in booking directly (no payment required, Pay at Counter).
+    Requires staff PIN verification.
+    Body JSON: { pin, camera_id, start_date, end_date, customer_name, customer_phone,
+                 customer_email (optional), customer_ic (optional),
+                 pickup_time (optional), return_time (optional), notes (optional) }
+    """
+    import json as _json
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
+
+    # Verify PIN
+    pin = data.get('pin', '').strip()
+    if pin != STAFF_WALKIN_PIN:
+        return jsonify({'error': 'Invalid staff PIN'}), 401
+
+    camera_id  = data.get('camera_id', '').strip()
+    start_date = data.get('start_date', '').strip()
+    end_date   = data.get('end_date', '').strip()
+    cust_name  = data.get('customer_name', '').strip()
+    cust_phone = data.get('customer_phone', '').strip()
+    cust_email = data.get('customer_email', '').strip()
+    cust_ic    = data.get('customer_ic', '').strip()
+    pickup_time = data.get('pickup_time', '').strip()
+    return_time = data.get('return_time', '').strip()
+    notes       = data.get('notes', '').strip()
+
+    if not all([camera_id, start_date, end_date]):
+        return jsonify({'error': 'camera_id, start_date, end_date are required'}), 400
+
+    if camera_id not in CAMERA_MAP:
+        return jsonify({'error': f'Unknown camera: {camera_id}'}), 400
+
+    # Validate dates
+    try:
+        sd = datetime.strptime(start_date, '%Y-%m-%d')
+        ed = datetime.strptime(end_date, '%Y-%m-%d')
+        days = max((ed - sd).days, 1)
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+    # Check availability
+    avail_units = get_available_units(camera_id, start_date, end_date)
+    if not avail_units:
+        return jsonify({'error': 'No units available for selected dates'}), 409
+
+    assigned_unit_id = avail_units[0]['id']
+    ppd = calculate_price(camera_id, days)
+    if ppd is None:
+        return jsonify({'error': f'No pricing available for {days} days'}), 400
+    total = ppd * days
+
+    # Process accessories
+    accessories_list = data.get('accessories', [])
+    accessories_json = None
+    accessories_total = 0
+    if accessories_list and isinstance(accessories_list, list):
+        validated_accs = []
+        for acc_item in accessories_list:
+            acc_id = acc_item.get('id', '')
+            acc_data = ACCESSORY_MAP.get(acc_id)
+            if acc_data:
+                ppd_acc = get_accessory_price(acc_id, days)
+                if ppd_acc is not None:
+                    avail = get_accessory_availability(acc_id, start_date, end_date)
+                    if avail['available_units'] > 0:
+                        acc_total = ppd_acc * days
+                        validated_accs.append({
+                            'id': acc_id,
+                            'name': acc_data['name'],
+                            'price_per_day': ppd_acc,
+                            'days': days,
+                            'total': acc_total
+                        })
+                        accessories_total += acc_total
+        if validated_accs:
+            accessories_json = _json.dumps(validated_accs)
+            total += accessories_total
+
+    booking_ref = generate_booking_ref()
+
+    conn = get_db()
+    # Auto-create customer record
+    customer_id = None
+    if cust_name and cust_phone:
+        existing = conn.execute(
+            "SELECT id FROM customers WHERE phone = ? AND LOWER(full_name) = LOWER(?)",
+            (cust_phone, cust_name)
+        ).fetchone()
+        if existing:
+            customer_id = existing['id']
+            if cust_ic:
+                conn.execute("UPDATE customers SET id_number=? WHERE id=? AND (id_number IS NULL OR id_number='')",
+                             (cust_ic, customer_id))
+            if cust_email:
+                conn.execute("UPDATE customers SET email=? WHERE id=? AND (email IS NULL OR email='')",
+                             (cust_email, customer_id))
+        else:
+            cur = conn.execute(
+                """INSERT INTO customers (full_name, phone, email, id_number, created_at)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (cust_name, cust_phone, cust_email, cust_ic,
+                 datetime.now().strftime('%Y-%m-%d %H:%M'))
+            )
+            customer_id = cur.lastrowid
+        conn.commit()
+
+    # Insert walk-in booking — status=confirmed, payment_status=Pay at Counter
+    cur2 = conn.execute(
+        """INSERT INTO bookings
+           (camera_id, start_date, end_date, customer_name, customer_phone,
+            notes, customer_id, booking_ref, status, deposit_amount, deposit_status,
+            total_price, price_per_day, source, customer_email, customer_ic,
+            pickup_time, return_time, booking_mode, unit_id, accessories_json,
+            booking_type, payment_status, rental_status)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (camera_id, start_date, end_date, cust_name, cust_phone,
+         notes, customer_id, booking_ref, 'confirmed', 200, 'unpaid',
+         total, ppd, 'walkin', cust_email, cust_ic,
+         pickup_time, return_time, 'walkin', assigned_unit_id, accessories_json,
+         'WALK-IN', 'Pay at Counter', 'Pending Pickup')
+    )
+    booking_id = cur2.lastrowid
+    conn.commit()
+    conn.close()
+
+    camera = CAMERA_MAP[camera_id]
+    return jsonify({
+        'success': True,
+        'booking_id': booking_id,
+        'booking_ref': booking_ref,
+        'status': 'confirmed',
+        'booking_type': 'WALK-IN',
+        'payment_status': 'Pay at Counter',
+        'camera_name': camera['name'],
+        'start_date': start_date,
+        'end_date': end_date,
+        'days': days,
+        'price_per_day': ppd,
+        'total_price': total,
+        'accessories_total': accessories_total,
+        'message': f'Walk-in booking {booking_ref} created. Payment to be collected at counter.'
+    }), 201
+
+
+# ─── Unified Booking List (Staff) ─────────────────────────────────────────────
+
+@app.route('/staff/bookings')
+@login_required
+def staff_bookings_list():
+    """Unified booking list for all bookings (online + walk-in) with search."""
+    import json as _json
+    conn = get_db()
+    search = request.args.get('q', '').strip()
+    status_filter = request.args.get('status', '').strip()
+    type_filter = request.args.get('type', '').strip()
+
+    query = """
+        SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2,
+               c.id_photo as cust_id_photo, c.id_number as cust_id_number,
+               u.label as unit_label, u.serial_number as unit_serial
+        FROM bookings b
+        LEFT JOIN customers c ON b.customer_id = c.id
+        LEFT JOIN units u ON b.unit_id = u.id
+        WHERE 1=1
+    """
+    params = []
+
+    if search:
+        query += " AND (b.customer_name LIKE ? OR b.customer_phone LIKE ? OR b.booking_ref LIKE ? OR c.id_number LIKE ?)"
+        s = f'%{search}%'
+        params.extend([s, s, s, s])
+
+    if status_filter:
+        query += " AND b.rental_status = ?"
+        params.append(status_filter)
+
+    if type_filter:
+        query += " AND b.booking_type = ?"
+        params.append(type_filter)
+
+    query += " ORDER BY b.created_at DESC"
+    bookings = conn.execute(query, params).fetchall()
+
+    # Compute overdue status
+    now = datetime.now()
+    booking_list = []
+    for row in bookings:
+        bd = dict(row)
+        # Auto-detect overdue
+        if bd.get('rental_status') == 'Picked Up':
+            try:
+                end_dt = datetime.strptime(bd['end_date'], '%Y-%m-%d').replace(hour=23, minute=59)
+                if now > end_dt:
+                    bd['rental_status'] = 'Overdue'
+                    conn.execute("UPDATE bookings SET rental_status='Overdue' WHERE id=?", (bd['id'],))
+            except Exception:
+                pass
+        # Parse accessories
+        bd['accessories'] = []
+        if bd.get('accessories_json'):
+            try:
+                bd['accessories'] = _json.loads(bd['accessories_json'])
+            except Exception:
+                pass
+        booking_list.append(bd)
+    conn.commit()
+    conn.close()
+
+    return render_template('staff_bookings_list.html',
+                           bookings=booking_list,
+                           camera_map=CAMERA_MAP,
+                           search=search,
+                           status_filter=status_filter,
+                           type_filter=type_filter)
+
+
+@app.route('/staff/bookings/<int:booking_id>')
+@login_required
+def staff_booking_detail(booking_id):
+    """Comprehensive booking detail page."""
+    import json as _json
+    conn = get_db()
+    b = conn.execute(
+        """SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2,
+                  c.id_photo as cust_id_photo, c.id_number as cust_id_number,
+                  c.nationality as cust_nationality, c.email as cust_email2,
+                  u.label as unit_label, u.serial_number as unit_serial
+           FROM bookings b
+           LEFT JOIN customers c ON b.customer_id = c.id
+           LEFT JOIN units u ON b.unit_id = u.id
+           WHERE b.id = ?""",
+        (booking_id,)
+    ).fetchone()
+    if not b:
+        conn.close()
+        abort(404)
+
+    bd = dict(b)
+    conn.close()
+
+    # Parse accessories
+    bd['accessories'] = []
+    if bd.get('accessories_json'):
+        try:
+            bd['accessories'] = _json.loads(bd['accessories_json'])
+        except Exception:
+            pass
+
+    # Parse checklist
+    bd['checklist'] = []
+    if bd.get('checklist_json'):
+        try:
+            bd['checklist'] = _json.loads(bd['checklist_json'])
+        except Exception:
+            pass
+
+    # Auto-detect overdue
+    if bd.get('rental_status') == 'Picked Up':
+        try:
+            now = datetime.now()
+            end_dt = datetime.strptime(bd['end_date'], '%Y-%m-%d').replace(hour=23, minute=59)
+            if now > end_dt:
+                bd['rental_status'] = 'Overdue'
+        except Exception:
+            pass
+
+    camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+    bd['camera_name'] = camera.get('name', bd.get('camera_id', ''))
+    bd['camera_image'] = camera.get('image', '')
+    try:
+        bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
+    except Exception:
+        bd['days'] = 1
+
+    # Generate default checklist items based on camera
+    default_checklist = _generate_checklist(bd.get('camera_id', ''), bd.get('accessories', []))
+
+    return render_template('staff_booking_detail.html',
+                           booking=bd,
+                           camera_map=CAMERA_MAP,
+                           default_checklist=default_checklist)
+
+
+def _generate_checklist(camera_id, accessories):
+    """Generate default equipment checklist items for a camera rental."""
+    camera = CAMERA_MAP.get(camera_id, {})
+    cam_name = camera.get('name', camera_id)
+
+    # Base items for all cameras
+    items = [
+        {'item': f'{cam_name} body', 'checked': False},
+        {'item': 'Charging cable / adapter', 'checked': False},
+        {'item': 'Battery (in camera)', 'checked': False},
+        {'item': 'Memory card', 'checked': False},
+        {'item': 'Carry bag / pouch', 'checked': False},
+    ]
+
+    # Category-specific items
+    cat = camera.get('category', '')
+    if cat == 'gopro':
+        items.append({'item': 'Mounting accessories (clips/mounts)', 'checked': False})
+    elif cat == 'insta360':
+        items.append({'item': 'Lens cap / lens guard', 'checked': False})
+        items.append({'item': 'Invisible selfie stick', 'checked': False})
+    elif cat == 'dji':
+        items.append({'item': 'Gimbal stabilizer / mount', 'checked': False})
+    elif cat == 'drone':
+        items.append({'item': 'Propellers (set)', 'checked': False})
+        items.append({'item': 'Remote controller', 'checked': False})
+        items.append({'item': 'Drone carry case', 'checked': False})
+    elif cat == 'canon':
+        items.append({'item': 'Lens cap', 'checked': False})
+        items.append({'item': 'Lens (if separate)', 'checked': False})
+        items.append({'item': 'Camera strap', 'checked': False})
+
+    # Add accessories to checklist
+    for acc in accessories:
+        items.append({'item': acc.get('name', ''), 'checked': False})
+
+    return items
+
+
+@app.route('/api/booking/<int:booking_id>/confirm-pickup', methods=['POST'])
+@login_required
+def api_confirm_pickup(booking_id):
+    """Staff confirms equipment pickup. Updates rental_status to Picked Up.
+    Body JSON: { checklist: [{item, checked}, ...], notes (optional) }
+    """
+    import json as _json
+    data = request.get_json() or {}
+    checklist = data.get('checklist', [])
+    notes = data.get('notes', '').strip()
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    conn = get_db()
+    b = conn.execute("SELECT * FROM bookings WHERE id = ?", (booking_id,)).fetchone()
+    if not b:
+        conn.close()
+        return jsonify({'error': 'Booking not found'}), 404
+
+    checklist_json = _json.dumps(checklist) if checklist else None
+    update_notes = notes if notes else dict(b).get('notes', '')
+
+    conn.execute(
+        """UPDATE bookings SET
+           rental_status = 'Picked Up',
+           status = 'active',
+           actual_pickup_datetime = ?,
+           pickup_confirmed_at = ?,
+           checklist_json = ?,
+           notes = ?
+           WHERE id = ?""",
+        (now_str, now_str, checklist_json, update_notes, booking_id)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'rental_status': 'Picked Up', 'pickup_confirmed_at': now_str})
+
+
+@app.route('/api/booking/<int:booking_id>/process-return', methods=['POST'])
+@login_required
+def api_process_return(booking_id):
+    """Staff processes equipment return. Updates rental_status to Returned.
+    Body JSON: { condition_ok: bool, notes (optional), deposit_refunded: bool }
+    """
+    import json as _json
+    data = request.get_json() or {}
+    condition_ok = data.get('condition_ok', True)
+    notes = data.get('notes', '').strip()
+    deposit_refunded = data.get('deposit_refunded', False)
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    conn = get_db()
+    b = conn.execute("SELECT * FROM bookings WHERE id = ?", (booking_id,)).fetchone()
+    if not b:
+        conn.close()
+        return jsonify({'error': 'Booking not found'}), 404
+
+    bd = dict(b)
+    new_notes = notes if notes else bd.get('notes', '')
+    deposit_status = 'refunded' if deposit_refunded else bd.get('deposit_status', 'unpaid')
+
+    conn.execute(
+        """UPDATE bookings SET
+           rental_status = 'Returned',
+           status = 'returned',
+           return_processed_at = ?,
+           deposit_status = ?,
+           notes = ?
+           WHERE id = ?""",
+        (now_str, deposit_status, new_notes, booking_id)
+    )
+    conn.commit()
+    conn.close()
+
+    # Generate WhatsApp thank-you link
+    camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+    camera_name = camera.get('name', bd.get('camera_id', ''))
+    wa_link = wa.admin_thank_you(bd, camera_name)
+
+    return jsonify({
+        'success': True,
+        'rental_status': 'Returned',
+        'return_processed_at': now_str,
+        'wa_thankyou_link': wa_link
+    })
+
+
+@app.route('/api/booking/<int:booking_id>/update-payment-status', methods=['POST'])
+@login_required
+def api_update_payment_status(booking_id):
+    """Update payment status for a booking (e.g., mark as paid at counter)."""
+    data = request.get_json() or {}
+    payment_status = data.get('payment_status', '').strip()
+    deposit_status = data.get('deposit_status', '').strip()
+
+    if not payment_status and not deposit_status:
+        return jsonify({'error': 'payment_status or deposit_status required'}), 400
+
+    conn = get_db()
+    updates = []
+    params = []
+    if payment_status:
+        updates.append('payment_status = ?')
+        params.append(payment_status)
+    if deposit_status:
+        updates.append('deposit_status = ?')
+        params.append(deposit_status)
+    params.append(booking_id)
+    conn.execute(f"UPDATE bookings SET {', '.join(updates)} WHERE id = ?", params)
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
+
+@app.route('/api/booking/<int:booking_id>/update-rental-status', methods=['POST'])
+@login_required
+def api_update_rental_status(booking_id):
+    """Update rental status for a booking."""
+    data = request.get_json() or {}
+    rental_status = data.get('rental_status', '').strip()
+    valid_statuses = ['Pending Pickup', 'Picked Up', 'Returned', 'Overdue', 'Cancelled']
+    if rental_status not in valid_statuses:
+        return jsonify({'error': f'Invalid rental_status. Must be one of: {valid_statuses}'}), 400
+
+    conn = get_db()
+    conn.execute("UPDATE bookings SET rental_status = ? WHERE id = ?", (rental_status, booking_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'rental_status': rental_status})
+
+
 # ─── Payment Gateway Routes ──────────────────────────────────────────────────
 
 def _get_base_url():
@@ -2287,8 +2793,9 @@ def _parse_return_datetime(end_date_str, return_time_str):
 
 def _return_reminder_scheduler():
     """Background thread: checks every 5 minutes for active bookings.
-    Calculates return deadline as: actual_pickup_datetime + rental_days.
-    Sends reminder email ~3 hours before return deadline."""
+    1. Sends 24-hour return reminder email before return deadline.
+    2. Sends 3-hour return reminder email before return deadline.
+    3. Auto-marks overdue bookings."""
     _time.sleep(30)  # Wait 30s after startup before first check
     while True:
         try:
@@ -2300,21 +2807,18 @@ def _return_reminder_scheduler():
                     """SELECT * FROM bookings
                        WHERE status = 'active'
                          AND customer_email IS NOT NULL
-                         AND customer_email != ''
-                         AND (return_reminder_sent IS NULL OR return_reminder_sent = 0)"""
+                         AND customer_email != ''"""
                 ).fetchall()
                 conn.close()
 
                 for row in active_bookings:
                     bd = dict(row)
 
-                    # Calculate return deadline from actual pickup time + rental days
                     actual_pickup_str = bd.get('actual_pickup_datetime', '') or ''
                     start_date_str = bd.get('start_date', '')
                     end_date_str = bd.get('end_date', '')
 
                     try:
-                        # Number of rental days
                         start_dt = datetime.strptime(start_date_str, '%Y-%m-%d')
                         end_dt = datetime.strptime(end_date_str, '%Y-%m-%d')
                         num_days = max((end_dt - start_dt).days, 1)
@@ -2322,7 +2826,6 @@ def _return_reminder_scheduler():
                         num_days = 1
 
                     if actual_pickup_str:
-                        # Use actual recorded pickup time
                         try:
                             pickup_dt = datetime.strptime(actual_pickup_str, '%Y-%m-%d %H:%M:%S')
                         except Exception:
@@ -2334,22 +2837,46 @@ def _return_reminder_scheduler():
                         pickup_dt = None
 
                     if pickup_dt:
-                        # Return deadline = pickup time + rental days
                         return_deadline = pickup_dt + timedelta(days=num_days)
                     else:
-                        # Fallback: use end_date at 11:00 PM if no pickup time recorded
                         return_time_str = bd.get('return_time', '') or '23:00'
                         return_deadline = _parse_return_datetime(end_date_str, return_time_str)
 
                     minutes_until_return = (return_deadline - now).total_seconds() / 60
 
-                    # Send reminder if 2h45m (165 min) to 3h15m (195 min) before return
-                    if 165 <= minutes_until_return <= 195:
-                        camera = CAMERA_MAP.get(bd['camera_id'], {})
-                        bd['camera_name'] = camera.get('name', bd['camera_id'])
-                        # Format return time nicely for email
-                        bd['return_time'] = return_deadline.strftime('%I:%M %p')
-                        bd['return_date_display'] = return_deadline.strftime('%d %b %Y, %I:%M %p')
+                    # Auto-mark overdue if past return deadline
+                    if minutes_until_return < 0 and bd.get('rental_status') == 'Picked Up':
+                        conn2 = get_db()
+                        conn2.execute(
+                            "UPDATE bookings SET rental_status='Overdue' WHERE id=?",
+                            (bd['id'],)
+                        )
+                        conn2.commit()
+                        conn2.close()
+                        app.logger.info(f"Booking {bd.get('booking_ref')} marked as Overdue")
+
+                    camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+                    bd['camera_name'] = camera.get('name', bd.get('camera_id', ''))
+                    bd['return_time'] = return_deadline.strftime('%I:%M %p')
+                    bd['return_date_display'] = return_deadline.strftime('%d %b %Y, %I:%M %p')
+
+                    # Send 24-hour reminder (23h to 25h before return)
+                    if (bd.get('return_reminder_24h_sent') or 0) == 0 and 1380 <= minutes_until_return <= 1500:
+                        ok = send_return_reminder_email(bd)
+                        if ok:
+                            conn2 = get_db()
+                            conn2.execute(
+                                "UPDATE bookings SET return_reminder_24h_sent = 1 WHERE id = ?",
+                                (bd['id'],)
+                            )
+                            conn2.commit()
+                            conn2.close()
+                            app.logger.info(
+                                f"24h return reminder sent for booking {bd.get('booking_ref')}"
+                            )
+
+                    # Send 3-hour reminder (2h45m to 3h15m before return)
+                    if (bd.get('return_reminder_sent') or 0) == 0 and 165 <= minutes_until_return <= 195:
                         ok = send_return_reminder_email(bd)
                         if ok:
                             conn2 = get_db()
@@ -2360,7 +2887,7 @@ def _return_reminder_scheduler():
                             conn2.commit()
                             conn2.close()
                             app.logger.info(
-                                f"Return reminder sent for booking {bd.get('booking_ref')} "
+                                f"3h return reminder sent for booking {bd.get('booking_ref')} "
                                 f"(return deadline: {return_deadline})"
                             )
         except Exception as e:

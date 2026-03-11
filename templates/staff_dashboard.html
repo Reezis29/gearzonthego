@@ -362,6 +362,71 @@
 
             <!-- Bookings List -->
             <div class="lg:col-span-2">
+
+                <!-- Due Today Alert -->
+                {% if due_today %}
+                <div class="bg-orange-50 border-2 border-orange-300 rounded-2xl p-4 mb-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-clock text-orange-500 text-lg"></i>
+                        <span class="font-bold text-orange-800">Due Today ({{ due_today|length }})</span>
+                        <span class="text-xs text-orange-600">Equipment should be returned today</span>
+                    </div>
+                    <div class="space-y-2">
+                        {% for b in due_today %}
+                        <a href="/staff/bookings/{{ b.id }}" class="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition border border-orange-100">
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">{{ b.cust_name or b.customer_name or '—' }}</div>
+                                <div class="text-xs text-gray-500">{{ camera_map.get(b.camera_id, {}).get('name', b.camera_id) }} &bull; {{ b.booking_ref }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                {% set phone_clean = (b.cust_phone2 or b.customer_phone or '').replace('+','').replace(' ','').replace('-','') %}
+                                {% if phone_clean %}
+                                <a href="https://wa.me/{{ phone_clean }}" target="_blank" onclick="event.stopPropagation()"
+                                   class="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded-lg transition">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                {% endif %}
+                                <span class="text-orange-600 text-xs font-bold">Due Today</span>
+                                <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Overdue Alert -->
+                {% if overdue_bookings %}
+                <div class="bg-red-50 border-2 border-red-300 rounded-2xl p-4 mb-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-lg"></i>
+                        <span class="font-bold text-red-800">Overdue ({{ overdue_bookings|length }})</span>
+                        <span class="text-xs text-red-600">Equipment not returned on time</span>
+                    </div>
+                    <div class="space-y-2">
+                        {% for b in overdue_bookings %}
+                        <a href="/staff/bookings/{{ b.id }}" class="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition border border-red-100">
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">{{ b.cust_name or b.customer_name or '—' }}</div>
+                                <div class="text-xs text-gray-500">{{ camera_map.get(b.camera_id, {}).get('name', b.camera_id) }} &bull; Due: {{ b.end_date }} &bull; {{ b.booking_ref }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                {% set phone_clean = (b.cust_phone2 or b.customer_phone or '').replace('+','').replace(' ','').replace('-','') %}
+                                {% if phone_clean %}
+                                <a href="https://wa.me/{{ phone_clean }}" target="_blank" onclick="event.stopPropagation()"
+                                   class="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded-lg transition">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                {% endif %}
+                                <span class="text-red-600 text-xs font-bold">OVERDUE</span>
+                                <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Filter tabs -->
                 <div class="flex gap-2 mb-4 flex-wrap">
                     <button onclick="filterBookings('all')" id="filter-all" class="filter-btn bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold transition">All</button>
