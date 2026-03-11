@@ -119,6 +119,73 @@
                 <img src="{{ agreement.signature_data }}" alt="Signature" class="max-h-24 mx-auto">
             </div>
             {% endif %}
+        </div>
+
+        <!-- T&C in signed view -->
+        <div class="section-card">
+            <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
+                <i class="fas fa-file-contract text-blue-600"></i> Equipment Rental Terms &amp; Conditions
+            </h3>
+            <p class="text-xs text-gray-400 mb-4">The renter has read and agreed to the following terms upon signing.</p>
+            <div class="term-item">
+                <span class="term-num">1</span>
+                <span><strong>Identity Verification</strong> - The renter must present a valid IC / Passport / Driving License. We reserve the right to request original documents during pickup.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">2</span>
+                <span><strong>Rental Proof Records</strong> - We may take photos of the renter with the equipment and identification documents for record and security purposes.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">3</span>
+                <span><strong>Deposit &amp; Payment</strong> - A deposit will be charged according to the package and will be refunded after the equipment is returned in good, complete, and working condition, subject to inspection.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">4</span>
+                <span><strong>Return Inspection</strong> - Equipment will be inspected upon return. If further inspection is required (e.g. functionality testing), deposit refund may take up to 24 hours.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">5</span>
+                <span><strong>Damage</strong> - If damage occurs due to negligence or misuse, the deposit may be withheld and the renter agrees to pay charges based on repair or replacement costs.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">6</span>
+                <span><strong>Loss / Theft</strong> - The renter is fully responsible for any loss, theft, or severe damage, and agrees to bear the full replacement cost.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">7</span>
+                <span><strong>Late Return Fee</strong> - A late fee of RM10 - RM20 per hour will be charged after the agreed return time. Charges begin from the first minute past the deadline.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">8</span>
+                <span><strong>Failure to Return Without Notice</strong> - If equipment is not returned within 6 hours without notice, we reserve the right to file a police report and take further action.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">9</span>
+                <span><strong>Responsibility &amp; Care</strong> - The renter is responsible for keeping the equipment safe and protected from water, sand, impact, extreme temperatures, or risk of damage.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">10</span>
+                <span><strong>No Modification &amp; Third-Party Transfer</strong> - The renter is not allowed to open, modify, change accessories, or hand over equipment to another party without permission.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">11</span>
+                <span><strong>Usage Failure</strong> - We are not responsible for any loss incurred by the renter due to misuse or factors beyond our control.</span>
+            </div>
+            <div class="term-item">
+                <span class="term-num">12</span>
+                <span><strong>Right to Refuse Booking</strong> - We reserve the right to refuse a booking or cancel a rental if there are concerns regarding identity, information, or security risks.</span>
+            </div>
+            <!-- Confirmation statement -->
+            <div class="mt-4 pt-4 border-t border-gray-100 bg-blue-50 rounded-xl px-4 py-3">
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                    I hereby <strong>fully understand</strong> the terms and conditions stated in this agreement. I agree not to make any disputes or counterclaims against <strong>Gearz On The Go</strong>.
+                </p>
+            </div>
+        </div>
+
+        <div class="section-card text-center" style="display:none" id="_dummy_"><!-- spacer --></div>
+        <div class="text-center">
             <div class="flex gap-3 justify-center no-print">
                 <a href="/staff/agreements" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-semibold transition">
                     <i class="fas fa-list mr-1"></i> List
