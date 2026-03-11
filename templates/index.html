@@ -1544,7 +1544,12 @@
                 addonsHtml += `<div class="flex justify-between text-xs font-bold text-purple-700 mt-1"><span>Add-Ons Subtotal</span><span>RM${addonsTotal}</span></div>`;
                 addonsHtml += '</div>';
             }
-            summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${bookingData.cameraName}</span><span class="text-blue-700 font-bold">RM${grandTotal}</span></div><div class="text-xs text-gray-500 mt-1">${bookingData.startDate} \u2192 ${bookingData.endDate} (${bookingData.days} days) \u2022 RM${bookingData.pricePerDay}/day</div>${addonsHtml}`;
+            // Grand total row (only show if there are add-ons)
+            let grandTotalHtml = '';
+            if (addonsTotal > 0) {
+                grandTotalHtml = `<div class="flex justify-between items-center border-t border-blue-300 mt-2 pt-2"><span class="font-bold text-gray-800">Grand Total</span><span class="text-blue-700 font-bold text-base">RM${grandTotal}</span></div>`;
+            }
+            summaryDiv.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold">${bookingData.cameraName}</span><span class="text-blue-700 font-bold">RM${bookingData.totalPrice}</span></div><div class="text-xs text-gray-500 mt-1">${bookingData.startDate} \u2192 ${bookingData.endDate} (${bookingData.days} days) \u2022 RM${bookingData.pricePerDay}/day</div>${addonsHtml}${grandTotalHtml}`;
         }
 
         // ── Hero Background Image Slider ──────────────────────────────────────────
