@@ -242,10 +242,10 @@ def init_db():
         except:
             pass
 
-    # Seed 1 unit per product if units table is empty
-    existing_units = c.execute("SELECT COUNT(*) FROM units").fetchone()[0]
-    if existing_units == 0:
-        for cam in CAMERAS:
+    # Seed 1 unit per product — also handles cameras added after initial seeding
+    existing_product_ids = {row[0] for row in c.execute("SELECT DISTINCT product_id FROM units").fetchall()}
+    for cam in CAMERAS:
+        if cam['id'] not in existing_product_ids:
             c.execute(
                 "INSERT INTO units (product_id, label, condition, status) VALUES (?, ?, 'good', 'available')",
                 (cam['id'], 'Unit A')
