@@ -1743,11 +1743,8 @@
                 return;
             }
 
-            // Collect selected add-ons
-            const accessories = [];
-            document.querySelectorAll('.addon-card.selected').forEach(card => {
-                accessories.push({id: card.dataset.addonId});
-            });
+            // Collect selected add-ons from selectedAddons object (has correct IDs)
+            const accessories = Object.values(selectedAddons).map(a => ({id: a.id}));
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Mencipta tempahan...';
