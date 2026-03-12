@@ -160,7 +160,11 @@
         <div class="confirmed-banner">
             <div class="icon">✅</div>
             <h2>BOOKING CONFIRMED</h2>
+            {% if booking.get('booking_type') == 'WALK-IN' %}
+            <p>Walk-in booking confirmed. Please pay the full rental amount and RM200 refundable security deposit at pickup.</p>
+            {% else %}
             <p>Your camera has been reserved. Please pay the remaining rental and RM200 refundable security deposit at pickup.</p>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -231,6 +235,42 @@
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <!-- PAYMENT BREAKDOWN                                              -->
         <!-- ═══════════════════════════════════════════════════════════════ -->
+        {% if booking.get('booking_type') == 'WALK-IN' %}
+        <!-- Walk-in: all pay at counter -->
+        <div class="payment-breakdown card" style="padding:0;">
+            <div class="pay-at-pickup">
+                <div class="label">🏪 Pay at Counter (Pickup)</div>
+                <div class="pickup-row">
+                    <span class="item">Camera Rental ({{ booking.days }} day{% if booking.days != 1 %}s{% endif %})</span>
+                    {% set cam_total = (booking.total_price or 0) %}
+                    {% set acc_total = namespace(val=0) %}
+                    {% for acc in booking.accessories %}
+                        {% set acc_total.val = acc_total.val + (acc.subtotal or 0) %}
+                    {% endfor %}
+                    {% set cam_only = cam_total - acc_total.val %}
+                    <span class="val">RM{{ '%.0f' % cam_only }}</span>
+                </div>
+                {% if booking.accessories %}
+                <div class="pickup-row">
+                    <span class="item">Accessories</span>
+                    <span class="val">RM{{ '%.0f' % acc_total.val }}</span>
+                </div>
+                {% endif %}
+                <div class="pickup-row">
+                    <span class="item">Refundable Security Deposit</span>
+                    <span class="val">RM200</span>
+                </div>
+                <div class="pickup-row" style="font-weight:700;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:4px;">
+                    <span class="item">Grand Total at Counter</span>
+                    <span class="val" style="color:#1e3a5f;">RM{{ '%.0f' % ((booking.total_price or 0) + 200) }}</span>
+                </div>
+                <div class="pickup-deposit-note">
+                    🔒 RM200 refundable security deposit will be collected at pickup and returned after the camera is safely returned in good condition.
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Online booking: RM30 now + remaining at pickup -->
         <div class="payment-breakdown card" style="padding:0;">
             <!-- Pay Now -->
             <div class="pay-now-section">
@@ -254,8 +294,9 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        {% if s == 'pending' and payment_status != 'success' %}
+        {% if s == 'pending' and payment_status != 'success' and booking.get('booking_type') != 'WALK-IN' %}
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <!-- PAYMENT OPTIONS (pending state)                                -->

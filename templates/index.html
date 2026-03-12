@@ -1706,11 +1706,22 @@
         }
 
         function showWalkinBookingForm() {
-            // Pre-fill from availability data
+            // Pre-fill booking summary from availability data
             const form = document.getElementById('walkin-form');
             document.getElementById('walkin-camera-name').textContent = bookingData.cameraName || '';
-            document.getElementById('walkin-dates').textContent = `${bookingData.startDate} → ${bookingData.endDate} (${bookingData.days} days)`;
+            document.getElementById('walkin-dates').textContent = `${bookingData.startDate} \u2192 ${bookingData.endDate} (${bookingData.days} days)`;
             document.getElementById('walkin-price').textContent = `RM${bookingData.totalPrice}`;
+
+            // Auto-fill customer info from main booking form
+            const mainName  = document.getElementById('book-name')  ? document.getElementById('book-name').value.trim()  : '';
+            const mainPhone = document.getElementById('book-phone') ? document.getElementById('book-phone').value.trim() : '';
+            const mainEmail = document.getElementById('book-email') ? document.getElementById('book-email').value.trim() : '';
+            const mainIc    = document.getElementById('book-ic')    ? document.getElementById('book-ic').value.trim()    : '';
+            if (mainName)  document.getElementById('walkin-name').value  = mainName;
+            if (mainPhone) document.getElementById('walkin-phone').value = mainPhone;
+            if (mainEmail) document.getElementById('walkin-email').value = mainEmail;
+            if (mainIc)    document.getElementById('walkin-ic').value    = mainIc;
+
             form.classList.remove('hidden');
             form.scrollIntoView({behavior: 'smooth', block: 'center'});
         }
