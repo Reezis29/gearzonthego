@@ -3,11 +3,19 @@ import sqlite3
 import os
 import uuid
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from functools import wraps
 from werkzeug.utils import secure_filename
 import wa_messages as wa
 import payment_gateways as pg
 import threading
+
+# Malaysia timezone (UTC+8)
+MYT = ZoneInfo('Asia/Kuala_Lumpur')
+
+def now_myt():
+    """Return current datetime in Malaysia timezone (UTC+8)"""
+    return datetime.now(MYT).replace(tzinfo=None)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'gearz_on_the_go_secret_2026')
@@ -466,8 +474,8 @@ def calculate_price(camera_id, days):
 @app.route('/')
 def index():
     # Build availability_map for urgency indicators (units available today)
-    today = datetime.now().strftime('%Y-%m-%d')
-    tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    today = now_myt().strftime('%Y-%m-%d')
+    tomorrow = (now_myt() + timedelta(days=1)).strftime('%Y-%m-%d')
     availability_map = {}
     try:
         conn = get_db()
@@ -629,7 +637,7 @@ def api_create_accessory_booking():
         else:
             cur = conn.execute(
                 "INSERT INTO customers (full_name, phone, email, created_at) VALUES (?, ?, ?, ?)",
-                (cust_name, cust_phone, cust_email, datetime.now().strftime('%Y-%m-%d %H:%M'))
+                (cust_name, cust_phone, cust_email, now_myt().strftime('%Y-%m-%d %H:%M'))
             )
             customer_id = cur.lastrowid
         conn.commit()
@@ -749,7 +757,7 @@ def staff_dashboard():
     customers = conn.execute("SELECT id, full_name, phone FROM customers ORDER BY full_name ASC").fetchall()
 
     # Due today: bookings where end_date is today and rental_status is Picked Up
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    today_str = now_myt().strftime('%Y-%m-%d')
     due_today = conn.execute(
         """SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2
            FROM bookings b
@@ -866,7 +874,7 @@ def staff_add_booking():
                 """INSERT INTO customers (full_name, phone, id_photo, nationality, id_number, created_at)
                    VALUES (?, ?, ?, ?, ?, ?)""",
                 (customer_name, customer_phone, id_photo_filename, nationality, id_number,
-                 datetime.now().strftime('%Y-%m-%d %H:%M'))
+                 now_myt().strftime('%Y-%m-%d %H:%M'))
             )
             customer_id = cur.lastrowid
         conn.commit()
@@ -989,7 +997,7 @@ def booking_update(booking_id):
                 """INSERT INTO customers (full_name, phone, id_photo, nationality, id_number, created_at)
                    VALUES (?, ?, ?, ?, ?, ?)""",
                 (customer_name, customer_phone, id_photo_filename, nationality, id_number,
-                 datetime.now().strftime('%Y-%m-%d %H:%M'))
+                 now_myt().strftime('%Y-%m-%d %H:%M'))
             )
             customer_id = cur.lastrowid
 
@@ -1042,7 +1050,7 @@ def customer_add():
         id_number   = request.form.get('id_number', '').strip()
         notes       = request.form.get('notes', '').strip()
         agreement_signed = 1 if request.form.get('agreement_signed') else 0
-        agreement_date   = datetime.now().strftime('%Y-%m-%d %H:%M') if agreement_signed else None
+        agreement_date   = now_myt().strftime('%Y-%m-%d %H:%M') if agreement_signed else None
 
         # Handle ID photo upload
         id_photo_filename = None
@@ -1118,7 +1126,7 @@ def customer_edit(cust_id):
         agreement_signed = 1 if request.form.get('agreement_signed') else 0
         agreement_date   = customer['agreement_date']
         if agreement_signed and not customer['agreement_signed']:
-            agreement_date = datetime.now().strftime('%Y-%m-%d %H:%M')
+            agreement_date = now_myt().strftime('%Y-%m-%d %H:%M')
 
         id_photo_filename = customer['id_photo']
         if 'id_photo' in request.files:
@@ -1267,7 +1275,7 @@ def agreement_save():
                 """INSERT INTO customers (full_name, phone, id_number, created_at)
                    VALUES (?, ?, ?, ?)""",
                 (cust_name, cust_phone, ic_number,
-                 datetime.now().strftime('%Y-%m-%d %H:%M'))
+                 now_myt().strftime('%Y-%m-%d %H:%M'))
             )
             customer_id = cur2.lastrowid
         conn.commit()
@@ -1288,7 +1296,7 @@ def agreement_save():
             data['return_date'],
             float(data.get('deposit', 200) or 200),
             data.get('signature_data', ''),
-            datetime.now().strftime('%Y-%m-%d %H:%M'),
+            now_myt().strftime('%Y-%m-%d %H:%M'),
             data.get('pickup_time', ''),
             data.get('return_time', '')
         )
@@ -1299,7 +1307,7 @@ def agreement_save():
     if customer_id:
         conn.execute(
             "UPDATE customers SET agreement_signed=1, agreement_date=? WHERE id=?",
-            (datetime.now().strftime('%Y-%m-%d %H:%M'), customer_id)
+            (now_myt().strftime('%Y-%m-%d %H:%M'), customer_id)
         )
 
     conn.commit()
@@ -1334,7 +1342,7 @@ def api_products():
     """GET /api/products — return all cameras with availability summary and unit counts"""
     conn = get_db()
     products = []
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = now_myt().strftime('%Y-%m-%d')
     for cam in CAMERAS:
         booked = get_booked_dates(cam['id'])
         total_units = conn.execute(
@@ -1525,7 +1533,7 @@ def api_create_booking():
                 """INSERT INTO customers (full_name, phone, email, id_number, created_at)
                    VALUES (?, ?, ?, ?, ?)""",
                 (cust_name, cust_phone, cust_email, cust_ic,
-                 datetime.now().strftime('%Y-%m-%d %H:%M'))
+                 now_myt().strftime('%Y-%m-%d %H:%M'))
             )
             customer_id = cur.lastrowid
         conn.commit()
@@ -1686,7 +1694,7 @@ def api_booking_confirm():
     )
     conn.execute(
         "UPDATE payments SET status = 'verified', verified_at = ? WHERE booking_ref = ? AND type = 'deposit'",
-        (datetime.now().strftime('%Y-%m-%d %H:%M'), booking_ref)
+        (now_myt().strftime('%Y-%m-%d %H:%M'), booking_ref)
     )
     conn.commit()
     conn.close()
@@ -1721,7 +1729,7 @@ def staff_confirm_booking(booking_id):
     if ref:
         conn.execute(
             "UPDATE payments SET status = 'verified', verified_at = ?, verified_by = 'staff' WHERE booking_ref = ? AND type = 'deposit'",
-            (datetime.now().strftime('%Y-%m-%d %H:%M'), ref)
+            (now_myt().strftime('%Y-%m-%d %H:%M'), ref)
         )
     conn.commit()
     conn.close()
@@ -1766,7 +1774,7 @@ def staff_cancel_booking(booking_id):
 def staff_mark_active(booking_id):
     """Staff marks booking as active (equipment picked up) — records actual pickup datetime"""
     import json as _json
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now_str = now_myt().strftime('%Y-%m-%d %H:%M:%S')
     conn = get_db()
     conn.execute(
         """UPDATE bookings SET
@@ -1807,11 +1815,10 @@ def staff_mark_active(booking_id):
         except Exception:
             bd['days'] = 1
 
-        # Calculate return deadline display
+        # Calculate return deadline display (end_date at 11:00 PM)
         try:
-            pickup_dt = datetime.strptime(now_str, '%Y-%m-%d %H:%M:%S')
-            return_deadline_dt = pickup_dt + timedelta(days=bd['days'])
-            bd['return_deadline_display'] = return_deadline_dt.strftime('%d %b %Y (%A) by 11:00 PM')
+            end_dt = datetime.strptime(bd['end_date'], '%Y-%m-%d')
+            bd['return_deadline_display'] = end_dt.strftime('%d %b %Y (%A) by 11:00 PM')
         except Exception:
             bd['return_deadline_display'] = f"{bd.get('end_date', '')} by 11:00 PM"
 
@@ -2021,7 +2028,7 @@ def api_create_walkin_booking():
                 """INSERT INTO customers (full_name, phone, email, id_number, created_at)
                    VALUES (?, ?, ?, ?, ?)""",
                 (cust_name, cust_phone, cust_email, cust_ic,
-                 datetime.now().strftime('%Y-%m-%d %H:%M'))
+                 now_myt().strftime('%Y-%m-%d %H:%M'))
             )
             customer_id = cur.lastrowid
         conn.commit()
@@ -2104,7 +2111,7 @@ def staff_bookings_list():
     bookings = conn.execute(query, params).fetchall()
 
     # Compute overdue status
-    now = datetime.now()
+    now = now_myt()
     booking_list = []
     for row in bookings:
         bd = dict(row)
@@ -2179,7 +2186,7 @@ def staff_booking_detail(booking_id):
     # Auto-detect overdue
     if bd.get('rental_status') == 'Picked Up':
         try:
-            now = datetime.now()
+            now = now_myt()
             end_dt = datetime.strptime(bd['end_date'], '%Y-%m-%d').replace(hour=23, minute=59)
             if now > end_dt:
                 bd['rental_status'] = 'Overdue'
@@ -2252,7 +2259,7 @@ def api_confirm_pickup(booking_id):
     data = request.get_json() or {}
     checklist = data.get('checklist', [])
     notes = data.get('notes', '').strip()
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now_str = now_myt().strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db()
     b = conn.execute("SELECT * FROM bookings WHERE id = ?", (booking_id,)).fetchone()
@@ -2338,7 +2345,7 @@ def api_process_return(booking_id):
     condition_ok = data.get('condition_ok', True)
     notes = data.get('notes', '').strip()
     deposit_refunded = data.get('deposit_refunded', False)
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now_str = now_myt().strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db()
     b = conn.execute("SELECT * FROM bookings WHERE id = ?", (booking_id,)).fetchone()
@@ -2474,7 +2481,7 @@ def _send_booking_notifications(booking_ref):
 def _mark_booking_paid(booking_ref, method, transaction_id=''):
     """Mark a booking as confirmed after successful RM30 booking fee payment."""
     conn = get_db()
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = now_myt().strftime('%Y-%m-%d %H:%M:%S')
     conn.execute(
         "UPDATE bookings SET status='confirmed', deposit_status='paid' WHERE booking_ref=? AND status='pending'",
         (booking_ref,)
@@ -2900,7 +2907,7 @@ def _return_reminder_scheduler():
         try:
             with app.app_context():
                 from email_sender import send_return_reminder_email
-                now = datetime.now()
+                now = now_myt()
                 conn = get_db()
                 active_bookings = conn.execute(
                     """SELECT * FROM bookings
