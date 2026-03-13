@@ -1765,14 +1765,67 @@ def staff_cancel_booking(booking_id):
 @login_required
 def staff_mark_active(booking_id):
     """Staff marks booking as active (equipment picked up) — records actual pickup datetime"""
+    import json as _json
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     conn = get_db()
     conn.execute(
-        "UPDATE bookings SET status = 'active', actual_pickup_datetime = ? WHERE id = ?",
-        (now_str, booking_id)
+        """UPDATE bookings SET
+           status = 'active',
+           rental_status = 'Picked Up',
+           actual_pickup_datetime = ?,
+           pickup_confirmed_at = ?
+           WHERE id = ?""",
+        (now_str, now_str, booking_id)
     )
     conn.commit()
+
+    # Re-fetch booking for email
+    b_updated = conn.execute("SELECT * FROM bookings WHERE id = ?", (booking_id,)).fetchone()
     conn.close()
+
+    # Send pickup confirmation email in background thread
+    if b_updated:
+        bd = dict(b_updated)
+        camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+        bd['camera_name'] = camera.get('name', bd.get('camera_id', 'Camera'))
+        bd['actual_pickup_datetime'] = now_str
+
+        # Parse accessories
+        accessories = []
+        if bd.get('accessories_json'):
+            try:
+                accessories = _json.loads(bd['accessories_json'])
+            except Exception:
+                pass
+        bd['accessories'] = accessories
+
+        # Calculate days
+        try:
+            sd = datetime.strptime(bd['start_date'], '%Y-%m-%d')
+            ed = datetime.strptime(bd['end_date'], '%Y-%m-%d')
+            bd['days'] = max((ed - sd).days, 1)
+        except Exception:
+            bd['days'] = 1
+
+        # Calculate return deadline display
+        try:
+            pickup_dt = datetime.strptime(now_str, '%Y-%m-%d %H:%M:%S')
+            return_deadline_dt = pickup_dt + timedelta(days=bd['days'])
+            bd['return_deadline_display'] = return_deadline_dt.strftime('%d %b %Y (%A) by 11:00 PM')
+        except Exception:
+            bd['return_deadline_display'] = f"{bd.get('end_date', '')} by 11:00 PM"
+
+        def _send_pickup_email(booking_dict):
+            try:
+                from email_sender import send_pickup_confirmation_email
+                send_pickup_confirmation_email(booking_dict)
+            except Exception as e:
+                app.logger.error(f"Pickup email error for {booking_dict.get('booking_ref')}: {e}")
+
+        import threading
+        threading.Thread(target=_send_pickup_email, args=(bd,), daemon=True).start()
+        app.logger.info(f"Pickup confirmation email queued for {bd.get('booking_ref')}")
+
     return redirect(url_for('staff_dashboard') + '?active=1')
 
 @app.route('/staff/block-dates', methods=['POST'])
