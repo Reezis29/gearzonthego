@@ -245,7 +245,7 @@
                             <label class="text-xs text-gray-500 block mb-1">Return Time</label>
                             <input type="time" id="returnTime"
                                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ booking.return_time if booking and booking.return_time else '' }}">
+                                value="{{ booking.return_time if booking and booking.return_time else '23:00' }}">
                         </div>
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Deposit (RM)</label>
