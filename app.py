@@ -1815,12 +1815,14 @@ def staff_mark_active(booking_id):
         except Exception:
             bd['days'] = 1
 
-        # Calculate return deadline display (end_date at 11:00 PM)
+        # Calculate return deadline = actual pickup time + (num_days × 24h)
         try:
-            end_dt = datetime.strptime(bd['end_date'], '%Y-%m-%d')
-            bd['return_deadline_display'] = end_dt.strftime('%d %b %Y (%A) by 11:00 PM')
+            pickup_dt_obj = datetime.strptime(now_str, '%Y-%m-%d %H:%M:%S')
+            return_deadline_dt = pickup_dt_obj + timedelta(hours=24 * bd['days'])
+            bd['return_deadline_display'] = return_deadline_dt.strftime('%d %b %Y (%A) %I:%M %p')
+            bd['return_time_for_agreement'] = return_deadline_dt.strftime('%H:%M')
         except Exception:
-            bd['return_deadline_display'] = f"{bd.get('end_date', '')} by 11:00 PM"
+            bd['return_deadline_display'] = f"{bd.get('end_date', '')} same time as pickup"
 
         def _send_pickup_email(booking_dict):
             try:
@@ -2312,14 +2314,14 @@ def api_confirm_pickup(booking_id):
         except Exception:
             bd['days'] = 1
 
-        # Calculate return deadline display
+        # Calculate return deadline = actual pickup time + (num_days × 24h)
         try:
-            from datetime import timedelta
             pickup_dt = datetime.strptime(now_str, '%Y-%m-%d %H:%M:%S')
-            return_deadline_dt = pickup_dt + timedelta(days=bd['days'])
-            bd['return_deadline_display'] = return_deadline_dt.strftime('%d %b %Y (%A) by 11:00 PM')
+            return_deadline_dt = pickup_dt + timedelta(hours=24 * bd['days'])
+            bd['return_deadline_display'] = return_deadline_dt.strftime('%d %b %Y (%A) %I:%M %p')
+            bd['return_time_for_agreement'] = return_deadline_dt.strftime('%H:%M')
         except Exception:
-            bd['return_deadline_display'] = f"{bd.get('end_date', '')} by 11:00 PM"
+            bd['return_deadline_display'] = f"{bd.get('end_date', '')} same time as pickup"
 
         def _send_pickup_email(booking_dict):
             try:
@@ -2943,8 +2945,10 @@ def _return_reminder_scheduler():
                         pickup_dt = None
 
                     if pickup_dt:
-                        return_deadline = pickup_dt + timedelta(days=num_days)
+                        # Return deadline = pickup time + (num_days × 24 hours)
+                        return_deadline = pickup_dt + timedelta(hours=24 * num_days)
                     else:
+                        # Fallback: end_date at same time as booking pickup_time, or 11:00 PM
                         return_time_str = bd.get('return_time', '') or '23:00'
                         return_deadline = _parse_return_datetime(end_date_str, return_time_str)
 
@@ -2964,7 +2968,7 @@ def _return_reminder_scheduler():
                     camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
                     bd['camera_name'] = camera.get('name', bd.get('camera_id', ''))
                     bd['return_time'] = return_deadline.strftime('%I:%M %p')
-                    bd['return_date_display'] = return_deadline.strftime('%d %b %Y, %I:%M %p')
+                    bd['return_date_display'] = return_deadline.strftime('%d %b %Y (%A), %I:%M %p')
 
                     # Send 24-hour reminder (23h to 25h before return)
                     if (bd.get('return_reminder_24h_sent') or 0) == 0 and 1380 <= minutes_until_return <= 1500:

@@ -289,7 +289,7 @@ def send_return_reminder_email(booking_data: dict) -> bool:
   .info-item .value {{ font-size: 14px; color: #1e1e1e; font-weight: 600; }}
   .deadline-box {{ background: #fef2f2; border: 2px solid #dc2626; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; text-align: center; }}
   .deadline-box .title {{ font-weight: bold; color: #991b1b; font-size: 14px; margin-bottom: 6px; }}
-  .deadline-box .deadline {{ font-size: 22px; font-weight: bold; color: #dc2626; }}
+  .deadline-box .deadline {{ font-size: 20px; font-weight: bold; color: #d97706; }}
   .warning-box {{ background: #fff7ed; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; }}
   .warning-box .title {{ font-weight: bold; color: #b45309; margin-bottom: 8px; font-size: 15px; }}
   .warning-box ul {{ margin: 0; padding-left: 20px; font-size: 13px; color: #555; }}
@@ -420,7 +420,7 @@ def send_pickup_confirmation_email(booking_data: dict) -> bool:
         end         = booking_data.get('end_date', '')
         days        = booking_data.get('days', 1)
         pickup_dt   = booking_data.get('actual_pickup_datetime', '') or booking_data.get('pickup_confirmed_at', '')
-        return_deadline = booking_data.get('return_deadline_display', f'{end} by 11:00 PM')
+        return_deadline = booking_data.get('return_deadline_display', f'{end} (same time as pickup)')
         accessories = booking_data.get('accessories', [])  # list of dicts with name, price_per_day, total
 
         # Format pickup datetime nicely
