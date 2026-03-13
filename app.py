@@ -2840,7 +2840,7 @@ def _parse_return_datetime(end_date_str, return_time_str):
 def _return_reminder_scheduler():
     """Background thread: checks every 5 minutes for active bookings.
     1. Sends 24-hour return reminder email before return deadline.
-    2. Sends 3-hour return reminder email before return deadline.
+    2. Sends 2-hour return reminder email before return deadline.
     3. Auto-marks overdue bookings."""
     _time.sleep(30)  # Wait 30s after startup before first check
     while True:
@@ -2921,8 +2921,18 @@ def _return_reminder_scheduler():
                                 f"24h return reminder sent for booking {bd.get('booking_ref')}"
                             )
 
-                    # Send 3-hour reminder (2h45m to 3h15m before return)
-                    if (bd.get('return_reminder_sent') or 0) == 0 and 165 <= minutes_until_return <= 195:
+                    # Parse accessories for reminder email
+                    import json as _json2
+                    bd_accessories = []
+                    if bd.get('accessories_json'):
+                        try:
+                            bd_accessories = _json2.loads(bd['accessories_json'])
+                        except Exception:
+                            pass
+                    bd['accessories'] = bd_accessories
+
+                    # Send 2-hour reminder (1h45m to 2h15m before return)
+                    if (bd.get('return_reminder_sent') or 0) == 0 and 105 <= minutes_until_return <= 135:
                         ok = send_return_reminder_email(bd)
                         if ok:
                             conn2 = get_db()
@@ -2933,7 +2943,7 @@ def _return_reminder_scheduler():
                             conn2.commit()
                             conn2.close()
                             app.logger.info(
-                                f"3h return reminder sent for booking {bd.get('booking_ref')} "
+                                f"2h return reminder sent for booking {bd.get('booking_ref')} "
                                 f"(return deadline: {return_deadline})"
                             )
         except Exception as e:

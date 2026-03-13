@@ -200,8 +200,8 @@ def send_booking_confirmation_email(booking_data: dict) -> bool:
 
 def send_return_reminder_email(booking_data: dict) -> bool:
     """
-    Send a 3-hour return reminder email to the customer.
-    Called when the rental return time is within 3 hours.
+    Send a 2-hour return reminder email to the customer.
+    Called when the rental return time is within 2 hours.
 
     Returns True if sent successfully, False otherwise.
     """
@@ -232,6 +232,39 @@ def send_return_reminder_email(booking_data: dict) -> bool:
         # Use the full formatted return deadline if available
         return_date_display = booking_data.get('return_date_display', f'{end} at {return_time}')
 
+        # Build accessories checklist rows
+        accessories = booking_data.get('accessories', [])
+        if not accessories and booking_data.get('accessories_json'):
+            import json as _json
+            try:
+                accessories = _json.loads(booking_data['accessories_json'])
+            except Exception:
+                accessories = []
+
+        accessories_checklist_html = ''
+        if accessories:
+            items_html = ''.join(
+                f'<li style="margin-bottom:6px;">&#x2705; <strong>{acc.get("name", "")}</strong></li>'
+                for acc in accessories
+            )
+            accessories_checklist_html = f"""
+    <div class="section-title">&#x1F9E9; Return Checklist — Accessories</div>
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:15px 20px;margin-bottom:20px;">
+      <p style="margin:0 0 8px;font-size:13px;color:#166534;font-weight:bold;">Please ensure ALL items below are returned:</p>
+      <ul style="margin:0;padding-left:20px;font-size:13px;color:#333;">
+        <li style="margin-bottom:6px;">&#x1F4F7; <strong>{camera}</strong> (main unit)</li>
+        {items_html}
+      </ul>
+    </div>"""
+        else:
+            accessories_checklist_html = f"""
+    <div class="section-title">&#x1F9E9; Return Checklist</div>
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:15px 20px;margin-bottom:20px;">
+      <ul style="margin:0;padding-left:20px;font-size:13px;color:#333;">
+        <li style="margin-bottom:6px;">&#x1F4F7; <strong>{camera}</strong> (main unit + all included accessories)</li>
+      </ul>
+    </div>"""
+
         html_content = f"""
 <!DOCTYPE html>
 <html>
@@ -244,16 +277,19 @@ def send_return_reminder_email(booking_data: dict) -> bool:
   .header {{ background: #1e1e1e; padding: 25px 30px; text-align: center; }}
   .header h1 {{ color: #FFA500; margin: 0; font-size: 24px; letter-spacing: 1px; }}
   .header p {{ color: #aaa; margin: 5px 0 0; font-size: 13px; }}
-  .badge {{ background: #f59e0b; color: white; text-align: center; padding: 12px; font-size: 18px; font-weight: bold; }}
+  .badge {{ background: #dc2626; color: white; text-align: center; padding: 12px; font-size: 18px; font-weight: bold; }}
   .body {{ padding: 30px; }}
-  .ref-box {{ background: #f8f8f8; border-left: 4px solid #f59e0b; padding: 15px 20px; margin-bottom: 25px; border-radius: 4px; }}
+  .ref-box {{ background: #f8f8f8; border-left: 4px solid #dc2626; padding: 15px 20px; margin-bottom: 25px; border-radius: 4px; }}
   .ref-box .ref {{ font-size: 22px; font-weight: bold; color: #1e1e1e; letter-spacing: 2px; }}
   .ref-box .label {{ font-size: 11px; color: #888; text-transform: uppercase; }}
-  .section-title {{ font-size: 13px; font-weight: bold; color: #f59e0b; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }}
+  .section-title {{ font-size: 13px; font-weight: bold; color: #dc2626; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }}
   .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }}
   .info-item {{ background: #f8f8f8; padding: 10px 15px; border-radius: 6px; }}
   .info-item .label {{ font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 3px; }}
   .info-item .value {{ font-size: 14px; color: #1e1e1e; font-weight: 600; }}
+  .deadline-box {{ background: #fef2f2; border: 2px solid #dc2626; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; text-align: center; }}
+  .deadline-box .title {{ font-weight: bold; color: #991b1b; font-size: 14px; margin-bottom: 6px; }}
+  .deadline-box .deadline {{ font-size: 22px; font-weight: bold; color: #dc2626; }}
   .warning-box {{ background: #fff7ed; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; }}
   .warning-box .title {{ font-weight: bold; color: #b45309; margin-bottom: 8px; font-size: 15px; }}
   .warning-box ul {{ margin: 0; padding-left: 20px; font-size: 13px; color: #555; }}
@@ -272,10 +308,10 @@ def send_return_reminder_email(booking_data: dict) -> bool:
     <h1>GEARZ ON THE GO</h1>
     <p>Camera Rental Langkawi &bull; www.gearzonthego.com</p>
   </div>
-  <div class="badge">&#x23F0; RETURN REMINDER — 3 HOURS LEFT</div>
+  <div class="badge">&#x23F0; URGENT — RETURN IN 2 HOURS!</div>
   <div class="body">
     <p style="font-size:15px; color:#333;">Hi <strong>{name}</strong>,</p>
-    <p style="font-size:14px; color:#555;">This is a friendly reminder that your camera rental is due for return in approximately <strong>3 hours</strong>. Please make sure to return the equipment on time to avoid late charges.</p>
+    <p style="font-size:14px; color:#555;">This is an urgent reminder — your camera rental is due for return in approximately <strong>2 hours</strong>. Please head back to our shop now to avoid late charges.</p>
 
     <div class="ref-box">
       <div class="label">Booking Reference</div>
@@ -290,17 +326,26 @@ def send_return_reminder_email(booking_data: dict) -> bool:
       </div>
       <div class="info-item">
         <div class="label">Return Deadline</div>
-        <div class="value" style="color:#d97706;">{return_date_display}</div>
+        <div class="value" style="color:#dc2626;">{return_date_display}</div>
       </div>
     </div>
 
+    <div class="deadline-box">
+      <div class="title">&#x1F6A8; RETURN DEADLINE</div>
+      <div class="deadline">{return_date_display}</div>
+      <p style="margin:8px 0 0;font-size:12px;color:#991b1b;">You have approximately <strong>2 hours</strong> remaining. Please return now.</p>
+    </div>
+
+    {accessories_checklist_html}
+
     <div class="warning-box">
-      <div class="title">&#x26A0;&#xFE0F; Important — Avoid Late Charges</div>
+      <div class="title">&#x26A0;&#xFE0F; Avoid Late Charges</div>
       <ul>
-        <li>Please return the equipment <strong>before the deadline</strong> to avoid late fees</li>
-        <li>Late returns will be charged at the daily rental rate per additional hour/day</li>
-        <li>Ensure all accessories and memory cards are returned together</li>
+        <li>Return the equipment <strong>before the deadline</strong> to avoid late fees</li>
+        <li>Late returns are charged at the <strong>daily rental rate per additional day</strong></li>
+        <li>Ensure <strong>all accessories</strong> listed above are returned together</li>
         <li>Equipment must be returned in the same condition as received</li>
+        <li>Your <strong>RM200 security deposit</strong> will be refunded upon safe return</li>
       </ul>
     </div>
 
@@ -314,7 +359,7 @@ def send_return_reminder_email(booking_data: dict) -> bool:
     <a href="https://wa.me/601115963866?text=Hi%2C+I+need+help+with+my+return+for+booking+{ref}" class="wa-btn">
       &#x1F4AC; Contact Us on WhatsApp
     </a>
-    <p style="font-size:12px; color:#888; text-align:center;">Thank you for choosing Gearz On The Go. We hope you captured amazing memories! 📸</p>
+    <p style="font-size:12px; color:#888; text-align:center;">Thank you for choosing Gearz On The Go. We hope you captured amazing memories! &#x1F4F8;</p>
   </div>
   <div class="footer">
     <p><a href="https://www.gearzonthego.com">www.gearzonthego.com</a> &bull; WhatsApp: +60 11-1596 3866</p>
@@ -330,12 +375,12 @@ def send_return_reminder_email(booking_data: dict) -> bool:
             to=[{"email": customer_email, "name": name}],
             sender={"email": SENDER_EMAIL, "name": SENDER_NAME},
             reply_to={"email": REPLY_TO_EMAIL, "name": REPLY_TO_NAME},
-            subject=f"⏰ Return Reminder — {ref} | Gearz On The Go",
+            subject=f"⏰ URGENT: Return Camera in 2 Hours — {ref} | Gearz On The Go",
             html_content=html_content
         )
 
         api_instance.send_transac_email(send_smtp_email)
-        logger.info(f"Return reminder email sent to {customer_email} for booking {ref}")
+        logger.info(f"2-hour return reminder email sent to {customer_email} for booking {ref}")
         return True
 
     except Exception as e:
