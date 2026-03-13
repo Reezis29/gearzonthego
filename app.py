@@ -2222,7 +2222,54 @@ def api_confirm_pickup(booking_id):
         (now_str, now_str, checklist_json, update_notes, booking_id)
     )
     conn.commit()
+
+    # Re-fetch booking after update for email
+    b_updated = conn.execute("SELECT * FROM bookings WHERE id = ?", (booking_id,)).fetchone()
     conn.close()
+
+    # Send pickup confirmation email in background thread
+    if b_updated:
+        import threading
+        bd = dict(b_updated)
+        camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+        bd['camera_name'] = camera.get('name', bd.get('camera_id', 'Camera'))
+        bd['actual_pickup_datetime'] = now_str
+
+        # Parse accessories
+        accessories = []
+        if bd.get('accessories_json'):
+            try:
+                accessories = _json.loads(bd['accessories_json'])
+            except Exception:
+                pass
+        bd['accessories'] = accessories
+
+        # Calculate days
+        try:
+            sd = datetime.strptime(bd['start_date'], '%Y-%m-%d')
+            ed = datetime.strptime(bd['end_date'], '%Y-%m-%d')
+            bd['days'] = max((ed - sd).days, 1)
+        except Exception:
+            bd['days'] = 1
+
+        # Calculate return deadline display
+        try:
+            from datetime import timedelta
+            pickup_dt = datetime.strptime(now_str, '%Y-%m-%d %H:%M:%S')
+            return_deadline_dt = pickup_dt + timedelta(days=bd['days'])
+            bd['return_deadline_display'] = return_deadline_dt.strftime('%d %b %Y (%A) by 11:00 PM')
+        except Exception:
+            bd['return_deadline_display'] = f"{bd.get('end_date', '')} by 11:00 PM"
+
+        def _send_pickup_email(booking_dict):
+            try:
+                from email_sender import send_pickup_confirmation_email
+                send_pickup_confirmation_email(booking_dict)
+            except Exception as e:
+                app.logger.error(f"Pickup email error for {booking_dict.get('booking_ref')}: {e}")
+
+        threading.Thread(target=_send_pickup_email, args=(bd,), daemon=True).start()
+        app.logger.info(f"Pickup confirmation email queued for {bd.get('booking_ref')}")
 
     return jsonify({'success': True, 'rental_status': 'Picked Up', 'pickup_confirmed_at': now_str})
 
