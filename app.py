@@ -748,10 +748,15 @@ def staff_dashboard():
     conn = get_db()
     bookings = conn.execute(
         """SELECT b.*, c.full_name as cust_name, c.phone as cust_phone2,
-                  u.label as unit_label, u.serial_number as unit_serial
+                  u.label as unit_label, u.serial_number as unit_serial,
+                  ag.id as agreement_id
            FROM bookings b
            LEFT JOIN customers c ON b.customer_id = c.id
            LEFT JOIN units u ON b.unit_id = u.id
+           LEFT JOIN agreements ag ON (
+               ag.customer_phone = b.customer_phone
+               AND ag.pickup_date = b.start_date
+           )
            ORDER BY b.start_date ASC"""
     ).fetchall()
     customers = conn.execute("SELECT id, full_name, phone FROM customers ORDER BY full_name ASC").fetchall()
