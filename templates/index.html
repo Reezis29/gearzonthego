@@ -515,6 +515,7 @@
                 <button onclick="showTab('dji-action')" id="tab-dji-action" class="tab-btn px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">DJI Camera</button>
                 <button onclick="showTab('canon')" id="tab-canon" class="tab-btn px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">Canon</button>
                 <button onclick="showTab('drone')" id="tab-drone" class="tab-btn px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">Drone</button>
+                <button onclick="showTab('point-shoot')" id="tab-point-shoot" class="tab-btn px-5 py-2 rounded-full border border-blue-600 text-blue-600 font-semibold text-sm transition">Point &amp; Shoot</button>
             </div>
 
             {% set cam_data = {
@@ -544,10 +545,13 @@
                     {'id':'dji_neo','name':'DJI Neo','badge':'Drone','badge_class':'bg-blue-100 text-blue-700','img':'dji_neo.jpg','p1':70,'p2':60,'p3':50,'p5':40},
                     {'id':'dji_neo2','name':'DJI Neo 2','badge':'New Drone','badge_class':'bg-orange-100 text-orange-700','img':'dji_neo2.jpg','p1':80,'p2':70,'p3':65,'p5':55},
                     {'id':'dji_mini4pro','name':'DJI Mini 4 Pro','badge':'Pro Drone','badge_class':'bg-yellow-100 text-yellow-700','img':'drone-mini4pro.jpg','p1':280,'p2':260,'p3':240,'p5':220}
+                ],
+                'point_shoot': [
+                    {'id':'yashica_digimate100','name':'Yashica DigiMate 100','badge':'Point & Shoot','badge_class':'bg-green-100 text-green-700','img':'yashica_digimate100.jpg','p1':25,'p2':22,'p3':19,'p5':15}
                 ]
             } %}
 
-            {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone'])] %}
+            {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone']), ('point-shoot', cam_data['point_shoot'])] %}
             <div id="tab-content-{{ tab_id }}" class="tab-content {% if tab_id == 'gopro' %}active{% endif %}">
 
                 <div class="grid grid-cols-1 md:grid-cols-{% if cams|length == 2 %}2{% else %}3{% endif %} gap-6 max-w-{% if cams|length == 2 %}3xl{% else %}5xl{% endif %} mx-auto">
@@ -599,8 +603,8 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Select Device</label>
                     <select id="avail-camera" onchange="loadBookedDates()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">-- Select Device --</option>
-                        {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone'])] %}
-                        {% set group_names = {'gopro':'GoPro','insta360':'Insta360','dji-action':'DJI Camera','canon':'Canon','drone':'Drone'} %}
+                        {% for tab_id, cams in [('gopro', cam_data['gopro']), ('insta360', cam_data['insta360']), ('dji-action', cam_data['dji']), ('canon', cam_data['canon']), ('drone', cam_data['drone']), ('point-shoot', cam_data['point_shoot'])] %}
+                        {% set group_names = {'gopro':'GoPro','insta360':'Insta360','dji-action':'DJI Camera','canon':'Canon','drone':'Drone','point-shoot':'Point & Shoot'} %}
                         <optgroup label="{{ group_names[tab_id] }}">
                             {% for cam in cams %}
                             <option value="{{ cam.id }}">{{ cam.name }}</option>
@@ -858,6 +862,7 @@
                         <li><a href="#gear" onclick="showTab('dji-action')" class="hover:text-white transition">DJI Camera</a></li>
                         <li><a href="#gear" onclick="showTab('canon')" class="hover:text-white transition">Canon Camera</a></li>
                         <li><a href="#gear" onclick="showTab('drone')" class="hover:text-white transition">Drone Rental</a></li>
+                        <li><a href="#gear" onclick="showTab('point-shoot')" class="hover:text-white transition">Point &amp; Shoot</a></li>
                         <li><a href="/accessories" class="hover:text-white transition">Accessories</a></li>
                         <li><a href="/blog" class="hover:text-white transition">Blog</a></li>
                     </ul>
