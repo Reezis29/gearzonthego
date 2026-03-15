@@ -39,7 +39,7 @@ CAMERAS = [
     {"id": "dji_action5pro", "name": "DJI Osmo Action 5 Pro",          "category": "dji",      "image": "dji_action5pro.jpg",   "prices": {"1": 85,  "2": 75,  "3": 65,  "5": 55}},
     {"id": "dji_nano",       "name": "DJI Osmo Nano",                  "category": "dji",      "image": "dji_osmo_nano.jpg",    "prices": {"1": 80,  "2": 70,  "3": 60,  "5": 50}},
     {"id": "dji_360",        "name": "DJI Osmo 360",                   "category": "dji",      "image": "dji_osmo360.jpg",      "prices": {"1": 100, "2": 90,  "3": 80,  "5": 70}},
-    {"id": "dji_mobile6",    "name": "DJI Osmo Mobile 6",              "category": "dji",      "image": "dji_osmo_mobile6.jpg", "prices": {"1": 30,  "2": 25,  "3": 20,  "5": 15}},
+    {"id": "dji_mobile6",    "name": "DJI Osmo Mobile 6",              "category": "dji",      "image": "dji_osmo_mobile6.jpg", "prices": {"1": 25,  "2": 22,  "3": 19,  "5": 15}},
     {"id": "dji_mobile7",    "name": "DJI Osmo Mobile 7",              "category": "dji",      "image": "dji_osmo_mobile7.jpg", "prices": {"1": 30,  "2": 27,  "3": 23,  "5": 20}},
     {"id": "dji_pocket3",    "name": "DJI Osmo Pocket 3",              "category": "dji",      "image": "dji_osmo_pocket3.jpg", "prices": {"1": 110, "2": None,"3": None,"5": None}},
     {"id": "canon_t100",     "name": "Canon Rebel T100",               "category": "canon",    "image": "canon_t100.jpg",       "prices": {"1": 55,  "2": 50,  "3": 45,  "5": 40}},
