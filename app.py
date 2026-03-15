@@ -47,6 +47,7 @@ CAMERAS = [
     {"id": "dji_neo",        "name": "DJI Neo",                        "category": "drone",    "image": "dji_neo.jpg",          "prices": {"1": 70,  "2": 60,  "3": 50,  "5": 40}},
     {"id": "dji_neo2",       "name": "DJI Neo 2",                      "category": "drone",    "image": "dji_neo2.jpg",         "prices": {"1": 80,  "2": 70,  "3": 65,  "5": 55}},
     {"id": "dji_mini4pro",   "name": "DJI Mini 4 Pro",                 "category": "drone",    "image": "drone-mini4pro.jpg",   "prices": {"1": 280, "2": 260, "3": 240, "5": 220}},
+    {"id": "yashica_digimate100", "name": "Yashica DigiMate 100",           "category": "compact",  "image": "yashica_digimate100.jpg", "prices": {"1": 25,  "2": 22,  "3": 19,  "5": 15}},
 ]
 CAMERA_MAP = {c["id"]: c for c in CAMERAS}
 
