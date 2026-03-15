@@ -65,6 +65,7 @@ ACCESSORIES = [
     {"id": "gopro_chest",       "name": "Chest Mount",                     "desc": "Hands-free POV chest harness for action footage.",    "badge": "POV videos",                "image": "accessories/chest_mount.jpg",      "prices": [5, 4, 3, 2],     "inventory": 2, "camera_ids": ["gopro13"],                                     "group": "GoPro"},
     {"id": "dji_dive_case",     "name": "Dive Case + Floaty",              "desc": "Waterproof housing with floaty for water sports.",    "badge": "Best for snorkeling",       "image": "accessories/dive_case_ace.jpg",    "prices": [15, 13, 11, 9],  "inventory": 2, "camera_ids": ["dji_action5pro"],                               "group": "DJI"},
     {"id": "dji_rc2_remote",    "name": "DJI RC2 Remote Controller",      "desc": "Smart remote with built-in screen for DJI drones.",  "badge": "Upgrade your control",     "image": "accessories/dji_rc2_remote.jpg",   "prices": [30, 27, 23, 20], "inventory": 2, "camera_ids": ["dji_neo", "dji_neo2"],                          "group": "DJI"},
+    {"id": "dji_mic_mini",      "name": "DJI Mic Mini (2TX + 1RX)",         "desc": "Wireless microphone set with 2 transmitters and 1 receiver for clear audio recording.", "badge": "Crystal clear audio", "image": "accessories/dji_mic_mini.jpg",      "prices": [30, 27, 23, 20], "inventory": 2, "camera_ids": ["dji_pocket3", "dji_action5pro", "dji_360", "dji_nano"], "group": "DJI"},
 ]
 ACCESSORY_MAP = {a["id"]: a for a in ACCESSORIES}
 
