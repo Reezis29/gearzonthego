@@ -2082,6 +2082,143 @@ def api_create_walkin_booking():
     }), 201
 
 
+@app.route('/api/walkin-accessory-booking', methods=['POST'])
+def api_create_walkin_accessory_booking():
+    """Create a walk-in accessories-only booking (no camera, no payment required).
+    Requires staff PIN verification.
+    Body JSON: { pin, start_date, end_date, customer_name, customer_phone,
+                 customer_email (optional), customer_ic (optional),
+                 notes (optional), accessories: [{id}] }
+    """
+    import json as _json
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
+
+    # Verify PIN
+    pin = data.get('pin', '').strip()
+    if pin != STAFF_WALKIN_PIN:
+        return jsonify({'error': 'Invalid staff PIN'}), 401
+
+    start_date = data.get('start_date', '').strip()
+    end_date   = data.get('end_date', '').strip()
+    cust_name  = data.get('customer_name', '').strip()
+    cust_phone = data.get('customer_phone', '').strip()
+    cust_email = data.get('customer_email', '').strip()
+    cust_ic    = data.get('customer_ic', '').strip()
+    notes      = data.get('notes', '').strip()
+    accessories_list = data.get('accessories', [])
+
+    if not all([start_date, end_date, cust_name, cust_phone]):
+        return jsonify({'error': 'start_date, end_date, customer_name, customer_phone are required'}), 400
+    if not accessories_list:
+        return jsonify({'error': 'At least one accessory must be selected.'}), 400
+
+    try:
+        sd = datetime.strptime(start_date, '%Y-%m-%d')
+        ed = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    if ed < sd:
+        return jsonify({'error': 'End date must be after start date'}), 400
+
+    days = (ed - sd).days
+    if days < 1:
+        days = 1
+
+    # Validate and price accessories
+    validated_accs = []
+    total = 0
+    for acc_item in accessories_list:
+        acc_id = acc_item.get('id', '')
+        acc_data = ACCESSORY_MAP.get(acc_id)
+        if acc_data:
+            ppd_acc = get_accessory_price(acc_id, days)
+            if ppd_acc is not None:
+                avail = get_accessory_availability(acc_id, start_date, end_date)
+                if avail['available_units'] <= 0:
+                    return jsonify({'error': f'{acc_data["name"]} is not available for selected dates.'}), 409
+                acc_total = ppd_acc * days
+                validated_accs.append({
+                    'id': acc_id,
+                    'name': acc_data['name'],
+                    'price_per_day': ppd_acc,
+                    'days': days,
+                    'total': acc_total
+                })
+                total += acc_total
+
+    if not validated_accs:
+        return jsonify({'error': 'No valid accessories selected.'}), 400
+
+    booking_ref = generate_booking_ref()
+    accessories_json = _json.dumps(validated_accs)
+
+    conn = get_db()
+
+    # Auto-create or find customer record
+    customer_id = None
+    if cust_name and cust_phone:
+        existing = conn.execute(
+            "SELECT id FROM customers WHERE phone = ? AND LOWER(full_name) = LOWER(?)",
+            (cust_phone, cust_name)
+        ).fetchone()
+        if existing:
+            customer_id = existing['id']
+            if cust_ic:
+                conn.execute("UPDATE customers SET id_number=? WHERE id=? AND (id_number IS NULL OR id_number='')",
+                             (cust_ic, customer_id))
+            if cust_email:
+                conn.execute("UPDATE customers SET email=? WHERE id=? AND (email IS NULL OR email='')",
+                             (cust_email, customer_id))
+        else:
+            cur = conn.execute(
+                "INSERT INTO customers (full_name, phone, email, id_number, created_at) VALUES (?, ?, ?, ?, ?)",
+                (cust_name, cust_phone, cust_email, cust_ic, now_myt().strftime('%Y-%m-%d %H:%M'))
+            )
+            customer_id = cur.lastrowid
+        conn.commit()
+
+    # Add payment_status and rental_status columns to accessory_bookings if not present
+    for col_def in [
+        'payment_status TEXT DEFAULT "Pay at Counter"',
+        'rental_status TEXT DEFAULT "Pending Pickup"',
+        'booking_type TEXT DEFAULT "ONLINE"',
+        'notes TEXT',
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE accessory_bookings ADD COLUMN {col_def}")
+            conn.commit()
+        except:
+            pass
+
+    conn.execute(
+        """INSERT INTO accessory_bookings
+           (booking_ref, start_date, end_date, customer_name, customer_phone,
+            customer_email, customer_ic, accessories_json, total_price,
+            status, deposit_amount, deposit_status, source, customer_id,
+            payment_status, rental_status, booking_type, notes)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (booking_ref, start_date, end_date, cust_name, cust_phone,
+         cust_email, cust_ic, accessories_json, total,
+         'confirmed', 0, 'N/A', 'walkin', customer_id,
+         'Pay at Counter', 'Pending Pickup', 'WALK-IN', notes)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        'success': True,
+        'booking_ref': booking_ref,
+        'total_price': total,
+        'accessories': validated_accs,
+        'days': days,
+        'booking_type': 'WALK-IN',
+        'payment_status': 'Pay at Counter',
+        'message': f'Walk-in accessory booking {booking_ref} created. Payment to be collected at counter.'
+    }), 201
+
+
 # ─── Unified Booking List (Staff) ─────────────────────────────────────────────
 
 @app.route('/staff/bookings')
