@@ -113,7 +113,9 @@
                 <!-- Camera Image -->
                 <div class="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-gray-100">
                     {% set cam = camera_map.get(b.camera_id, {}) %}
-                    {% if cam.get('image') %}
+                    {% if b.camera_id == 'ACCESSORIES_ONLY' %}
+                    <div class="w-full h-full flex items-center justify-center bg-purple-100 text-purple-500"><i class="fas fa-puzzle-piece text-2xl"></i></div>
+                    {% elif cam.get('image') %}
                     <img src="/static/{{ cam.image }}" alt="{{ cam.get('name','') }}" class="w-full h-full object-cover">
                     {% else %}
                     <div class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-camera text-2xl"></i></div>
@@ -134,7 +136,7 @@
                     </div>
                     <div class="text-xs text-gray-500 mb-1">
                         <span class="font-mono text-gray-600">{{ b.booking_ref }}</span>
-                        &bull; {{ cam.get('name', b.camera_id) }}
+                        &bull; {{ 'Accessories Rental' if b.camera_id == 'ACCESSORIES_ONLY' else cam.get('name', b.camera_id) }}
                     </div>
                     <div class="text-xs text-gray-500">
                         <i class="fas fa-calendar-alt mr-1"></i>{{ b.start_date }} → {{ b.end_date }}

@@ -2179,37 +2179,28 @@ def api_create_walkin_accessory_booking():
             customer_id = cur.lastrowid
         conn.commit()
 
-    # Add payment_status and rental_status columns to accessory_bookings if not present
-    for col_def in [
-        'payment_status TEXT DEFAULT "Pay at Counter"',
-        'rental_status TEXT DEFAULT "Pending Pickup"',
-        'booking_type TEXT DEFAULT "ONLINE"',
-        'notes TEXT',
-    ]:
-        try:
-            conn.execute(f"ALTER TABLE accessory_bookings ADD COLUMN {col_def}")
-            conn.commit()
-        except:
-            pass
-
-    conn.execute(
-        """INSERT INTO accessory_bookings
-           (booking_ref, start_date, end_date, customer_name, customer_phone,
-            customer_email, customer_ic, accessories_json, total_price,
-            status, deposit_amount, deposit_status, source, customer_id,
-            payment_status, rental_status, booking_type, notes)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-        (booking_ref, start_date, end_date, cust_name, cust_phone,
-         cust_email, cust_ic, accessories_json, total,
-         'confirmed', 100, 'unpaid', 'walkin', customer_id,
-         'Pay at Counter', 'Pending Pickup', 'WALK-IN', notes)
+    # Insert into main bookings table (same as camera walk-in) so it appears in staff booking list
+    # Use camera_id='ACCESSORIES_ONLY' as a sentinel value
+    cur2 = conn.execute(
+        """INSERT INTO bookings
+           (camera_id, start_date, end_date, customer_name, customer_phone,
+            notes, customer_id, booking_ref, status, deposit_amount, deposit_status,
+            total_price, price_per_day, source, customer_email, customer_ic,
+            booking_mode, booking_type, payment_status, rental_status, accessories_json)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        ('ACCESSORIES_ONLY', start_date, end_date, cust_name, cust_phone,
+         notes, customer_id, booking_ref, 'confirmed', 100, 'unpaid',
+         total, 0, 'walkin', cust_email, cust_ic,
+         'walkin', 'WALK-IN', 'Pay at Counter', 'Pending Pickup', accessories_json)
     )
+    booking_id = cur2.lastrowid
     conn.commit()
     conn.close()
 
     return jsonify({
         'success': True,
         'booking_ref': booking_ref,
+        'booking_id': booking_id,
         'total_price': total,
         'accessories': validated_accs,
         'days': days,
@@ -2341,9 +2332,13 @@ def staff_booking_detail(booking_id):
         except Exception:
             pass
 
-    camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
-    bd['camera_name'] = camera.get('name', bd.get('camera_id', ''))
-    bd['camera_image'] = camera.get('image', '')
+    if bd.get('camera_id') == 'ACCESSORIES_ONLY':
+        bd['camera_name'] = 'Accessories Rental'
+        bd['camera_image'] = 'accessories/selfie_stick_1m.jpg'
+    else:
+        camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+        bd['camera_name'] = camera.get('name', bd.get('camera_id', ''))
+        bd['camera_image'] = camera.get('image', '')
     try:
         bd['days'] = max((datetime.strptime(bd['end_date'], '%Y-%m-%d') - datetime.strptime(bd['start_date'], '%Y-%m-%d')).days, 1)
     except Exception:
@@ -2900,13 +2895,17 @@ def booking_confirmation(booking_ref):
     b = conn.execute("SELECT * FROM bookings WHERE booking_ref = ?", (booking_ref,)).fetchone()
     is_accessory_booking = False
     if not b:
-        # Check accessory_bookings table
+        # Check accessory_bookings table (legacy online accessory bookings)
         b = conn.execute("SELECT * FROM accessory_bookings WHERE booking_ref = ?", (booking_ref,)).fetchone()
         is_accessory_booking = True if b else False
     conn.close()
     if not b:
         abort(404)
     bd = dict(b)
+
+    # Also detect accessories-only walk-in bookings stored in main bookings table
+    if bd.get('camera_id') == 'ACCESSORIES_ONLY':
+        is_accessory_booking = True
 
     if is_accessory_booking:
         bd['camera_name'] = 'Accessories Rental'

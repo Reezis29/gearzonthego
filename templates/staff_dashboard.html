@@ -376,7 +376,7 @@
                         <a href="/staff/bookings/{{ b.id }}" class="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition border border-orange-100">
                             <div>
                                 <div class="font-semibold text-gray-800 text-sm">{{ b.cust_name or b.customer_name or '—' }}</div>
-                                <div class="text-xs text-gray-500">{{ camera_map.get(b.camera_id, {}).get('name', b.camera_id) }} &bull; {{ b.booking_ref }}</div>
+                                <div class="text-xs text-gray-500">{{ 'Accessories Rental' if b.camera_id == 'ACCESSORIES_ONLY' else camera_map.get(b.camera_id, {}).get('name', b.camera_id) }} &bull; {{ b.booking_ref }}</div>
                             </div>
                             <div class="flex items-center gap-2">
                                 {% set phone_clean = (b.cust_phone2 or b.customer_phone or '').replace('+','').replace(' ','').replace('-','') %}
@@ -408,7 +408,7 @@
                         <a href="/staff/bookings/{{ b.id }}" class="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition border border-red-100">
                             <div>
                                 <div class="font-semibold text-gray-800 text-sm">{{ b.cust_name or b.customer_name or '—' }}</div>
-                                <div class="text-xs text-gray-500">{{ camera_map.get(b.camera_id, {}).get('name', b.camera_id) }} &bull; Due: {{ b.end_date }} &bull; {{ b.booking_ref }}</div>
+                                <div class="text-xs text-gray-500">{{ 'Accessories Rental' if b.camera_id == 'ACCESSORIES_ONLY' else camera_map.get(b.camera_id, {}).get('name', b.camera_id) }} &bull; Due: {{ b.end_date }} &bull; {{ b.booking_ref }}</div>
                             </div>
                             <div class="flex items-center gap-2">
                                 {% set phone_clean = (b.cust_phone2 or b.customer_phone or '').replace('+','').replace(' ','').replace('-','') %}
@@ -448,13 +448,15 @@
                         <div class="booking-card border border-gray-200 rounded-xl p-4" data-status="{{ bstatus }}">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    {% if b['camera_id'] in camera_map %}
+                                    {% if b['camera_id'] == 'ACCESSORIES_ONLY' %}
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-purple-100 text-purple-500"><i class="fas fa-puzzle-piece text-xl"></i></div>
+                                    {% elif b['camera_id'] in camera_map %}
                                     <img src="/static/{{ camera_map[b['camera_id']]['image'] }}"
                                         class="w-12 h-12 object-contain rounded-lg bg-gray-50 p-1" alt="">
                                     {% endif %}
                                     <div>
                                         <div class="font-bold text-gray-800 text-sm">
-                                            {{ camera_map[b['camera_id']]['name'] if b['camera_id'] in camera_map else b['camera_id'] }}
+                                            {% if b['camera_id'] == 'ACCESSORIES_ONLY' %}Accessories Rental{% elif b['camera_id'] in camera_map %}{{ camera_map[b['camera_id']]['name'] }}{% else %}{{ b['camera_id'] }}{% endif %}
                                         </div>
                                         <div class="text-xs text-blue-600 font-semibold mt-0.5">
                                             <i class="fas fa-calendar mr-1"></i>{{ b['start_date'] }}{% if b['pickup_time'] %} <span class="text-indigo-600">{{ b['pickup_time'] }}</span>{% endif %} → {{ b['end_date'] }}{% if b['return_time'] %} <span class="text-red-500">{{ b['return_time'] }}</span>{% endif %}
@@ -557,7 +559,7 @@
                                     {% if b['customer_phone'] %}
                                     {% set bd = dict(b) %}
                                     {% set cam = camera_map.get(b['camera_id'], {}) %}
-                                    {% set cam_name = cam.get('name', b['camera_id']) %}
+                                    {% set cam_name = 'Accessories Rental' if b['camera_id'] == 'ACCESSORIES_ONLY' else cam.get('name', b['camera_id']) %}
                                     {% if bstatus == 'pending' %}
                                     <a href="{{ wa.admin_remind_payment(bd, cam_name) }}" target="_blank"
                                         class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1.5 rounded-lg text-xs font-semibold transition" title="WhatsApp: Remind deposit payment">
