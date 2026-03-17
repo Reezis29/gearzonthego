@@ -161,7 +161,7 @@
             <div class="icon">✅</div>
             <h2>BOOKING CONFIRMED</h2>
             {% if booking.get('booking_type') == 'WALK-IN' %}
-            <p>Walk-in booking confirmed. Please pay the full rental amount and RM200 refundable security deposit at pickup.</p>
+            <p>Walk-in booking confirmed. Please pay the full rental amount and {% if is_accessory_booking %}RM100{% else %}RM200{% endif %} refundable security deposit at pickup.</p>
             {% else %}
             <p>Your camera has been reserved. Please pay the remaining rental and RM200 refundable security deposit at pickup.</p>
             {% endif %}
@@ -405,6 +405,7 @@
                     <div class="step">
                         <div class="step-num">4</div>
                         <div class="step-text"><strong>Pick up your camera</strong> and pay remaining rental + RM200 deposit at our outlet</div>
+                        {# Note: for accessories bookings this step is not shown as they are walk-in confirmed #}
                     </div>
                 </div>
             </div>
@@ -424,8 +425,13 @@
         <div class="pickup-payment-notice">
             <h4>🏪 Remaining Payment at Pickup</h4>
             <div class="notice-text">
+                {% if is_accessory_booking %}
+                Please bring the rental payment and <strong>RM100 refundable security deposit</strong> when you come to pick up your camera accessories.<br><br>
+                The RM100 deposit will be returned to you after the camera accessories are safely returned in good condition.
+                {% else %}
                 Please bring the remaining rental payment and <strong>RM200 refundable security deposit</strong> when you come to pick up your camera.<br><br>
                 The RM200 deposit will be returned to you after the camera is safely returned in good condition.
+                {% endif %}
             </div>
         </div>
 
