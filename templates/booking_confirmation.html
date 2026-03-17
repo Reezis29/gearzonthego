@@ -278,9 +278,16 @@
                     🔒 RM200 refundable security deposit will be collected at pickup and returned after the camera is safely returned in good condition.
                 </div>
                 {% else %}
+                <div class="pickup-row">
+                    <span class="item">Refundable Security Deposit</span>
+                    <span class="val">RM100</span>
+                </div>
                 <div class="pickup-row" style="font-weight:700;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:4px;">
                     <span class="item">Grand Total at Counter</span>
-                    <span class="val" style="color:#1e3a5f;">RM{{ '%.0f' % (booking.total_price or 0) }}</span>
+                    <span class="val" style="color:#1e3a5f;">RM{{ '%.0f' % ((booking.total_price or 0) + 100) }}</span>
+                </div>
+                <div class="pickup-deposit-note">
+                    🔒 RM100 refundable security deposit will be collected at pickup and returned after the accessories are safely returned in good condition.
                 </div>
                 {% endif %}
             </div>

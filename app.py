@@ -2201,7 +2201,7 @@ def api_create_walkin_accessory_booking():
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (booking_ref, start_date, end_date, cust_name, cust_phone,
          cust_email, cust_ic, accessories_json, total,
-         'confirmed', 0, 'N/A', 'walkin', customer_id,
+         'confirmed', 100, 'unpaid', 'walkin', customer_id,
          'Pay at Counter', 'Pending Pickup', 'WALK-IN', notes)
     )
     conn.commit()
