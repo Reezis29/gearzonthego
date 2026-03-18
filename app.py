@@ -1221,8 +1221,16 @@ def agreement_new():
                     pass
 
             is_acc_only = b_dict.get('camera_id') == 'ACCESSORIES_ONLY'
+            cam_name = 'Accessories Rental' if is_acc_only else cam.get('name', b_dict['camera_id'])
+
+            # Build dynamic equipment list: camera first (if not accessories-only), then accessories
+            dynamic_equipment = []
+            if not is_acc_only and cam_name:
+                dynamic_equipment.append(cam_name)
+            dynamic_equipment.extend(booked_accessories)
+
             booking = {
-                'camera_name': 'Accessories Rental' if is_acc_only else cam.get('name', b_dict['camera_id']),
+                'camera_name': cam_name,
                 'start_date': b_dict['start_date'],
                 'end_date': b_dict['end_date'],
                 'pickup_time': b_dict.get('pickup_time', '') or '',
@@ -1230,7 +1238,7 @@ def agreement_new():
                 'customer_name': b_dict['customer_name'] or '',
                 'customer_phone': b_dict['customer_phone'] or '',
                 'ic_number': ic_number,
-                'booked_accessories': booked_accessories,
+                'booked_accessories': dynamic_equipment,
                 'is_acc_only': is_acc_only
             }
         conn.close()
