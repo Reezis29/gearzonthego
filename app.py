@@ -1210,15 +1210,28 @@ def agreement_new():
                 cust = conn.execute("SELECT id_number FROM customers WHERE id = ?", (b_dict['customer_id'],)).fetchone()
                 if cust and cust['id_number']:
                     ic_number = cust['id_number']
+            # Parse accessories from accessories_json
+            import json as _json
+            booked_accessories = []
+            if b_dict.get('accessories_json'):
+                try:
+                    acc_list = _json.loads(b_dict['accessories_json'])
+                    booked_accessories = [a.get('name', '') for a in acc_list if a.get('name')]
+                except Exception:
+                    pass
+
+            is_acc_only = b_dict.get('camera_id') == 'ACCESSORIES_ONLY'
             booking = {
-                'camera_name': cam.get('name', b_dict['camera_id']),
+                'camera_name': 'Accessories Rental' if is_acc_only else cam.get('name', b_dict['camera_id']),
                 'start_date': b_dict['start_date'],
                 'end_date': b_dict['end_date'],
                 'pickup_time': b_dict.get('pickup_time', '') or '',
                 'return_time': b_dict.get('return_time', '') or '',
                 'customer_name': b_dict['customer_name'] or '',
                 'customer_phone': b_dict['customer_phone'] or '',
-                'ic_number': ic_number
+                'ic_number': ic_number,
+                'booked_accessories': booked_accessories,
+                'is_acc_only': is_acc_only
             }
         conn.close()
     else:

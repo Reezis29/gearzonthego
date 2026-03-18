@@ -323,6 +323,22 @@
             <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <i class="fas fa-list-check text-blue-600"></i> Equipment Handed Over
             </h3>
+
+            {% if booking and booking.get('booked_accessories') %}
+            <!-- Auto-populated from booking: booked accessories are pre-checked -->
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-2 mb-3 text-xs text-purple-700">
+                <i class="fas fa-info-circle mr-1"></i>
+                Items below are auto-filled from the booking. Tick to confirm handover.
+            </div>
+            <div id="dynamic-checklist" class="grid grid-cols-2 gap-2 text-sm mb-3">
+                {% for acc_name in booking.booked_accessories %}
+                <label class="flex items-center gap-2 p-2 rounded-lg bg-purple-50 border border-purple-200 cursor-pointer">
+                    <input type="checkbox" class="dynamic-chk w-4 h-4 accent-purple-600" data-name="{{ acc_name }}" checked> {{ acc_name }}
+                </label>
+                {% endfor %}
+            </div>
+            <!-- Additional standard items (unticked by default) -->
+            <p class="text-xs text-gray-400 mb-2">Additional items (if applicable):</p>
             <div class="grid grid-cols-2 gap-2 text-sm">
                 <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input type="checkbox" id="chk_camera" class="w-4 h-4 accent-blue-600"> Camera
@@ -349,6 +365,36 @@
                     <input type="checkbox" id="chk_charger" class="w-4 h-4 accent-blue-600"> Charger / Cable
                 </label>
             </div>
+
+            {% else %}
+            <!-- Standard checklist (no booking data) -->
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_camera" class="w-4 h-4 accent-blue-600"> Camera
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_selfie" class="w-4 h-4 accent-blue-600"> Selfie Stick
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_sd64" class="w-4 h-4 accent-blue-600"> Memory Card 64GB
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_sd128" class="w-4 h-4 accent-blue-600"> Memory Card 128GB
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_case" class="w-4 h-4 accent-blue-600"> Waterproof Case
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_battery" class="w-4 h-4 accent-blue-600"> Extra Battery
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_bobber" class="w-4 h-4 accent-blue-600"> Bobber Float
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="checkbox" id="chk_charger" class="w-4 h-4 accent-blue-600"> Charger / Cable
+                </label>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Signature -->
@@ -495,16 +541,21 @@
         if (!hasSig) return showError('Please sign in the signature area.');
         if (!confirm) return showError('Please tick the terms & conditions confirmation box.');
 
-        // Collect accessories
+        // Collect accessories — dynamic booked items first, then standard items
         const accessories = [];
-        if (document.getElementById('chk_camera').checked)  accessories.push('Camera');
-        if (document.getElementById('chk_selfie').checked)  accessories.push('Selfie Stick');
-        if (document.getElementById('chk_sd64').checked)    accessories.push('Memory Card 64GB');
-        if (document.getElementById('chk_sd128').checked)   accessories.push('Memory Card 128GB');
-        if (document.getElementById('chk_case').checked)    accessories.push('Waterproof Case');
-        if (document.getElementById('chk_battery').checked) accessories.push('Extra Battery');
-        if (document.getElementById('chk_bobber').checked)  accessories.push('Bobber Float');
-        if (document.getElementById('chk_charger').checked) accessories.push('Charger/Cable');
+        // Dynamic items (auto-populated from booking)
+        document.querySelectorAll('.dynamic-chk:checked').forEach(chk => {
+            accessories.push(chk.dataset.name);
+        });
+        // Standard items
+        if (document.getElementById('chk_camera') && document.getElementById('chk_camera').checked)  accessories.push('Camera');
+        if (document.getElementById('chk_selfie') && document.getElementById('chk_selfie').checked)  accessories.push('Selfie Stick');
+        if (document.getElementById('chk_sd64') && document.getElementById('chk_sd64').checked)    accessories.push('Memory Card 64GB');
+        if (document.getElementById('chk_sd128') && document.getElementById('chk_sd128').checked)   accessories.push('Memory Card 128GB');
+        if (document.getElementById('chk_case') && document.getElementById('chk_case').checked)    accessories.push('Waterproof Case');
+        if (document.getElementById('chk_battery') && document.getElementById('chk_battery').checked) accessories.push('Extra Battery');
+        if (document.getElementById('chk_bobber') && document.getElementById('chk_bobber').checked)  accessories.push('Bobber Float');
+        if (document.getElementById('chk_charger') && document.getElementById('chk_charger').checked) accessories.push('Charger/Cable');
 
         const sigData = canvas.toDataURL('image/png');
 
