@@ -45,7 +45,7 @@ CAMERAS = [
     {"id": "canon_t100",     "name": "Canon Rebel T100",               "category": "canon",    "image": "canon_t100.jpg",       "prices": {"1": 55,  "2": 50,  "3": 45,  "5": 40}},
     {"id": "canon_r50",      "name": "Canon R50",                      "category": "canon",    "image": "canon_r50.jpg",        "prices": {"1": 85,  "2": 75,  "3": 65,  "5": 55}},
     {"id": "canon_r7_rfs",   "name": "Canon EOS R7 + RF-S 18-45mm",   "category": "canon",    "image": "canon_r7_rfs1845.jpg",  "prices": {"1": 160, "2": 145, "3": 130, "5": 110}},
-    {"id": "canon_r7",       "name": "Canon EOS R7 + Sigma 150-600C",  "category": "canon",    "image": "canon_r7.jpg",         "prices": {"1": 320, "2": 300, "3": 280, "5": 260}},
+    {"id": "canon_r7",       "name": "Canon EOS R7 + Sigma 150-600C (Sport & Bird Photography)",  "category": "canon",    "image": "canon_r7_sigma.png",   "prices": {"1": 320, "2": 300, "3": 280, "5": 260}},
     {"id": "dji_neo",        "name": "DJI Neo",                        "category": "drone",    "image": "dji_neo.jpg",          "prices": {"1": 70,  "2": 60,  "3": 50,  "5": 40}},
     {"id": "dji_neo2",       "name": "DJI Neo 2",                      "category": "drone",    "image": "dji_neo2.jpg",         "prices": {"1": 80,  "2": 70,  "3": 65,  "5": 55}},
     {"id": "dji_mini4pro",   "name": "DJI Mini 4 Pro",                 "category": "drone",    "image": "drone-mini4pro.jpg",   "prices": {"1": 280, "2": 260, "3": 240, "5": 220}},
