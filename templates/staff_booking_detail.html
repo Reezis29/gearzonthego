@@ -305,6 +305,20 @@
         </div>
     </div>
 
+    <!-- Edit Order Section (only for Pending Pickup / Confirmed) -->
+    {% if rs in ['Pending Pickup'] and booking.status in ['confirmed', 'active'] %}
+    <div class="section-card border-2 border-purple-200 bg-purple-50">
+        <h3 class="font-bold text-purple-800 text-sm mb-3 flex items-center gap-2">
+            <i class="fas fa-edit text-purple-600"></i> Edit Order
+            <span class="text-xs text-purple-600 font-normal">(add accessories or update details)</span>
+        </h3>
+        <p class="text-sm text-purple-700 mb-3">Customer wants to add items or change booking details? Edit the order before confirming pickup.</p>
+        <button onclick="openEditModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+            <i class="fas fa-edit"></i> Edit This Order
+        </button>
+    </div>
+    {% endif %}
+
     <!-- Quick Links -->
     <div class="section-card">
         <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-external-link-alt mr-2 text-gray-400"></i>Quick Links</h3>
@@ -462,6 +476,244 @@
             btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Confirm Return — Equipment Received';
         }
     }
+
+    // ── Edit Order Modal ───────────────────────────────────────────────────────
+    const ACCESSORIES = {{ accessories_list | tojson }};
+    const currentCameraId = '{{ booking.camera_id }}';
+    const currentAccessories = {{ booking.accessories | tojson }};
+    let editAccessories = JSON.parse(JSON.stringify(currentAccessories));
+
+    function openEditModal() {
+        // Populate current accessories
+        renderEditAccessories();
+        // Populate available add-ons for this camera
+        renderAvailableAddons();
+        // Populate customer fields
+        document.getElementById('edit-name').value = '{{ booking.customer_name or booking.cust_name or "" }}';
+        document.getElementById('edit-phone').value = '{{ booking.customer_phone or booking.cust_phone2 or "" }}';
+        document.getElementById('edit-email').value = '{{ booking.customer_email or booking.cust_email2 or "" }}';
+        document.getElementById('edit-notes').value = '{{ booking.notes or "" }}';
+        document.getElementById('edit-start').value = '{{ booking.start_date }}';
+        document.getElementById('edit-end').value = '{{ booking.end_date }}';
+        document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    function getDays() {
+        const s = document.getElementById('edit-start').value;
+        const e = document.getElementById('edit-end').value;
+        if (!s || !e) return 1;
+        const diff = (new Date(e) - new Date(s)) / (1000*60*60*24);
+        return Math.max(diff, 1);
+    }
+
+    function getAccPrice(acc, days) {
+        const prices = acc.prices || [];
+        if (days >= 5) return prices[3] || prices[0];
+        if (days >= 3) return prices[2] || prices[0];
+        if (days >= 2) return prices[1] || prices[0];
+        return prices[0] || 0;
+    }
+
+    function renderEditAccessories() {
+        const days = getDays();
+        const container = document.getElementById('edit-acc-list');
+        container.innerHTML = '';
+        if (editAccessories.length === 0) {
+            container.innerHTML = '<p class="text-xs text-gray-400 italic">No accessories added yet.</p>';
+            return;
+        }
+        editAccessories.forEach((acc, idx) => {
+            const ppd = getAccPrice(acc, days);
+            const total = ppd * days;
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2 mb-2';
+            div.innerHTML = `<div class="flex-1"><div class="text-sm font-semibold text-gray-800">${acc.name}</div><div class="text-xs text-gray-500">RM${ppd}/day × ${days} days = <strong>RM${total}</strong></div></div><button onclick="removeEditAcc(${idx})" class="text-red-400 hover:text-red-600 ml-2"><i class="fas fa-times"></i></button>`;
+            container.appendChild(div);
+        });
+        updateEditTotal();
+    }
+
+    function removeEditAcc(idx) {
+        editAccessories.splice(idx, 1);
+        renderEditAccessories();
+        renderAvailableAddons();
+    }
+
+    function renderAvailableAddons() {
+        const days = getDays();
+        const container = document.getElementById('edit-addon-list');
+        container.innerHTML = '';
+        const currentIds = editAccessories.map(a => a.id);
+        const available = ACCESSORIES.filter(a => {
+            if (currentIds.includes(a.id)) return false;
+            if (currentCameraId === 'ACCESSORIES_ONLY') return true;
+            return !a.camera_ids || a.camera_ids.length === 0 || a.camera_ids.includes(currentCameraId);
+        });
+        if (available.length === 0) {
+            container.innerHTML = '<p class="text-xs text-gray-400 italic">No more accessories available for this camera.</p>';
+            return;
+        }
+        available.forEach(acc => {
+            const ppd = getAccPrice(acc, days);
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-2 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition';
+            div.innerHTML = `<div class="flex-1"><div class="text-sm font-semibold text-gray-800">${acc.name}</div><div class="text-xs text-gray-500">RM${ppd}/day</div></div><button onclick="addEditAcc('${acc.id}')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition"><i class="fas fa-plus mr-1"></i>Add</button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function addEditAcc(accId) {
+        const acc = ACCESSORIES.find(a => a.id === accId);
+        if (!acc) return;
+        const days = getDays();
+        const ppd = getAccPrice(acc, days);
+        editAccessories.push({ id: acc.id, name: acc.name, prices: acc.prices, price_per_day: ppd, days: days, total: ppd * days });
+        renderEditAccessories();
+        renderAvailableAddons();
+    }
+
+    function updateEditTotal() {
+        const days = getDays();
+        let accTotal = 0;
+        editAccessories.forEach(acc => {
+            accTotal += getAccPrice(acc, days) * days;
+        });
+        document.getElementById('edit-acc-total').textContent = 'RM' + accTotal;
+    }
+
+    document.getElementById('edit-start')?.addEventListener('change', () => { renderEditAccessories(); renderAvailableAddons(); });
+    document.getElementById('edit-end')?.addEventListener('change', () => { renderEditAccessories(); renderAvailableAddons(); });
+
+    async function saveEditOrder() {
+        const btn = document.getElementById('edit-save-btn');
+        const msg = document.getElementById('edit-msg');
+        const days = getDays();
+        const updatedAccs = editAccessories.map(acc => ({
+            id: acc.id, name: acc.name, prices: acc.prices,
+            price_per_day: getAccPrice(acc, days),
+            days: days,
+            total: getAccPrice(acc, days) * days
+        }));
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
+        try {
+            const res = await fetch(`/api/booking/${bookingId}/edit-order`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    start_date: document.getElementById('edit-start').value,
+                    end_date: document.getElementById('edit-end').value,
+                    customer_name: document.getElementById('edit-name').value,
+                    customer_phone: document.getElementById('edit-phone').value,
+                    customer_email: document.getElementById('edit-email').value,
+                    notes: document.getElementById('edit-notes').value,
+                    accessories: updatedAccs
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                msg.textContent = '✓ Order updated successfully! Refreshing...';
+                msg.className = 'text-center text-sm mt-2 text-green-700 font-semibold';
+                msg.classList.remove('hidden');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                msg.textContent = data.error || 'Error saving changes.';
+                msg.className = 'text-center text-sm mt-2 text-red-600';
+                msg.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Changes';
+            }
+        } catch(e) {
+            msg.textContent = 'Connection error. Please try again.';
+            msg.className = 'text-center text-sm mt-2 text-red-600';
+            msg.classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Changes';
+        }
+    }
 </script>
+
+<!-- Edit Order Modal -->
+<div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center">
+    <div class="bg-white w-full max-w-2xl rounded-t-2xl max-h-screen overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between z-10">
+            <div>
+                <h2 class="font-bold text-gray-800 text-base"><i class="fas fa-edit text-purple-600 mr-2"></i>Edit Order</h2>
+                <p class="text-xs text-gray-500">{{ booking.booking_ref }}</p>
+            </div>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-5 py-4 space-y-5">
+
+            <!-- Dates -->
+            <div>
+                <h3 class="font-semibold text-gray-700 text-sm mb-2"><i class="fas fa-calendar mr-2 text-blue-500"></i>Rental Dates</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Pickup Date</label>
+                        <input type="date" id="edit-start" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Return Date</label>
+                        <input type="date" id="edit-end" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Accessories -->
+            <div>
+                <h3 class="font-semibold text-gray-700 text-sm mb-2"><i class="fas fa-puzzle-piece mr-2 text-purple-500"></i>Current Add-Ons</h3>
+                <div id="edit-acc-list"></div>
+                <div class="text-right text-sm font-bold text-purple-700 mt-1">Add-Ons Total: <span id="edit-acc-total">RM0</span></div>
+            </div>
+
+            <!-- Available Add-Ons -->
+            <div>
+                <h3 class="font-semibold text-gray-700 text-sm mb-2"><i class="fas fa-plus-circle mr-2 text-green-500"></i>Add More Accessories</h3>
+                <div id="edit-addon-list"></div>
+            </div>
+
+            <!-- Customer Info -->
+            <div>
+                <h3 class="font-semibold text-gray-700 text-sm mb-2"><i class="fas fa-user mr-2 text-green-500"></i>Customer Details</h3>
+                <div class="space-y-2">
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Full Name</label>
+                        <input type="text" id="edit-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Full name">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Phone</label>
+                            <input type="text" id="edit-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Phone">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Email</label>
+                            <input type="text" id="edit-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Email">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Notes</label>
+                        <textarea id="edit-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Any notes..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <p id="edit-msg" class="hidden text-center text-sm"></p>
+
+            <div class="pb-6">
+                <button id="edit-save-btn" onclick="saveEditOrder()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

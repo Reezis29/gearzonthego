@@ -2376,7 +2376,8 @@ def staff_booking_detail(booking_id):
     return render_template('staff_booking_detail.html',
                            booking=bd,
                            camera_map=CAMERA_MAP,
-                           default_checklist=default_checklist)
+                           default_checklist=default_checklist,
+                           accessories_list=ACCESSORIES)
 
 
 def _generate_checklist(camera_id, accessories):
@@ -2416,6 +2417,81 @@ def _generate_checklist(camera_id, accessories):
         items.append({'item': acc.get('name', ''), 'checked': False})
 
     return items
+
+
+@app.route('/api/booking/<int:booking_id>/edit-order', methods=['POST'])
+@login_required
+def api_edit_order(booking_id):
+    """Staff edits a booking — update accessories, dates, customer info.
+    Body JSON: { start_date, end_date, customer_name, customer_phone, customer_email, notes, accessories }
+    """
+    import json as _json
+    data = request.get_json() or {}
+    conn = get_db()
+    try:
+        b = conn.execute('SELECT * FROM bookings WHERE id = ?', (booking_id,)).fetchone()
+        if not b:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Booking not found'}), 404
+
+        bd = dict(b)
+        # Only allow editing if booking is Pending Pickup
+        if bd.get('rental_status') not in ['Pending Pickup', None, '']:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Can only edit bookings that are Pending Pickup'}), 400
+
+        start_date   = data.get('start_date', bd['start_date'])
+        end_date     = data.get('end_date', bd['end_date'])
+        cust_name    = data.get('customer_name', bd.get('customer_name', ''))
+        cust_phone   = data.get('customer_phone', bd.get('customer_phone', ''))
+        cust_email   = data.get('customer_email', bd.get('customer_email', ''))
+        notes        = data.get('notes', bd.get('notes', ''))
+        accessories  = data.get('accessories', [])
+
+        # Recalculate total price
+        try:
+            days = max((datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days, 1)
+        except Exception:
+            days = 1
+
+        # Camera base price
+        camera = CAMERA_MAP.get(bd.get('camera_id', ''), {})
+        cam_prices = camera.get('prices', {})
+        if days >= 5:
+            cam_ppd = cam_prices.get('5') or cam_prices.get('3') or cam_prices.get('2') or cam_prices.get('1') or 0
+        elif days >= 3:
+            cam_ppd = cam_prices.get('3') or cam_prices.get('2') or cam_prices.get('1') or 0
+        elif days >= 2:
+            cam_ppd = cam_prices.get('2') or cam_prices.get('1') or 0
+        else:
+            cam_ppd = cam_prices.get('1') or 0
+
+        cam_total = (cam_ppd or 0) * days if bd.get('camera_id') != 'ACCESSORIES_ONLY' else 0
+
+        # Accessories total
+        acc_total = 0
+        for acc in accessories:
+            acc_total += acc.get('price_per_day', 0) * days
+
+        total_price = cam_total + acc_total
+        accessories_json = _json.dumps(accessories) if accessories else None
+
+        conn.execute(
+            '''UPDATE bookings SET
+               start_date = ?, end_date = ?,
+               customer_name = ?, customer_phone = ?, customer_email = ?,
+               notes = ?, accessories_json = ?, total_price = ?,
+               price_per_day = ?
+               WHERE id = ?''',
+            (start_date, end_date, cust_name, cust_phone, cust_email,
+             notes, accessories_json, total_price, cam_ppd, booking_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'total_price': total_price})
+    except Exception as ex:
+        conn.close()
+        return jsonify({'success': False, 'error': str(ex)}), 500
 
 
 @app.route('/api/booking/<int:booking_id>/confirm-pickup', methods=['POST'])
