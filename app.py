@@ -42,6 +42,7 @@ CAMERAS = [
     {"id": "dji_mobile6",    "name": "DJI Osmo Mobile 6",              "category": "dji",      "image": "dji_osmo_mobile6.jpg", "prices": {"1": 25,  "2": 22,  "3": 19,  "5": 15}},
     {"id": "dji_mobile7",    "name": "DJI Osmo Mobile 8",              "category": "dji",      "image": "dji_osmo_mobile8.png", "prices": {"1": 35,  "2": 31,  "3": 27,  "5": 22}},
     {"id": "dji_pocket3",    "name": "DJI Osmo Pocket 3",              "category": "dji",      "image": "dji_osmo_pocket3.jpg", "prices": {"1": 110, "2": 100,"3": 90,"5": 80}},
+    {"id": "dji_pocket4",    "name": "DJI Osmo Pocket 4",              "category": "dji",      "image": "dji_osmo_pocket4.png", "prices": {"1": 125, "2": 113, "3": 100, "5": 85}},
     {"id": "canon_t100",     "name": "Canon Rebel T100",               "category": "canon",    "image": "canon_t100.jpg",       "prices": {"1": 55,  "2": 50,  "3": 45,  "5": 40}},
     {"id": "canon_r50",      "name": "Canon R50",                      "category": "canon",    "image": "canon_r50.jpg",        "prices": {"1": 85,  "2": 75,  "3": 65,  "5": 55}},
     {"id": "canon_r7_rfs",   "name": "Canon EOS R7 + RF-S 18-45mm",   "category": "canon",    "image": "canon_r7_rfs1845.jpg",  "prices": {"1": 160, "2": 145, "3": 130, "5": 110}},
